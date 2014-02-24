@@ -1,0 +1,5 @@
+import w12
+
+testset.name=w12s
+repository.dir = /user/jeroenv/output/cws
+repository.prefix = cws

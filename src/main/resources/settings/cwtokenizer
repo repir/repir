@@ -1,0 +1,91 @@
+# CWTokenizer reads documents from a WARC archive
+# Each entity read has a 'warcheader' section, an 'all' section,
+# and their collection id already set.
+
+#the preprocess is executed before sections are identified. As some of the 
+#text processing tools used only work with ASCII, in this phase all
+#non ASCII characters must either be converted or removed. In this case
+#all tagnames are converted to lowercase, to make section matching easier.
+#in this example the tagnames are lowercased for section identification
+extractor.preprocess=
++extractor.preprocess = RemoveHtmlComment
++extractor.preprocess = ConvertTagnamesToLowercase
++extractor.preprocess = ConvertUnicodes
++extractor.preprocess = RemoveNonASCII
+
+#mark content sections <source section> <destination section> <Marker classname>
++extractor.sectionmarker = all headsection MarkHead
++extractor.sectionmarker = headsection titlesection MarkTitle
++extractor.sectionmarker = headsection metasection MarkMeta
++extractor.sectionmarker = all removesection MarkScript
++extractor.sectionmarker = all removesection MarkAudio
++extractor.sectionmarker = all removesection MarkVideo
++extractor.sectionmarker = all removesection MarkNoFrames
++extractor.sectionmarker = all removesection MarkNoScript
+
+#execute process for identified section <sectionname> <processname> <entityattribute>
+#e.g. content in the 'titlesection' is send through the 'literal' process and stored as 'literaltitle' attribute
+#if the process consists of one step, a classname can be used instead of a processname
++extractor.sectionprocess = warcheader ExtractWarcURL url
++extractor.sectionprocess = titlesection literal literaltitle
++extractor.sectionprocess = titlesection ExtractHtmlTitle
++extractor.sectionprocess = metasection ExtractHtmlMeta
++extractor.sectionprocess = removesection RemoveSection
++extractor.sectionprocess = headsection RemoveSection
++extractor.sectionprocess = all ExtractRestore
++extractor.sectionprocess = titlesection tokenize title
++extractor.sectionprocess = all tokenize all
+ 
+extractor.literal =
++extractor.literal = StoreLiteralSection
++extractor.literal = TrimLiteralTokens
+
+#definition of the process 'tokenize'
+#+extractor.tokenize = ShowContent
++extractor.tokenize = ConvertHtmlASCIICodes
++extractor.tokenize = RemoveHtmlTagsExceptAlt
++extractor.tokenize = ConvertHtmlAmpersand
++extractor.tokenize = ConvertToLowercase
++extractor.tokenize = RemoveHtmlSpecialCodes
++extractor.tokenize = ConvertWordConnections
++extractor.tokenize = ConvertDotsEntity
+#+extractor.tokenize = ShowContent
++extractor.tokenize = Tokenizer
+#+extractor.tokenize = RemoveLongNumbers
++extractor.tokenize = RemoveLargeTokens
+extractor.tokenize.removelargetokens=25
++extractor.tokenize = StemTokens
+
+#tokenizer settings
+extractor.tokenize.splittokenbefore = %[*^<{($#@,?-+&0123456789
+extractor.tokenize.splittokenafter = \~|"'`]})>/_!:;=
+extractor.tokenize.splitnumbers = true
+extractor.tokenize.leavefirst = A-Z a-z 
+extractor.tokenize.leavelast = A-Z a-z 
+
+#extractor.tokenize.removelongnumbers=5
+ 
+#definition of the process for queries
+extractor.irefquery=
++extractor.irefquery = ConvertHtmlAmpersand
++extractor.irefquery = ConvertWordConnections
++extractor.irefquery = ConvertDotsQuery
++extractor.irefquery = Tokenizer
+ 
+#tokenizer settings for queries
+extractor.irefquery.splittokenbefore = %[]*^<{}()$#@,?-+!=|&
+extractor.irefquery.splittokenafter = \~|"'`[]{}()>/_!:;=-#
+extractor.irefquery.leavefirst = A-Z a-z 0-9 !|:({[])}#=-
+extractor.irefquery.leavelast = A-Z a-z 0-9 !|:({[])}#=-
+
+#definition of the pre-processing pipeline 'ireftestset'
+#this pipeline is executed by default for queries that are
+#retrieved from a topics file, that may contain characters
+#you don't want interpreted as IREF query syntax
+extractor.ireftestset=
++extractor.ireftestset = ConvertUnicodes
++extractor.ireftestset = ConvertWordConnections
++extractor.ireftestset = RemoveQueryChars
+ 
+extractor.ireftestset.removechars=()[]{}-:+#!
+   

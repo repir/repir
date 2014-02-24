@@ -1,0 +1,7 @@
+import cw
+import cwbin
+repository.dir = /user/jeroenv/output/cwb
+repository.prefix = cwb
+repository.spamthreshold=0
+
+testset.name=w11b

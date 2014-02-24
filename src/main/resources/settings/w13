@@ -1,0 +1,15 @@
+import clustersettings
+import cw12
+
+mapred.task.timeout = 36000000
+
+import scoremodel
+
+testset.name=w13
+testset.results=/home/jeroenv/eval
+testset.topics=${iref.irefdir}adhoc/w13.201-250.topics.txt
+testset.qrels=${iref.irefdir}adhoc/w13.201-250.qrels.txt
+testset.topicreader=TrecTopicWT
+testset.qrelreader=TrecQrels
+testset.baseline=bas
+ 

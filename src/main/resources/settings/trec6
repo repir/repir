@@ -1,0 +1,11 @@
+import trec1
+repository.inputdir=
++repository.inputdir = /user/jeroenv/input/TREC_VOL_4
++repository.inputdir = /user/jeroenv/input/TREC_VOL_5
+repository.dir = /user/jeroenv/output/trec6
+repository.prefix = trec6
+
+testset.name=trec6
+testset.topics=${iref.irefdir}adhoc/topics.301-350
+testset.qrels=${iref.irefdir}adhoc/qrels.trec6.*
+ 

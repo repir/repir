@@ -1,0 +1,76 @@
+entityreader.entitystart=<DOC>
+entityreader.entityend=</DOC>
+
+#general filters that are applied before section identification                                                                
+#in this example the tagnames are lowercased for section identification
+extractor.preprocess=
++extractor.preprocess = ConvertTagnamesToLowercase
++extractor.preprocess = ConvertUnicodes
++extractor.preprocess = RemoveNonASCII
+
+#mark content sections <sectionname> <sectionstart> <sectionend>
++extractor.sectionmarker = all titlesection MarkDocTitle
++extractor.sectionmarker = all idsection MarkDocNo
++extractor.sectionmarker = all urlsection MarkDocURL
+
+#execute process for identified section <sectionname> <processname> <entityattribute>
+#e.g. content in the 'title' section is send through the 'literal' process and stored as 'literaltitle' attribute
++extractor.sectionprocess = idsection literal collectionid
++extractor.sectionprocess = titlesection literal literaltitle
++extractor.sectionprocess = urlsection literal url
++extractor.sectionprocess = idsection RemoveSection
++extractor.sectionprocess = urlsection RemoveSection
++extractor.sectionprocess = titlesection tokenize title
++extractor.sectionprocess = all tokenize all
+ 
+#definition of the process 'literal'
+extractor.literal =
++extractor.literal = StoreLiteralSection
++extractor.literal = TrimLiteralTokens
+
+#definition of the process 'tokenize'
+extractor.tokenize=
++extractor.tokenize = ConvertHtmlAmpersand
++extractor.tokenize = RemoveHtmlTags
++extractor.tokenize = ConvertToLowercase
++extractor.tokenize = RemoveHtmlSpecialCodes
++extractor.tokenize = ConvertWordConnections
++extractor.tokenize = ConvertDotsEntity
++extractor.tokenize = Tokenizer
++extractor.tokenize = RemoveLongNumbers
++extractor.tokenize = StemTokens
+
+#extractor.tokenize.removelongnumbers=5
+
+#tokenizer settings
+extractor.tokenize.splittokenbefore = %[*^<{($#@,?-+&
+extractor.tokenize.splittokenafter = \~|"'`]})>/_!:;=
+extractor.tokenize.splitnumbers = true
+extractor.tokenize.leavefirst = A-Z a-z 0-9
+extractor.tokenize.leavelast = A-Z a-z 0-9
+
+#definition of the process 'query'
+extractor.irefquery=
++extractor.irefquery = ConvertUnicodes
++extractor.irefquery = RemoveNonASCII
+#+extractor.irefquery = ConvertHtmlAmpersand
++extractor.irefquery = ConvertDotsQuery
++extractor.irefquery = ConvertWordConnections
++extractor.irefquery = Tokenizer
+
+#tokenizer settings for queries 
+extractor.irefquery.splittokenbefore = %[]{}()*^<$@,?-+!=|&
+extractor.irefquery.splittokenafter = \|"'`[]{}()>/_!:;=-
+extractor.irefquery.leavefirst = A-Z a-z 0-9 !|:({[])}#=-~
+extractor.irefquery.leavelast = A-Z a-z 0-9 !|:({[])}#=-
+  
+#definition of the pre-processing pipeline 'ireftestset'
+#this pipeline is executed by default for queries that are
+#retrieved from a topics file, that may contain characters
+#you don't want interpreted as IREF query syntax
+extractor.ireftestset=
++extractor.ireftestset = ConvertUnicodes
++extractor.ireftestset = ConvertWordConnections
++extractor.ireftestset = RemoveQueryChars
+
+extractor.ireftestset.removechars=()[]{}-:+#!

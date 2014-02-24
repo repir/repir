@@ -1,0 +1,38 @@
+import clustersettings
+import textindex
+
+cluster.maxvoccache=20000
+repository.inputdir = /user/jeroenv/input/tiny
+repository.entityreader = EntityReaderTrec
+repository.dir = /user/jeroenv/output/tiny
+repository.collectionid = DocLiteral:collectionid
++repository.feature = TermInverted:all
++repository.feature = TermInverted:title
++repository.feature = DocLiteral:literaltitle
++repository.feature = DocLiteral:url
++repository.feature = DocForward:title
++repository.feature = DocForward:all
++repository.feature = DocTF:all
++repository.feature = TermDF
++repository.feature = TermTF
+
+repository.prefix = tiny
+repository.partitions = 2
+#repository.onlypartition = 1
+vocabulary.mintf = 2
+
+import wptokenizer
+
+mapred.reduce.tasks.speculative.execution = false
+mapred.map.tasks.speculative.execution = false
+mapred.max.split.size = 10000000
+
+import scoremodel
+testset.name = tiny
+testset.results=${iref.irefdir}eval
+testset.topics=${iref.irefdir}adhoc/tiny.topics.txt
+testset.qrels=${iref.irefdir}adhoc/tiny.qrels.txt
+testset.topicreader=TrecTopicWT
+testset.qrelreader=TrecQrels
+testset.baselineextension=bas
+

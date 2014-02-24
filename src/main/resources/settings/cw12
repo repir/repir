@@ -1,0 +1,28 @@
+import clustersettings
+import textindex4
+import cw12in
+repository.dir = /user/jeroenv/output/cw12
+repository.defaultentityreader = EntityReaderCW12
+repository.assignentityreader  = EntityReaderCW12 .gz
+repository.prefix = cw12
+repository.partitions = 720
+
+repository.collectionid = DocLiteral:collectionid                                                                      
++repository.feature = TermInverted:all
++repository.feature = TermInverted:title
++repository.feature = TermDF
++repository.feature = DocLiteral:literaltitle
++repository.feature = DocLiteral:url
++repository.feature = DocForward:title
++repository.feature = DocForward:all
++repository.feature = DocTF:all
++repository.feature = TermTF
+
+vocabulary.mintf = 10
+
+import cwtokenizer
+
+#mapred.max.split.size = 4000000
+#mapred.task.timeout = 36000000
+
+ 

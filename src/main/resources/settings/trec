@@ -1,0 +1,27 @@
+import clustersettings
+import textindex
+repository.entityreader=EntityReaderTrec
++entityreader.invalidfilenamestart=read
++entityreader.invalidfilenamestart=makefile
++entityreader.invalidfilenameend=.dtd
++entityreader.invalidfilenameend=.c
++entityreader.invalidfilenameend=.h
+
+repository.collectionid = DocLiteral:collectionid
++repository.feature = TermInverted:all
++repository.feature = TermInverted:title
++repository.feature = DocLiteral:literaltitle
++repository.feature = DocLiteral:url
++repository.feature = DocForward:title
++repository.feature = DocForward:all
++repository.feature = DocTF:all
++repository.feature = TermDF
++repository.feature = TermTF
+
+repository.partitions = 1
+vocabulary.mintf = 2
+
+import trectokenizer
+
+#mapred.max.split.size = 4000000
+

@@ -1,0 +1,21 @@
+cluster.nodes = 720
+cluster.minmapsize = 10000000
+cluster.maxmapsize = 50000000
+cluster.maxvoccache = 1000000
+mapred.map.tasks.speculative.execution = false
+#mapreduce.job.speculative.slowtaskthreshold = 0.2
+#keep this false, to prevent deadlocks on write
+mapred.reduce.tasks.speculative.execution = false
+mapred.task.timeout=60000000
+mapred.task.timeout=1800000
+#mapred.task.timeout=60000
+mapred.child.java.opts=-Xmx4096m
+mapred.job.map.memory.mb=4096
+mapred.job.reduce.memory.mb=1024
+#mapred.task.profile = true
+
++iref.lib=IREF-0.21-SNAPSHOT.jar
++iref.lib=IREFTools-0.21-SNAPSHOT.jar
++iref.lib=IREFApps-0.21-SNAPSHOT.jar
++iref.lib=IREFProximityModel-0.21-SNAPSHOT.jar
++iref.lib=antlr4-runtime-4.1.jar

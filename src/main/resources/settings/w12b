@@ -1,0 +1,5 @@
+import w12
+repository.dir = /user/jeroenv/output/cwb
+repository.prefix = cwb
+
+testset.name=w12b

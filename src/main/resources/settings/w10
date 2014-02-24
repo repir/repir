@@ -1,0 +1,6 @@
+import w11
+testset.name=w10
+testset.topics=${iref.irefdir}adhoc/w10.51-100.topics.txt
+testset.qrels=${iref.irefdir}adhoc/w10.51-100.qrels.txt
+#testset.droppedtopics=95,100
+ 

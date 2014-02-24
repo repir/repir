@@ -1,0 +1,17 @@
+import trec
++repository.inputdir = /user/jeroenv/input/TIPSTER_VOL_1
++repository.inputdir = /user/jeroenv/input/TIPSTER_VOL_2
+
+repository.dir = /user/jeroenv/output/trec1
+repository.prefix = trec1
+
+import scoremodel
+
+testset.name = trec1
+testset.results=${iref.irefdir}eval
+testset.topics=${iref.irefdir}adhoc/topics.51-100
+testset.qrels=${iref.irefdir}adhoc/qrels.51-100.*
+testset.topicreader=TrecTopic
+testset.qrelreader=TrecQrels
+testset.baselineextension=bas
+

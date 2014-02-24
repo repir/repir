@@ -1,0 +1,5 @@
+import w09
+
+testset.name=w09s
+repository.dir = /user/jeroenv/output/cws
+repository.prefix = cws
