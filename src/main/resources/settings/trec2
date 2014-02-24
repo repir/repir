@@ -1,5 +1,0 @@
-import trec1
-
-testset.name = trec2
-testset.topics=${iref.irefdir}adhoc/topics.101-150
-testset.qrels=${iref.irefdir}adhoc/qrels.101-150.*

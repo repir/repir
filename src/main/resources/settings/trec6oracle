@@ -1,7 +1,0 @@
-import trec6
-
-testset.name=trec6
-testset.topics=${iref.irefdir}adhoc/topics.301-350.oracle
-testset.topicreader=TrecTopicWT 
-extractor.ireftestset.removechars=
-

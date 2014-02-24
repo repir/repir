@@ -11,7 +11,7 @@ import io.github.repir.tools.ByteRegex.ByteRegex;
 import io.github.repir.tools.Lib.ConfTool;
 
 /**
- * An implementation of IREFEntityReader that reads the ClueWeb09 collection. In
+ * An implementation of RepIREntityReader that reads the ClueWeb09 collection. In
  * this collection, each document is preceded by a WARC header, which contains
  * document metadata and length. Each document has a WarcIDTag of 25 characters,
  * which s used to validate Warc headers of correct documents.
@@ -33,7 +33,7 @@ import io.github.repir.tools.Lib.ConfTool;
  * <p/>
  * @author jeroen
  */
-public class EntityReaderCW12 extends IREFEntityReader {
+public class EntityReaderCW12 extends RepIREntityReader {
 
    public static Log log = new Log(EntityReaderCW12.class);
    private byte[] warcTag = "WARC/1.0".getBytes();

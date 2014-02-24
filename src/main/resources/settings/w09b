@@ -1,5 +1,0 @@
-import w09
-repository.dir = /user/jeroenv/output/cwb
-repository.prefix = cwb
-
-testset.name=w09b

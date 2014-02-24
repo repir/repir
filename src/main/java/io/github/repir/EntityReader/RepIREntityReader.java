@@ -25,9 +25,9 @@ import io.github.repir.tools.DataTypes.Configuration;
  * <p/>
  * @author jeroen
  */
-public abstract class IREFEntityReader extends RecordReader<LongWritable, EntityWritable> {
+public abstract class RepIREntityReader extends RecordReader<LongWritable, EntityWritable> {
 
-   public static Log log = new Log(IREFEntityReader.class);
+   public static Log log = new Log(RepIREntityReader.class);
    protected TaskAttemptContext context;
    protected long start;
    protected long end;

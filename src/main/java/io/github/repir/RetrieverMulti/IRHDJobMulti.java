@@ -17,7 +17,7 @@ public class IRHDJobMulti extends IRHDJob {
 
    public IRHDJobMulti(Retriever retriever) throws IOException {
       super(retriever);
-      setJobName("MRetriever " + retriever.repository.getConfigurationString("iref.conf"));
+      setJobName("MRetriever " + retriever.repository.getConfigurationString("repir.conf"));
    }
    
    public IRHDJobMulti(Retriever retriever, String path) throws IOException {

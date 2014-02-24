@@ -5,7 +5,7 @@ import io.github.repir.tools.Lib.Log;
 
 /**
  * For the extraction pipeline of query input, instead of 'all' the input is
- * marked as section 'irefquery', on which the 'irefquery' process is executed.
+ * marked as section 'repirquery', on which the 'repirquery' process is executed.
  * <p/>
  * @author jeroen
  */
@@ -19,12 +19,12 @@ public class ExtractorQuery extends Extractor {
 
    @Override
    public void init() {
-      createProcess("irefquery");
-      linkSectionToProcess("irefquery", "irefquery", "irefquery");
+      createProcess("repirquery");
+      linkSectionToProcess("repirquery", "repirquery", "repirquery");
    }
 
    @Override
    void processSectionMarkers(Entity entity, int bufferpos, int bufferend) {
-      entity.addSectionPos("irefquery", bufferpos, bufferpos, bufferend, bufferend);
+      entity.addSectionPos("repirquery", bufferpos, bufferpos, bufferend, bufferend);
    }
 }

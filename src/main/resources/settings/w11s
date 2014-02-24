@@ -1,5 +1,0 @@
-import w11
-
-testset.name=w11s
-repository.dir = /user/jeroenv/output/cws
-repository.prefix = cws

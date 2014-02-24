@@ -11,7 +11,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
 /**
- * An implementation of IREFEntityReader that reads the ClueWeb09 collection. In
+ * An implementation of RepIREntityReader that reads the ClueWeb09 collection. In
  * this collection, each document is preceded by a WARC header, which contains
  * document metadata and length. Each document has a WarcIDTag of 25 characters,
  * which s used to validate Warc headers of correct documents.
@@ -33,7 +33,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
  * <p/>
  * @author jeroen
  */
-public class EntityReaderCW extends IREFEntityReader {
+public class EntityReaderCW extends RepIREntityReader {
 
    public static Log log = new Log(EntityReaderCW.class);
    private byte[] warcTag = "WARC/0.18".getBytes();

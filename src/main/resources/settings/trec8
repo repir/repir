@@ -1,6 +1,0 @@
-import trec7
-
-testset.name=trec8
-testset.topics=${iref.irefdir}adhoc/topics.401-450
-testset.qrels=${iref.irefdir}adhoc/qrels.trec8.*
-

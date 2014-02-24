@@ -1,8 +1,0 @@
-import w11
-testset.name=w09
-
-testset.topicreader=TrecTopicWT9
-testset.qrelreader=TrecQrelsWT9
-testset.topics=${iref.irefdir}adhoc/w09.1-50.topics.txt
-testset.qrels=${iref.irefdir}adhoc/w09.1-50.qrels.txt
- 

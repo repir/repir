@@ -1,6 +1,0 @@
-import w11
-testset.name=w12
-
-testset.topics=${iref.irefdir}adhoc/w12.151-200.topics.txt
-testset.qrels=${iref.irefdir}adhoc/w12.151-200.qrels.txt
- 

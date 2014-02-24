@@ -1,5 +1,0 @@
-# Basic StoredSystemValues for Text indexes
-+repository.feature = TermID
-+repository.feature = TermString
-+repository.feature = VocMem4
-+repository.feature = PartitionLocation

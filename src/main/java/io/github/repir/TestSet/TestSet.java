@@ -180,7 +180,7 @@ public class TestSet {
    public static HashMap<Integer, Topic> readTopics(Repository repository) {
       Datafile df = new Datafile(repository.getConfigurationString("testset.topics"));
       if (!df.exists()) {
-         //String filename = repository.getConfigurationString("testset.topics").substring(repository.getConfigurationString("iref.dir").length());
+         //String filename = repository.getConfigurationString("testset.topics").substring(repository.getConfigurationString("repir.dir").length());
          df = new Datafile(repository.getFS(), repository.getConfigurationString("testset.topics"));
       }
       if (!df.exists()) {
@@ -213,7 +213,7 @@ public class TestSet {
          if (!d.exists()) {
             f = new Datafile(repository.getFS(), p);
             d = f.getDir();
-            //String filename = repository.getConfigurationString("testset.topics").substring(repository.getConfigurationString("iref.dir").length());
+            //String filename = repository.getConfigurationString("testset.topics").substring(repository.getConfigurationString("repir.dir").length());
          }
          list.addAll(d.matchDatafiles(f.getFilename()));
       }

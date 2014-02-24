@@ -10,7 +10,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import io.github.repir.tools.Lib.ByteTools;
 
 /**
- * An implementation of IREFEntityReader that scans the input for TREC style
+ * An implementation of RepIREntityReader that scans the input for TREC style
  * documents, that are enclosed in <DOC></DOC> tags. The used tags may be
  * overridden by setting different tags in entityreader.entitystart and
  * entityreader.entityend.
@@ -21,7 +21,7 @@ import io.github.repir.tools.Lib.ByteTools;
  * <p/>
  * @author jeroen
  */
-public class EntityReaderWikipedia extends IREFEntityReader {
+public class EntityReaderWikipedia extends RepIREntityReader {
 
    public static Log log = new Log(EntityReaderWikipedia.class);
    private byte[] startTag;

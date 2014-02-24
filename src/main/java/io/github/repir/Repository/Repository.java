@@ -28,7 +28,7 @@ import io.github.repir.tools.Lib.StrTools;
 /**
  * The Repository is a container class for all components and information of an
  * indexed collection. The repository is commonly generated with
- * {@link IndexWriter} and accessed through {@link IndexReader.IndexReader}.
+ *  and accessed through {@link IndexReader.IndexReader}.
  * These classes use the repository to obtain low level access to the repository
  * files. Information Retrieval applications typically start by opening the
  * Repository, which is needed to open the {@link IndexReader.IndexReader} and
@@ -42,11 +42,7 @@ import io.github.repir.tools.Lib.StrTools;
  * for carefully moving the repository).
  * <p/>
  * The main configuration of the repository includes which storedfeatures are
- * extracted from the corpus. To use this feature, the
- * {@link Extractor.Extractor} should be configured to identify sections in the
- * content, a processing pipeline should convert the content into
- * {@link EntityAttribute}, and the defined storedfeatures should know how to
- * get their value from the {@link Entity} provided.
+ * extracted from the corpus.
  */
 public class Repository {
 
@@ -85,7 +81,7 @@ public class Repository {
 
    /**
     * Constructor to open an existing Repository for use with
-    * {@link vu.nl.iref.Retriever.Retriever}
+    * {@link Retriever}
     * <p/>
     * @param conf
     */
@@ -436,7 +432,7 @@ public class Repository {
    }
 
    public String getConfigurationName() {
-      return configuration.get("iref.conf");
+      return configuration.get("repir.conf");
    }
 
    public String getConfigurationString(String key, String defaultvalue) {
@@ -536,7 +532,7 @@ public class Repository {
             list.add(freeparameters[i]);
          }
       }
-      list.add("iref.conf");
+      list.add("repir.conf");
       if (getConfigurationString("testset.crossevaluate").equalsIgnoreCase("fold")) {
          list.add("fold");
       }

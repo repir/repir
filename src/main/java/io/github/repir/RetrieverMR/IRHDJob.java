@@ -30,7 +30,7 @@ public class IRHDJob extends Job {
    public IRHDJob(Retriever retriever) throws IOException {
       super(retriever.repository.getConfiguration());
       this.retriever = retriever;
-      setJobName("Retriever " + retriever.repository.getConfigurationString("iref.conf"));
+      setJobName("Retriever " + retriever.repository.getConfigurationString("repir.conf"));
       path = conf.get("retriever.tempdir", "") + UUID.randomUUID().toString();
       conf.setBoolean("mapred.reduce.tasks.speculative.execution", false);
       setJob();

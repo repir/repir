@@ -54,7 +54,7 @@ public class RetrieverTuneReduce extends Reducer<CollectorKey, CollectorValue, N
    protected void setup(Context context) throws IOException, InterruptedException {
       repository = new Repository(context.getConfiguration());
       conf = repository.getConfiguration();
-      conf.set("iref.irefdir", "");
+      conf.set("repir.repirdir", "");
       modelparameters = (ModelParameters) repository.getFeature("ModelParameters");
       storedparameters = repository.getStoredFreeParameters();
       retriever = new RetrieverMR(repository, context);

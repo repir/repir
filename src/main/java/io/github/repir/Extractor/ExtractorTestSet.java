@@ -5,7 +5,7 @@ import io.github.repir.tools.Lib.Log;
 
 /**
  * For the extraction pipeline of query input, instead of 'all' the input is
- * marked as section 'irefquery', on which the 'irefquery' process is executed.
+ * marked as section 'repirquery', on which the 'repirquery' process is executed.
  * <p/>
  * @author jeroen
  */

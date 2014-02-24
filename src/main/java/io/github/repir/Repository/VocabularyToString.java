@@ -22,7 +22,7 @@ public abstract class VocabularyToString<F extends RecordBinary> extends StoredU
    }
 
    public String getContentStr(int keys[], int startpos, int length) {
-      //log.info("content %s", vu.nl.iref.tools.Lib.ArrayTools.toString(keys));
+      //log.info("content %s", ArrayTools.toString(keys));
       StringBuilder r = new StringBuilder();
       length = startpos + length;
       for (int i = startpos; i < length; i++) {

@@ -1,5 +1,0 @@
-# Basic StoredSystemValues for Text indexes
-+repository.systemvalue = TermID
-+repository.systemvalue = TermString
-+repository.systemvalue = VocMem4
-+repository.systemvalue = PartitionLocation

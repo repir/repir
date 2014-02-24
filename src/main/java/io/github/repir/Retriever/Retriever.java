@@ -308,9 +308,9 @@ public class Retriever {
       //log.info("tokenizeString %d %s %b %b %b", q.id, q.originalquery, q.performLowercasing, q.performStemming, q.removeStopwords);
       getExtractor();
       if (!q.performLowercasing)
-         extractor.removeProcessor("irefquery", ConvertToLowercaseQuery.class);
+         extractor.removeProcessor("repirquery", ConvertToLowercaseQuery.class);
       if (!q.performStemming)
-         extractor.removeProcessor("irefquery", StemTokensQuery.class);
+         extractor.removeProcessor("repirquery", StemTokensQuery.class);
       String query = q.originalquery.replaceAll("[!/]", " ").replaceAll("\\s+", " ");
       Entity entity = new Entity();
       ConvertToLowercase lc = new ConvertToLowercase(extractor, "");
@@ -318,7 +318,7 @@ public class Retriever {
       extractor.process(entity);
       StringBuilder sb = new StringBuilder();
       ArrayList<String> finalterms = new ArrayList<String>();
-      EntityAttribute channel = entity.get("irefquery");
+      EntityAttribute channel = entity.get("repirquery");
       for (String chunk : channel) {
          char last = sb.length() == 0 ? 0 : sb.charAt(sb.length() - 1);
          char first = chunk.length() == 0 ? 0 : chunk.charAt(0);

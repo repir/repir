@@ -25,8 +25,8 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 
 /**
- * IREFInputFormat extends FileInputFormat to supply Hadoop with the input to
- * process. To use IREFInputFormat, instantiate with {@link #IREFInputFormat(org.apache.hadoop.mapreduce.Job, java.lang.String[])
+ * RepIRInputFormat extends FileInputFormat to supply Hadoop with the input to
+ * process. To use RepIRInputFormat, instantiate with {@link #RepIRInputFormat(org.apache.hadoop.mapreduce.Job, java.lang.String[])
  * }
  * using an array of paths on the HDFS, that contain the input files to process.
  * The paths can be files or directories, which are scanned recursively for any
@@ -40,18 +40,18 @@ import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
  * <p/>
  * @author jeroen
  */
-public class IREFInputFormat extends FileInputFormat<LongWritable, EntityWritable> {
+public class RepIRInputFormat extends FileInputFormat<LongWritable, EntityWritable> {
 
-   public static Log log = new Log(IREFInputFormat.class);
+   public static Log log = new Log(RepIRInputFormat.class);
    FileFilter filefilter;
    String defaultentityreader;
    HashMap<String, String> assignentityreader = new HashMap<String, String>();
    Job job;
 
-   public IREFInputFormat() {
+   public RepIRInputFormat() {
    }
 
-   public IREFInputFormat(Job job, String inputdirs[]) {
+   public RepIRInputFormat(Job job, String inputdirs[]) {
       Configuration conf = Configuration.convert(job.getConfiguration());
       filefilter = new FileFilter(conf);
       loadEntityReaderSettings(conf);
@@ -116,7 +116,7 @@ public class IREFInputFormat extends FileInputFormat<LongWritable, EntityWritabl
    public RecordReader<LongWritable, EntityWritable> createRecordReader(InputSplit is, TaskAttemptContext tac) {
       //log.info("documentreader %s", getDocumentReader(tac.getConfiguration()));
       Class clazz = toClass(getEntityReaderName(is, Configuration.convert(tac.getConfiguration())), getClass().getPackage().getName());
-      Constructor c = getAssignableConstructor(clazz, IREFEntityReader.class);
+      Constructor c = getAssignableConstructor(clazz, RepIREntityReader.class);
       return (RecordReader<LongWritable, EntityWritable>) construct(c);
    }
 
