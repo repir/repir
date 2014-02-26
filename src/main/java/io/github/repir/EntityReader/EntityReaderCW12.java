@@ -8,7 +8,6 @@ import java.io.EOFException;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import io.github.repir.tools.ByteRegex.ByteRegex;
-import io.github.repir.tools.Lib.ConfTool;
 
 /**
  * An implementation of RepIREntityReader that reads the ClueWeb09 collection. In

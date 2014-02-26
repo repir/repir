@@ -19,12 +19,12 @@ public class ExtractorTestSet extends Extractor {
 
    @Override
    public void init() {
-      createProcess("ireftestset");
-      linkSectionToProcess("ireftestset", "ireftestset", "ireftestset");
+      createProcess("repirtestset");
+      linkSectionToProcess("repirtestset", "repirtestset", "repirtestset");
    }
 
    @Override
    void processSectionMarkers(Entity entity, int bufferpos, int bufferend) {
-      entity.addSectionPos("ireftestset", bufferpos, bufferpos, bufferend, bufferend);
+      entity.addSectionPos("repirtestset", bufferpos, bufferpos, bufferend, bufferend);
    }
 }

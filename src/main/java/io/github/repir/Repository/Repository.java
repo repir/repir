@@ -1,7 +1,6 @@
 package io.github.repir.Repository;
 
 import static io.github.repir.tools.Lib.ClassTools.*;
-import io.github.repir.tools.Lib.ConfTool;
 import io.github.repir.tools.Content.Datafile;
 import io.github.repir.tools.Content.Dir;
 import io.github.repir.tools.Content.HDFSDir;
@@ -26,23 +25,17 @@ import io.github.repir.tools.DataTypes.Configuration;
 import io.github.repir.tools.Lib.StrTools;
 
 /**
- * The Repository is a container class for all components and information of an
- * indexed collection. The repository is commonly generated with
- *  and accessed through {@link IndexReader.IndexReader}.
- * These classes use the repository to obtain low level access to the repository
- * files. Information Retrieval applications typically start by opening the
- * Repository, which is needed to open the {@link IndexReader.IndexReader} and
- * gives general corpus information such as the number of documents or words in
- * the repository.
+ * The Repository manages all persistent data for a collection : features that 
+ * were extracted from the collection, configuration settings and additional
+ * data files.
  * <p/>
- * The base structure for the Repository is fixed. A masterfile contains the
- * repository location, configuration and statistics for the repository (e.g.
- * Vocabulary size, number of documents in collection). Although the masterfile
- * is in plain text and editable, this is strongly discouraged (unless perhaps
- * for carefully moving the repository).
+ * The configuration of a Repository is done through a configuration file. 
+ * The configuration settings are added to Hadoop's Configuration object, which 
+ * can be accessed using {@link #getConfiguration()}, {@link #getConfigurationString(java.lang.String)}, etc.
  * <p/>
- * The main configuration of the repository includes which storedfeatures are
- * extracted from the corpus.
+ * For low level access to a {@link StoredFeature}, you should obtain the feature
+ * through the repository with {@link #getFeature(java.lang.String)} using the
+ * features CanonicalName.
  */
 public class Repository {
 
@@ -237,16 +230,19 @@ public class Repository {
       Datafile df = getMasterFile();
       Datafile storedvalues = this.getStoredValuesFile();
       if (basedir.exists() && df.exists()) {
-         ConfTool conf = new ConfTool(df);
+         configuration.read(df);
          if (storedvalues.exists()) {
-            conf.read(storedvalues);
+            configuration.read(storedvalues);
          }
-         conf.toConf(configuration);
       }
    }
 
-   public void addConfiguration(String list) {
-      HDTools.addToConfiguration(configuration, list);
+   /**
+    * The configurationstring can contain settings 
+    * @param configurationstring
+    */
+   public void addConfiguration(String configurationstring) {
+      configuration.read(configurationstring);
    }
 
    public void deleteMasterFile() {
@@ -256,36 +252,42 @@ public class Repository {
       }
    }
 
-   public void writeConfiguration() {
-      ConfTool conf = new ConfTool();
-      conf.set("repository.dir", basedir.getCanonicalPath());
-      conf.set("repository.prefix", prefix);
-      conf.set("repository.partitions", partitions);
+   private void initConfiguration() {
+      configuration.set("repository.dir", basedir.getCanonicalPath());
+      configuration.set("repository.prefix", prefix);
+      configuration.setInt("repository.partitions", partitions);
       for (Map.Entry<String, StoredFeature> entry : storedfeaturesmap.entrySet()) {
          StoredFeature f = entry.getValue();
          if (entry.getValue() == getCollectionIDFeature()) {
-            conf.set("repository.collectionid", f.getCanonicalName());
+            configuration.set("repository.collectionid", f.getCanonicalName());
          } else {
-            conf.setArray("repository.feature", f.getCanonicalName());
+            configuration.addArray("repository.feature", f.getCanonicalName());
          }
       }
-      conf.set("repository.vocabularysize", this.getVocabularySize());
-      conf.set("repository.corpustf", this.getCorpusTF());
-      conf.set("repository.documentcount", this.getDocumentCount());
-      //conf.set("repository.hashtablecapacity", this.getHashTableCapacity());
-      conf.write(getMasterFile());
+      configuration.setLong("repository.vocabularysize", this.getVocabularySize());
+      configuration.setLong("repository.corpustf", this.getCorpusTF());
+      configuration.setLong("repository.documentcount", this.getDocumentCount());
    }
-
-   public void writeStoredValues() {
-      ConfTool conf = new ConfTool();
-      Iterator<Entry<String, String>> iter = configuration.iterator();
-      while (iter.hasNext()) {
-         Entry<String, String> e = iter.next();
-         if (e.getKey().startsWith("storedvalue.")) {
-            conf.set(e.getKey(), e.getValue());
+   
+   public void writeConfiguration() {
+      initConfiguration();
+      Datafile masterfile = getMasterFile();
+      masterfile.openWrite();
+      configuration.writeString(masterfile, "repository.dir");
+      configuration.writeString(masterfile, "repository.prefix");
+      configuration.writeInt(masterfile, "repository.partitions");
+      configuration.writeString(masterfile, "repository.collectionid");
+      for (Map.Entry<String, StoredFeature> entry : storedfeaturesmap.entrySet()) {
+         StoredFeature f = entry.getValue();
+         if (entry.getValue() != getCollectionIDFeature()) {
+            configuration.addArray("repository.feature", f.getCanonicalName());
          }
       }
-      conf.write(this.getStoredValuesFile());
+      configuration.writeStrings(masterfile, "repository.feature");
+      configuration.writeLong(masterfile, "repository.vocabularysize");
+      configuration.writeLong(masterfile, "repository.corpustf");
+      configuration.writeLong(masterfile, "repository.documentcount");
+      masterfile.closeWrite();
    }
 
    public Collection<StoredFeature> getFeatures() {

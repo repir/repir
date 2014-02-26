@@ -1,9 +1,7 @@
 package io.github.repir.EntityReader;
 
-import io.github.repir.EntityReader.idlist;
 import io.github.repir.tools.Content.Datafile;
 import io.github.repir.Extractor.Entity;
-import io.github.repir.tools.Lib.ConfTool;
 import io.github.repir.tools.Lib.ByteTools;
 import io.github.repir.tools.Lib.Log;
 import java.io.EOFException;

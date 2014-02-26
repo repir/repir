@@ -8,11 +8,11 @@ import io.github.repir.tools.Content.RecordBinary;
  * lookups on an integer key and should optimize for fast sequential lookups, 
  * e.g. physically sort their data on ID. This class is for values that need to be
  * stored in the repository, that do not meet those requirements. They cannot as such
- * be handled by general IREF processes on features, rather the 'user' must be aware of
- * their interface. In some cases, IREF itself uses this type for system stored 
+ * be handled by general RepIR processes on features, rather the 'user' must be aware of
+ * their interface. In some cases, RepIR itself uses this type for system stored 
  * values such as PartitionLocation.
  * <p/>
- * These StoredUnreportableFeature can be announced in the config file, so IREF will now
+ * These StoredUnreportableFeature can be announced in the config file, so RepIR will now
  * that they need to be constructed during extraction, and they can be accessed
  * through the Repository by their Canonical or SimpleName.
  * <p/>
