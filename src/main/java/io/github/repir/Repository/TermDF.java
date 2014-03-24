@@ -3,15 +3,19 @@ package io.github.repir.Repository;
 import java.util.ArrayList;
 import java.util.HashMap;
 import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.RecordJumpArray;
+import io.github.repir.tools.Content.StructuredFileByteJumpTable;
 import io.github.repir.Repository.TermDF.File;
 import io.github.repir.tools.Lib.Const;
 import io.github.repir.tools.Lib.Log;
 
+/**
+ * Stores the document frequency of terms in the Vocabulary, which can be accessed
+ * by {@link #readValue(int)} using the termID. 
+ * @author jer
+ */
 public class TermDF extends StoredUnreportableFeature<File> implements DictionaryFeature {
 
    public static Log log = new Log(TermDF.class);
-//   TempFile tempfile;
    int keyid = 0;
    public HashMap<Integer, Long> cache = new HashMap<Integer,Long>();
 
@@ -55,8 +59,8 @@ public class TermDF extends StoredUnreportableFeature<File> implements Dictionar
       cache = null;
    }
 
-   public void write(Long tf) {
-      file.df.write(tf);
+   public void write(Long df) {
+      file.df.write(df);
    }
 
    public long readValue(int id) {
@@ -95,7 +99,7 @@ public class TermDF extends StoredUnreportableFeature<File> implements Dictionar
    }
 
    @Override
-   public void reduceInput(int id, String term, long tf, long df) {
+   public void reduceInput(int id, String term, long cf, long df) {
        write( df );
    }
 
@@ -114,7 +118,7 @@ public class TermDF extends StoredUnreportableFeature<File> implements Dictionar
       file.setBufferSize(size);
    }
 
-   public static class File extends RecordJumpArray {
+   public static class File extends StructuredFileByteJumpTable {
 
       public CLongField df = this.addCLong("df");
 

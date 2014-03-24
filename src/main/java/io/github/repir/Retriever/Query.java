@@ -1,29 +1,30 @@
 package io.github.repir.Retriever;
 
-import io.github.repir.tools.Content.BufferDelayedWriter;
 import io.github.repir.tools.Content.StructureReader;
 import io.github.repir.tools.Content.StructureWriter;
 import io.github.repir.Repository.Feature;
 import io.github.repir.Repository.Repository;
 import io.github.repir.tools.Lib.Log;
 import io.github.repir.Strategy.Strategy;
-import java.io.EOFException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
-import io.github.repir.RetrieverMR.QueryWritable;
 import io.github.repir.Strategy.RetrievalModel;
+import io.github.repir.tools.Content.BufferSerializable;
+import io.github.repir.tools.Content.EOCException;
 import io.github.repir.tools.Lib.ClassTools;
 
 /**
- * A Query object stores a query request and the query results. This class can
- * readValue and report itself to streams, for use over the MapReduce framework.
+ * A Query object contains the query request, settings such as retrievalmodel,
+ * scorefunction, retrieved features, query specific parameter settings,
+ * and optionally contains the query results after retrieval. 
+ * Query itself does not contain much logic, but is more a data container.
  * <p/>
  * @author jeroen
  */
-public class Query implements BufferDelayedWriter.Serialize, Comparable<Query> {
+public class Query implements BufferSerializable,Comparable<Query> {
 
    public static Log log = new Log(Query.class);
    public Strategy strategy;
@@ -32,8 +33,8 @@ public class Query implements BufferDelayedWriter.Serialize, Comparable<Query> {
     * The document class used to construct new Document objects.
     */
    public String documentclass;
-   public Constructor documentconstructor;
-   public Constructor documentconstructor2;
+   private Constructor documentconstructor;
+   private Constructor documentconstructor2;
    
    public String documentcomparatorclass;
    private Comparator<Document> documentcomparator;
@@ -87,7 +88,7 @@ public class Query implements BufferDelayedWriter.Serialize, Comparable<Query> {
     */
    public Document queryresults[] = new Document[0];
    /**
-    * The usedfeatures that are required to be fetched in order to
+    * The requestedfeatures that are required to be fetched in order to
     * score/report each document. If the Boolean is true, the Feature will be
     * reported
     */
@@ -97,7 +98,7 @@ public class Query implements BufferDelayedWriter.Serialize, Comparable<Query> {
 
    public ArrayList<Document> resultsarraylist = new ArrayList<Document>();
    public ArrayList<Variant> variants = new ArrayList<Variant>();
-   private ArrayList<Integer> dovariants = new ArrayList<Integer>();
+   ArrayList<Integer> dovariants = new ArrayList<Integer>();
    
    /**
     * A common way to construct a Query object is to use {@link IndexReader.IndexReader#constructQueryRequest(int, java.lang.String)
@@ -122,7 +123,7 @@ public class Query implements BufferDelayedWriter.Serialize, Comparable<Query> {
     */
    public Query(Repository repository, int queryid, String query, String retrievalmodel, int limit) {
       this(repository, queryid, query);
-      this.setStrategyClass(retrievalmodel);
+      this.setStrategyClassname(retrievalmodel);
       this.documentlimit = limit;
    }
 
@@ -143,7 +144,7 @@ public class Query implements BufferDelayedWriter.Serialize, Comparable<Query> {
       partition = q.partition;
       domain = q.domain;
       for (Variant v : q.variants)
-         addVariant(new Variant(v.retrievalmodelclass, v.scorefunctionclass, v.configuration));
+         variants.add(new Variant(v.retrievalmodelclass, v.scorefunctionclass, v.configuration));
       dovariants.addAll(q.dovariants);
    }
    
@@ -165,6 +166,14 @@ public class Query implements BufferDelayedWriter.Serialize, Comparable<Query> {
       }
    }
 
+   public void addFeatureClass(Class featureclass, String ... param) {
+      addFeature(Feature.canonicalName(featureclass, param));
+   }
+
+   public void clearFeatures() {
+      reportedFeatures = new ArrayList<String>();
+   }
+
    public String getConfiguration() {
       return variants.get(getVariantID()).configuration;  
    }
@@ -177,16 +186,24 @@ public class Query implements BufferDelayedWriter.Serialize, Comparable<Query> {
       return variants.get(getVariantID()).scorefunctionclass;  
    }
    
-   public String setStrategyClass(String strategyclass) {
-      return variants.get(getVariantID()).retrievalmodelclass = strategyclass;  
+   public void setStrategyClassname(String strategyclass) {
+      variants.get(getVariantID()).retrievalmodelclass = strategyclass;  
    }
    
-   public String setScorefunctionClass(String scorefunctionclass) {
-      return variants.get(getVariantID()).scorefunctionclass = scorefunctionclass;  
+   public void setStrategyClass(Class strategyclass) {
+      variants.get(getVariantID()).retrievalmodelclass = strategyclass.getSimpleName();  
    }
    
-   public String setConfiguration(String configuration) {
-      return variants.get(getVariantID()).configuration = configuration;  
+   public void setScorefunctionClassname(String scorefunctionclass) {
+      variants.get(getVariantID()).scorefunctionclass = scorefunctionclass;  
+   }
+   
+   public void setScorefunctionClass(Class scorefunctionclass) {
+      variants.get(getVariantID()).scorefunctionclass = scorefunctionclass.getSimpleName();  
+   }
+   
+   public void setConfiguration(String configuration) {
+      variants.get(getVariantID()).configuration = configuration;  
    }
    
    public void addFeature(Feature feature) {
@@ -196,6 +213,11 @@ public class Query implements BufferDelayedWriter.Serialize, Comparable<Query> {
 
    public void add(Document d) {
       this.resultsarraylist.add(d);
+   }
+   
+   public void clearResults() {
+      resultsarraylist.clear();
+      setQueryResults();
    }
 
    public void setQueryResults() {
@@ -228,7 +250,7 @@ public class Query implements BufferDelayedWriter.Serialize, Comparable<Query> {
    }
 
    @Override
-   public void read(StructureReader reader) throws EOFException {
+   public void read(StructureReader reader) throws EOCException {
       readHeader(reader);
       int results = reader.readInt();
       queryresults = new Document[results];
@@ -239,7 +261,7 @@ public class Query implements BufferDelayedWriter.Serialize, Comparable<Query> {
       }
    }
 
-   public void readHeader(StructureReader reader) throws EOFException {
+   public void readHeader(StructureReader reader) throws EOCException {
       partition = reader.readInt();
       id = reader.readInt();
       domain = reader.readString();
@@ -339,6 +361,11 @@ public class Query implements BufferDelayedWriter.Serialize, Comparable<Query> {
       return reducers;
    }
    
+   public void initVariants() {
+      variants = new ArrayList<Variant>();
+      dovariants = new ArrayList<Integer>();
+   }
+   
    public void addVariant( String retrievalmodelclass, String scorefunctionclass, String settings ) {
       addVariant(new Variant( retrievalmodelclass, scorefunctionclass, settings));
    }
@@ -366,7 +393,7 @@ public class Query implements BufferDelayedWriter.Serialize, Comparable<Query> {
    }
 
    
-   public static class Variant implements BufferDelayedWriter.Serialize {
+   public static class Variant implements BufferSerializable {
       /**
        * The name of the next Strategy to use. In Query request, this is the
        * initial Strategy, which can be followed by consecutive
@@ -387,7 +414,7 @@ public class Query implements BufferDelayedWriter.Serialize, Comparable<Query> {
       }
       
       @Override
-      public void read(StructureReader reader) throws EOFException {
+      public void read(StructureReader reader) throws EOCException {
          retrievalmodelclass = reader.readString();
          scorefunctionclass = reader.readString();
          configuration = reader.readString();

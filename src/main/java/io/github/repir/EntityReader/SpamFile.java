@@ -1,7 +1,7 @@
 package io.github.repir.EntityReader;
 
 import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.RecordBinary;
+import io.github.repir.tools.Content.StructuredFile;
 import io.github.repir.tools.Lib.Log;
 
 /**
@@ -10,7 +10,7 @@ import io.github.repir.tools.Lib.Log;
  * offsets can be used to retrieve the posting lists from disk. The offsets
  * point directly to the posting list in the accompanying datafile.
  */
-public class SpamFile extends RecordBinary {
+public class SpamFile extends StructuredFile {
 
    public static Log log = new Log(SpamFile.class);
 
@@ -25,17 +25,6 @@ public class SpamFile extends RecordBinary {
    public StringField cluewebid = this.addString("cluewebid");
    public IntField spamindex = this.addInt("spamindex");
 
-//    /**
-//     * initializes the structure
-//     * a corpus tf is kept for all channels as a statistic for the retrieval model
-//     * for every key there is an offset that points to the posting list in the
-//     * accompanying datafile.
-//     */
-//    @Override
-//    public void defineStructure() {
-//         cluewebid = this.addString( "cluewebid" );
-//         spamindex = this.addInt("spamindex");
-//    }
    public static idlist getIdList(Datafile df, int spamthreshold) {
       idlist sl = new idlist();
       SpamFile sf = new SpamFile(df);
@@ -44,7 +33,6 @@ public class SpamFile extends RecordBinary {
       while (sf.next()) {
          if (sf.spamindex.value >= spamthreshold) {
             sl.set(sf.cluewebid.value);
-            //log.info("nospam %s %d", sf.cluewebid.value, sf.spamindex.value);  
          }
       }
       sf.closeRead();

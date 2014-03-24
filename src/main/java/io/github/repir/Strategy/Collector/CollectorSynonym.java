@@ -1,41 +1,46 @@
 package io.github.repir.Strategy.Collector;
 
-import java.io.EOFException;
 import java.util.ArrayList;
 import java.util.Collection;
-import io.github.repir.Repository.PhraseStats;
 import io.github.repir.Repository.SynStats;
 import io.github.repir.Repository.SynStats.Record;
-import io.github.repir.Strategy.FeatureSynonym;
-import io.github.repir.Strategy.GraphNode;
+import io.github.repir.Strategy.Operator.SynonymOperator;
 import io.github.repir.Retriever.Document;
-import io.github.repir.tools.Content.RecordSortHashRecord;
+import io.github.repir.tools.Content.EOCException;
 import io.github.repir.tools.Content.StructureReader;
 import io.github.repir.tools.Content.StructureWriter;
-import io.github.repir.tools.Lib.ArrayTools;
 import io.github.repir.tools.Lib.Log;
 import io.github.repir.tools.Lib.MathTools;
 
+/**
+ * Collects the collection and document frequency of {@link SynonymOperator}s. 
+ * Typically, a {@link Repository} has no pre-recorded synonym data, 
+ * which must be obtained in a pre-pass to allow scoring of {@link SynonymOperator}s. 
+ * The collected frequencies are stored in {@link SynStats} so that
+ * once obtained these can be reused without the need for pre-passes.
+ * <p/>
+ * @author jeroen
+ */
 public class CollectorSynonym extends CollectorCachable<Record> {
 
    public static Log log = new Log(CollectorSynonym.class);
-   FeatureSynonym syn;
+   SynonymOperator syn;
    String synid;
-   public long ctf = 0;
-   public long cdf = 0;
+   public long cf = 0;
+   public long df = 0;
 
    public CollectorSynonym() {
       super();
    }
    
-   public CollectorSynonym(FeatureSynonym f) {
+   public CollectorSynonym(SynonymOperator f) {
       super(f.retrievalmodel);
       setSynonym( f );
    }
 
-   public void setSynonym( FeatureSynonym f ) {
+   public void setSynonym( SynonymOperator f ) {
       syn = f;
-      synid = syn.getTermId();
+      synid = syn.postReformUnweighted();
       containedfeatures.add(f);
    }
    
@@ -61,8 +66,8 @@ public class CollectorSynonym extends CollectorCachable<Record> {
    }
    
    public void reuse() {
-      ctf = 0;
-      cdf = 0;
+      cf = 0;
+      df = 0;
    }
    
    public Collection<String> getReducerIDs() {
@@ -82,11 +87,6 @@ public class CollectorSynonym extends CollectorCachable<Record> {
          return getCanonicalName();
       }
    }
-
-   @Override
-   public boolean reduceInQuery() {
-      return synid == null;
-   }
    
    public void setCollectedResults() {
       syn.processCollected();
@@ -97,10 +97,10 @@ public class CollectorSynonym extends CollectorCachable<Record> {
       boolean exists = false;
          if (syn.featurevalues.frequency > 0) {
             exists = true;
-            ctf += syn.featurevalues.frequency;
+            cf += syn.featurevalues.frequency;
          }
       if (exists) {
-         cdf++;
+         df++;
       }
    }
 
@@ -110,17 +110,17 @@ public class CollectorSynonym extends CollectorCachable<Record> {
 
    @Override
    public void writeValue(StructureWriter rw) {
-      //log.info("write %d", ctf);
-      rw.writeC(ctf);
-      rw.writeC(cdf);
+      //log.info("write %d", cf);
+      rw.writeC(cf);
+      rw.writeC(df);
    }
 
    @Override
    public void readValue(StructureReader reader) {
       try {
-         ctf = reader.readCLong();
-         cdf = reader.readCLong();
-      } catch (EOFException ex) {
+         cf = reader.readCLong();
+         df = reader.readCLong();
+      } catch (EOCException ex) {
          log.fatalexception(ex, "read( %s )", reader);
       }
    }
@@ -128,8 +128,8 @@ public class CollectorSynonym extends CollectorCachable<Record> {
    @Override
    public void aggregate(Collector subcollector) {
       CollectorSynonym cd = (CollectorSynonym) subcollector;
-      ctf += cd.ctf;
-      cdf += cd.cdf;
+      cf += cd.cf;
+      df += cd.df;
    }
 
    @Override
@@ -143,18 +143,18 @@ public class CollectorSynonym extends CollectorCachable<Record> {
    }
 
    @Override
-   public void readKey(StructureReader reader) throws EOFException {
-      //key = reader.readString();
+   public void readKey(StructureReader reader) throws EOCException {
+      //key = reader.readStringUntil();
       synid = reader.readString();
    }
 
 //   @Override
 //   public String getKey() {
-//      return syn.postReform();
+//      return query.postReform();
 //   }
 
    public SynStats getStoredDynamicFeature() {
-      SynStats synstats = (SynStats) this.getRepository().getFeature("SynStats");
+      SynStats synstats = (SynStats) this.getRepository().getFeature(SynStats.class);
       return synstats;
    }
 
@@ -183,9 +183,14 @@ public class CollectorSynonym extends CollectorCachable<Record> {
    public Record createRecord() {
       SynStats synstats = getStoredDynamicFeature();
       Record r = (Record) synstats.newRecord();
-      r.syn = synid;
-      r.cf = ctf;
-      r.df = cdf;
+      r.query = synid;
+      r.cf = cf;
+      r.df = df;
       return r;
+   }
+
+   @Override
+   public boolean reduceInQuery() {
+      return false;
    }
 }

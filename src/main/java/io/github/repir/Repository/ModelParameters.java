@@ -1,20 +1,19 @@
 package io.github.repir.Repository;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 import io.github.repir.Repository.ModelParameters.File;
 import io.github.repir.Repository.ModelParameters.Record;
-import io.github.repir.Repository.Repository;
-import io.github.repir.Repository.StoredDynamicFeature;
 import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.RecordHeaderData;
-import io.github.repir.tools.Content.RecordHeaderDataRecord;
+import io.github.repir.tools.Content.StructuredFileKeyValue;
+import io.github.repir.tools.Content.StructuredFileKeyValueRecord;
 import io.github.repir.tools.Lib.Log;
 import io.github.repir.tools.Lib.MathTools;
+import java.util.HashMap;
 
 /**
- * 
+ * For tuning RetrievalModel, this Feature can be used to store mean
+ * average precisions for each combination of parameter settings.
  * @author jer
  */
 public class ModelParameters extends StoredDynamicFeature<File, Record> {
@@ -34,7 +33,7 @@ public class ModelParameters extends StoredDynamicFeature<File, Record> {
       return getFile().newRecord(settings);
    }
 
-   public class File extends RecordHeaderData<Record> {
+   public class File extends StructuredFileKeyValue<Record> {
 
       public StringArrayField parameter = this.addStringArray("parameter");
       public StringArrayField value = this.addStringArray("value");
@@ -52,9 +51,14 @@ public class ModelParameters extends StoredDynamicFeature<File, Record> {
       public Record newRecord( String settings[] ) {
          return new Record( settings );
       }
+
+      @Override
+      public Record closingRecord() {
+         return new Record();
+      }
    }
 
-   public class Record implements RecordHeaderDataRecord<File> {
+   public class Record implements StructuredFileKeyValueRecord<File> {
       public TreeMap<String, String> parameters = new TreeMap<String,String>();
       public double map = -1;
       
@@ -98,7 +102,7 @@ public class ModelParameters extends StoredDynamicFeature<File, Record> {
          map = file.map.value;
       }
 
-      public void convert(RecordHeaderDataRecord record) {
+      public void convert(StructuredFileKeyValueRecord record) {
          Record r = (Record)record;
          r.parameters = (TreeMap<String, String>)parameters.clone();
          r.map = map;
@@ -117,4 +121,16 @@ public class ModelParameters extends StoredDynamicFeature<File, Record> {
       Record found = (Record) find(record);
       return (found == null)?record:found;
    }
+   
+   public HashMap<Record, Record> load() {
+      openRead();
+      HashMap<Record, Record> map = new HashMap<Record, Record>();
+      NOTOK:
+      for (Record r : getKeys()) {
+         map.put(r, r);
+      }
+      closeRead();
+      return map;
+   }
+
 }

@@ -1,11 +1,11 @@
 package io.github.repir.Extractor.Tools;
 
-import io.github.repir.tools.ByteRegex.ByteRegex;
-import io.github.repir.tools.ByteRegex.ByteRegex.Pos;
+import io.github.repir.tools.ByteSearch.ByteRegex;
+import io.github.repir.tools.ByteSearch.ByteSearchPosition;
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.Extractor.EntityAttribute;
-import io.github.repir.Extractor.Entity;
-import io.github.repir.Extractor.Entity.SectionPos;
+import io.github.repir.Extractor.EntityChannel;
+import io.github.repir.EntityReader.Entity;
+import io.github.repir.EntityReader.Entity.Section;
 import io.github.repir.Extractor.Extractor;
 import java.util.ArrayList;
 
@@ -20,20 +20,17 @@ import java.util.ArrayList;
 public class ConvertDotsEntity extends ExtractorProcessor {
 
    public static Log log = new Log(ConvertDotsEntity.class);
-   //ByteRegex number = new ByteRegex("\\.(^|(?<=[^\\c\\.]\\d\\.))\\d+(?=[^\\w\\.])");
-   //ByteRegex abbrev = new ByteRegex("\\.(?<=[^\\w\\.]\\c\\.)(\\c\\.)+");
    ByteRegex abbrev = new ByteRegex("\\.(?<=[^\\c\\.]\\c\\.)(\\c\\.)+");
    ByteRegex other = new ByteRegex("[\\.]");
-   // no numbers
    ByteRegex combi = new ByteRegex( abbrev, other );
 
    public ConvertDotsEntity(Extractor extractor, String process) {
       super(extractor, process);
    }
 
-   public void process(Entity entity, SectionPos pos, String attribute) {
-      ArrayList<Pos> positions = combi.findAll(entity.content, pos.open, pos.close);
-      for (Pos p : positions) {
+   public void process(Entity entity, Section pos, String attribute) {
+      ArrayList<ByteSearchPosition> positions = combi.findAllPos(entity.content, pos.open, pos.close);
+      for (ByteSearchPosition p : positions) {
          switch (p.pattern) {
             case 0: // abbreviation or initials
                for (int i = p.start; i < p.end - 1; i ++)

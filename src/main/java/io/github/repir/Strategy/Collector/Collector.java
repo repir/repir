@@ -1,6 +1,5 @@
 package io.github.repir.Strategy.Collector;
 
-import java.io.EOFException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,27 +7,34 @@ import io.github.repir.Retriever.Document;
 import io.github.repir.Retriever.Retriever;
 import io.github.repir.Repository.Repository;
 import io.github.repir.Repository.StoredFeature;
-import io.github.repir.Strategy.GraphNode;
+import io.github.repir.Strategy.Operator.Operator;
 import io.github.repir.Strategy.GraphRoot;
 import io.github.repir.Strategy.Strategy;
 import io.github.repir.Retriever.Query;
-import io.github.repir.RetrieverMR.CollectorKey;
-import io.github.repir.RetrieverMR.CollectorValue;
+import io.github.repir.Retriever.MapReduce.CollectorKey;
+import io.github.repir.Retriever.MapReduce.CollectorValue;
+import io.github.repir.tools.Content.EOCException;
 import io.github.repir.tools.Content.StructureReader;
 import io.github.repir.tools.Content.StructureWriter;
 import io.github.repir.tools.Lib.ClassTools;
 import io.github.repir.tools.Lib.Log;
 
 /**
- * A Collector collects a single piece of data from an GraphRoot. Typical uses are a Collector to
- * score and collect documents in order to construct a ranked list of documents retrieved. Other
- * uses are the collection of corpus wide statistics. SubCollectors are called after the root
- * Features have been processed for the document. Typically, a Collector will call one or more
- * Features {@link Strategy.Feature#process(Retriever.Document) }
- * to obtain the values that need to be collected. It cannot be assumed that the processing Features
- * or other SubCollectors have been executed before this one.
+ * A Collector collects data during a retrieval pass. The {@link Collector} is
+ * bound to a {@link Strategy} instance, which controls when to collect, and possibly
+ * to {@link Operator}s to use. If the {@link Strategy} is a {@link RetrievalModel}, 
+ * the collector is called using {@link #processRetrievedDocument(io.github.repir.Retriever.Document)}
+ * to trigger processing of their {@link Operator}s. After processing of the {@link Operator}s
+ * the collectors are requested to collect their results in {@link #collectDocument(io.github.repir.Retriever.Document) }.
+ * Other {@link Strategy}s than {@link RetrievalModel} do not retrieve {@link Document}s
+ * therefore collection will be custom defined.
  * <p/>
- * Each Collector must implement the {@link BufferDelayedWriter.Serialize} interface to allow
+ * Note that {@link Operator}s that
+ * are not bound (recursively) to a collector are not processed in such case, therefore
+ * during  pre-pass to collect proximity statistics all Operators that are not needed 
+ * are not processed.
+ * <p/>
+ * Each Collector must implement the {@link BufferSerializable} interface to allow
  * communication over the MapReduce framework. For every document to be processed {@link #processRetrievedDocument(Retriever.Document)
  * } is called once. {@link #postLoadFeatures() } is called when the mapper is finished processing all
  * input so the Collector can do a final processing step before being send to the reducer. In the
@@ -42,7 +48,7 @@ public abstract class Collector {
    public static Log log = new Log( Collector.class );
    public Retriever retriever;
    public Strategy strategy;
-   public ArrayList<GraphNode> containedfeatures = new ArrayList<GraphNode>();
+   public ArrayList<Operator> containedfeatures = new ArrayList<Operator>();
    protected int collectorid = -1;
    //protected String key;
 //   public Query query;
@@ -169,7 +175,7 @@ public abstract class Collector {
    public final void processRetrievedDocument(Document doc) {
       doc.score = 0;
       //log.info("doc %d", doc.docid);
-      for (GraphNode f : containedfeatures) {
+      for (Operator f : containedfeatures) {
          f.process(doc);
       }
       collectDocument( doc );
@@ -230,9 +236,9 @@ public abstract class Collector {
     * the retrieved documents to different reducers for each query.
     * <p/>
     * @param reader
-    * @throws EOFException
+    * @throws EOCException
     */
-   public abstract void readID(StructureReader reader) throws EOFException;
+   public abstract void readID(StructureReader reader) throws EOCException;
 
    public abstract void writeID(StructureWriter writer);
 
@@ -248,7 +254,7 @@ public abstract class Collector {
     */
    public abstract void writeKey(StructureWriter writer);
 
-   public abstract void readKey(StructureReader reader) throws EOFException;
+   public abstract void readKey(StructureReader reader) throws EOCException;
 
    /**
     * The value contains the collected data that is to be aggregated in the reducer
@@ -257,5 +263,5 @@ public abstract class Collector {
     */
    public abstract void writeValue(StructureWriter writer);
 
-   public abstract void readValue(StructureReader reader) throws EOFException;
+   public abstract void readValue(StructureReader reader) throws EOCException;
 }

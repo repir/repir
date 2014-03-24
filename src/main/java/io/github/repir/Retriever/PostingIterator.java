@@ -1,7 +1,6 @@
 package io.github.repir.Retriever;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.TreeSet;
@@ -11,7 +10,6 @@ import io.github.repir.Repository.StoredReportableFeature;
 import io.github.repir.Repository.TermDocumentFeature;
 import io.github.repir.Strategy.RetrievalModel;
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.Strategy.Strategy;
 import io.github.repir.tools.Lib.ArrayTools;
 
 /**
@@ -48,11 +46,10 @@ public class PostingIterator {
     * @param partition
     */
    public PostingIterator(RetrievalModel retrievalmodel, int partition) {
-      log.info("PostingIterator");
       this.retrievalmodel = retrievalmodel;
       lastdocid = -1;
       this.partition = partition;
-      for (StoredFeature t : retrievalmodel.usedfeatures.values()) {
+      for (StoredFeature t : retrievalmodel.requestedfeatures.values()) {
          if (t instanceof TermDocumentFeature) {
             ((TermDocumentFeature) t).setPartition(partition);
          } else if (t instanceof EntityStoredFeature) {
@@ -91,7 +88,6 @@ public class PostingIterator {
          for (; i < sortedfeatures.size(); i++) {
             StoredReportableFeature f = sortedfeatures.get(i);
             if (!f.isReadResident()) {
-               log.info("not resident %s %d", f.getCanonicalName(), mempart);
                f.setBufferSize(mempart);
                f.openRead();
             }
@@ -101,11 +97,9 @@ public class PostingIterator {
       for (i = 0; i < sortedfeatures.size(); i++) {
          StoredReportableFeature f = sortedfeatures.get(i);
          if (f.isReadResident()) {
-            log.info("already resident %s %d %d", f.getCanonicalName(), f.partition, partition);
             memoryneeded += f.getBytesSize();
             f.reuse();
          } else if (memoryneeded + f.getBytesSize() < MAXMEMORY) {
-            log.info("resident %s", f.getCanonicalName());
             f.readResident();
             memoryneeded += f.getBytesSize();
             f.next();
@@ -119,7 +113,6 @@ public class PostingIterator {
          for (; i < sortedfeatures.size(); i++) {
             StoredReportableFeature f = sortedfeatures.get(i);
             if (!f.isReadResident()) {
-               log.info("not resident %s needed %d memleft %d", f.getCanonicalName(), f.getBytesSize(), memoryleft);
                f.setBufferSize(mempart);
                f.openRead();
                f.next();
@@ -146,15 +139,13 @@ public class PostingIterator {
 
    public EntityStoredFeature[] getDSF(RetrievalModel retrievalmodel) {
       int countdsf = 0;
-      for (StoredFeature t : retrievalmodel.usedfeatures.values()) {
-         //log.info("stored feature %s %s", retrievalmodel, t.getCanonicalName());
+      for (StoredFeature t : retrievalmodel.requestedfeatures.values()) {
          if (t instanceof EntityStoredFeature) {
             countdsf++;
          }
       }
       EntityStoredFeature[] dsfarray = new EntityStoredFeature[countdsf];
-      for (StoredFeature t : retrievalmodel.usedfeatures.values()) {
-         //log.info("features %s", t.getCanonicalName());
+      for (StoredFeature t : retrievalmodel.requestedfeatures.values()) {
          if (t instanceof EntityStoredFeature) {
             EntityStoredFeature tt = (EntityStoredFeature) t;
             dsfarray[--countdsf] = tt;
@@ -165,15 +156,13 @@ public class PostingIterator {
 
    public TermDocumentFeature[] getTDF(RetrievalModel retrievalmodel) {
       int counttdf = 0;
-      for (StoredFeature t : retrievalmodel.usedfeatures.values()) {
-         //log.info("stored feature %s %s", retrievalmodel, t.getCanonicalName());
+      for (StoredFeature t : retrievalmodel.requestedfeatures.values()) {
          if (t instanceof TermDocumentFeature) {
             counttdf++;
          }
       }
       TermDocumentFeature[] tdfarray = new TermDocumentFeature[counttdf];
-      for (StoredFeature t : retrievalmodel.usedfeatures.values()) {
-         //log.info("features %s", t.getCanonicalName());
+      for (StoredFeature t : retrievalmodel.requestedfeatures.values()) {
          if (t instanceof TermDocumentFeature) {
             TermDocumentFeature tt = (TermDocumentFeature) t;
             tdfarray[--counttdf] = tt;
@@ -232,7 +221,6 @@ public class PostingIterator {
       if (mindocid < Integer.MAX_VALUE) {
          d = retrievalmodel.createDocument(mindocid, retrievalmodel.partition);
          for (EntityStoredFeature dsf : dsfarray) {
-            //log.info("get EntityStoredFeature %s", dsf.getCanonicalName());
             dsf.read(d);
          }
       }

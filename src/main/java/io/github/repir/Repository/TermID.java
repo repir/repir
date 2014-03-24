@@ -6,9 +6,9 @@ import java.util.Map;
 import io.github.repir.Repository.TermID.File;
 import io.github.repir.tools.Content.Datafile;
 import io.github.repir.tools.Content.Datafile.Status;
-import io.github.repir.tools.Content.RecordSortHash;
-import io.github.repir.tools.Content.RecordSortHashRecord;
-import io.github.repir.tools.Content.RecordSortRecord;
+import io.github.repir.tools.Content.StructuredFileSortHash;
+import io.github.repir.tools.Content.StructuredFileSortHashRecord;
+import io.github.repir.tools.Content.StructuredFileSortRecord;
 import io.github.repir.tools.Lib.ArrayTools;
 import io.github.repir.tools.Lib.Log;
 import io.github.repir.tools.Lib.PrintTools;
@@ -119,7 +119,7 @@ public class TermID extends VocabularyToID<File> {
    }
 
    @Override
-   public void reduceInput(int id, String term, long tf, long df) {
+   public void reduceInput(int id, String term, long cf, long df) {
        write(id, term);
    }
 
@@ -138,7 +138,7 @@ public class TermID extends VocabularyToID<File> {
       getFile().setBufferSize(size);
    }
 
-   public class File extends RecordSortHash {
+   public class File extends StructuredFileSortHash {
 
       public String0Field term = this.addString0("term");
       public IntField id = this.addInt("id");
@@ -152,7 +152,7 @@ public class TermID extends VocabularyToID<File> {
       }
 
       @Override
-      public RecordSortRecord createRecord() {
+      public StructuredFileSortRecord createRecord() {
          Record r = new Record(this);
          r.offsetread = this.recordoffset;
          r.id = id.value;
@@ -162,7 +162,7 @@ public class TermID extends VocabularyToID<File> {
 
    }
    
-   public class Record extends RecordSortHashRecord {
+   public class Record extends StructuredFileSortHashRecord {
 
          public String term;
          public int id;

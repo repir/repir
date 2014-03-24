@@ -13,7 +13,6 @@ public class StopWordsSmart {
    public static Log log = new Log( StopWordsSmart.class );
    
    public static String filterarray[] = {
-      // removed "us", because we tokenize U.S. as us.
       "a", "about", "above", "across", "after", "again", "against", "all", "almost", "alone", 
       "along", "already", "also", "although", "always", "among", "an", "and", "another", "any", 
       "anybody", "anyone", "anything", "anywhere", "are", "area", "areas", "around", "as", "ask", 

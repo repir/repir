@@ -1,11 +1,17 @@
 package io.github.repir.Repository;
 
 import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.RecordBinary;
+import io.github.repir.tools.Content.StructuredFile;
 import io.github.repir.tools.Lib.Log;
 import io.github.repir.Repository.PartitionLocation.File;
-import java.io.EOFException;
+import io.github.repir.tools.Content.EOCException;
 
+/**
+ * This feature stores the primary node that stored the data files for each partition. 
+ * Once created, this feature is used automatically to lookup the preferred node,
+ * thus avoiding having to do lookups for every task, which saves a lot of time.
+ * @author jer
+ */
 public class PartitionLocation extends StoredUnreportableFeature<File> {
 
    public static Log log = new Log(PartitionLocation.class);
@@ -19,7 +25,7 @@ public class PartitionLocation extends StoredUnreportableFeature<File> {
       file.location.write(l);
    }
 
-   public void loadMem() throws EOFException {
+   public void loadMem() throws EOCException {
       location = new String[repository.partitions][];
       if (getFile().datafile.exists()) {
          file.openRead();
@@ -43,7 +49,7 @@ public class PartitionLocation extends StoredUnreportableFeature<File> {
             loadMem();
          }
          return (location[id] != null)?location[id]:new String[0];
-      } catch (EOFException ex) {
+      } catch (EOCException ex) {
          log.exception(ex, "get( %d )", id);
       }
       return null;
@@ -54,7 +60,7 @@ public class PartitionLocation extends StoredUnreportableFeature<File> {
       throw new UnsupportedOperationException("Doesnt make sense to use setBufferSize on PartitionLocation");
    }
 
-   public static class File extends RecordBinary {
+   public static class File extends StructuredFile {
 
       public StringArrayField location = this.addStringArray("location");
 

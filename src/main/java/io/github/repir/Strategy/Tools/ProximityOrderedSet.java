@@ -1,18 +1,18 @@
 package io.github.repir.Strategy.Tools;
 import java.util.ArrayList;
 import io.github.repir.Retriever.Document;
-import io.github.repir.Strategy.GraphNode;
+import io.github.repir.Strategy.Operator.Operator;
 import io.github.repir.tools.Lib.Log; 
 
 /**
- * Use with get( Document ) and next();
+ * Returns only occurrences of all Operators in the order of the List that was
+ * given upon initialization.
  * @author Jeroen Vuurens
  */
 public class ProximityOrderedSet extends ProximitySet {
   public static Log log = new Log( ProximityOrderedSet.class );
-  ProximityTerm last;
 
-  public ProximityOrderedSet(ArrayList<GraphNode> containedfeatures) {
+  public ProximityOrderedSet(ArrayList<Operator> containedfeatures) {
      super(containedfeatures);
      
      // uses a fixed proximitytermlist
@@ -20,6 +20,7 @@ public class ProximityOrderedSet extends ProximitySet {
      for (ProximityTerm t : tpi)
         proximitytermlist.add(t);
      last = tpi[tpi.length-1];
+     first = tpi[0];
   }
   
    /*
@@ -29,7 +30,7 @@ public class ProximityOrderedSet extends ProximitySet {
     */  
   public boolean hasProximityMatches(Document doc) {
       boolean ok = true;
-      for (GraphNode f : containedfeatures) {
+      for (Operator f : containedfeatures) {
          f.process(doc);
          if (f.featurevalues.frequency <= 0) {
             ok = false;
@@ -47,13 +48,18 @@ public class ProximityOrderedSet extends ProximitySet {
             }  
          }
          shrink();
+         while ( last.current + last.span - first.current > maximumspan  ) {
+            if (last.move() == Integer.MAX_VALUE)
+               return false;
+            shrink();
+         }
       }
       return ok;
    }
   
    public boolean next() {
-      int first = tpi[0].current;
-      while (tpi[0].current == first && last.move() < Integer.MAX_VALUE) {
+      int firstpos = tpi[0].current;
+      while ((tpi[0].current == firstpos || last.current + last.span - first.current > maximumspan) && last.move() < Integer.MAX_VALUE) {
          shrink();
       }
       return (last.current < Integer.MAX_VALUE);

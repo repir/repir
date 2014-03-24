@@ -4,10 +4,16 @@ import io.github.repir.Repository.TermString.File;
 import io.github.repir.Retriever.Document;
 import io.github.repir.tools.Content.Datafile;
 import io.github.repir.tools.Content.Datafile.Status;
-import io.github.repir.tools.Content.RecordJumpArray;
+import io.github.repir.tools.Content.EOCException;
+import io.github.repir.tools.Content.StructuredFileByteJumpTable;
 import io.github.repir.tools.Content.StructuredDataStream;
 import io.github.repir.tools.Lib.Log;
-import java.io.EOFException;
+
+/**
+ * Stores the stemmed string of terms in the Vocabulary, which can be accessed
+ * by {@link #readValue(int)} using the termID. 
+ * @author jer
+ */
 
 public class TermString extends VocabularyToString<File> {
 
@@ -42,7 +48,7 @@ public class TermString extends VocabularyToString<File> {
             for (entry = 0; entry < size; entry++) {
                cache[entry] = file.term.read();
             }
-         } catch (EOFException ex) {
+         } catch (EOCException ex) {
             log.info("EOF reached at term %d", entry);
             log.exception(ex, "loadMem( %d ) index %s vocfile %s", size, repository, file);
          }
@@ -69,7 +75,7 @@ public class TermString extends VocabularyToString<File> {
    }
 
    @Override
-   public void reduceInput(int id, String term, long tf, long df) {
+   public void reduceInput(int id, String term, long cf, long df) {
         write(term);
    }
 
@@ -88,7 +94,7 @@ public class TermString extends VocabularyToString<File> {
       file.setBufferSize(size);
    }
 
-   public class File extends RecordJumpArray {
+   public class File extends StructuredFileByteJumpTable {
 
       public StructuredDataStream.String0Field term = this.addString0("term");
 

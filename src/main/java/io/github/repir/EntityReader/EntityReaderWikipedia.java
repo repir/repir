@@ -1,8 +1,8 @@
 package io.github.repir.EntityReader;
 
-import java.io.EOFException;
+import io.github.repir.EntityReader.MapReduce.EntityWritable;
+import io.github.repir.tools.Content.EOCException;
 import io.github.repir.tools.Content.HDFSIn;
-import io.github.repir.Extractor.Entity;
 import io.github.repir.tools.Lib.Log;
 import java.io.IOException;
 import org.apache.hadoop.fs.Path;
@@ -10,18 +10,12 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import io.github.repir.tools.Lib.ByteTools;
 
 /**
- * An implementation of RepIREntityReader that scans the input for TREC style
- * documents, that are enclosed in <DOC></DOC> tags. The used tags may be
- * overridden by setting different tags in entityreader.entitystart and
- * entityreader.entityend.
- * <p/>
- * NOTE that the original TREC disks contain .z files, which cannot be
- * decompressed by Java. The files must therefore be decompressed outside this
- * framework.
+ * An implementation of EntityReader that scans the input for Wikipedia
+ * XML dumps, that are enclosed in <page></page> tags.
  * <p/>
  * @author jeroen
  */
-public class EntityReaderWikipedia extends RepIREntityReader {
+public class EntityReaderWikipedia extends EntityReader {
 
    public static Log log = new Log(EntityReaderWikipedia.class);
    private byte[] startTag;
@@ -93,12 +87,8 @@ public class EntityReaderWikipedia extends RepIREntityReader {
                }
             } else {
                entitywritable.writeByte(b);
-
-//               if (needleposition == 0 && !fsin.hasMore()) {  // see if we've passed the stop point:
-//                  return false;
-//               }
             }
-         } catch (EOFException ex) {
+         } catch (EOCException ex) {
             return false;
          }
       }
@@ -122,7 +112,7 @@ public class EntityReaderWikipedia extends RepIREntityReader {
                   return false;
                }
             }
-         } catch (EOFException ex) {
+         } catch (EOCException ex) {
             return false;
          }
       }

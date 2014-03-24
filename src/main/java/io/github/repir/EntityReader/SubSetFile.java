@@ -1,7 +1,7 @@
 package io.github.repir.EntityReader;
 
 import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.RecordBinary;
+import io.github.repir.tools.Content.StructuredFile;
 import io.github.repir.tools.Lib.Log;
 
 /**
@@ -10,7 +10,7 @@ import io.github.repir.tools.Lib.Log;
  * offsets can be used to retrieve the posting lists from disk. The offsets
  * point directly to the posting list in the accompanying datafile.
  */
-public class SubSetFile extends RecordBinary {
+public class SubSetFile extends StructuredFile {
 
    public static Log log = new Log(SubSetFile.class);
 

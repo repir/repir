@@ -1,15 +1,19 @@
 package io.github.repir.EntityReader;
 
+import io.github.repir.EntityReader.MapReduce.EntityWritable;
+import io.github.repir.Extractor.Tools.ExtractRestore;
+import io.github.repir.tools.ByteSearch.ByteSearch;
 import io.github.repir.tools.Content.Datafile;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.tools.Content.EOCException;
+import io.github.repir.tools.ByteSearch.ByteSearchString;
+import io.github.repir.tools.ByteSearch.ByteSection;
 import io.github.repir.tools.Lib.ByteTools;
 import io.github.repir.tools.Lib.Log;
-import java.io.EOFException;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
 /**
- * An implementation of RepIREntityReader that reads the ClueWeb09 collection. In
+ * An implementation of EntityReader that reads the ClueWeb09 collection. In
  * this collection, each document is preceded by a WARC header, which contains
  * document metadata and length. Each document has a WarcIDTag of 25 characters,
  * which s used to validate Warc headers of correct documents.
@@ -31,13 +35,14 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
  * <p/>
  * @author jeroen
  */
-public class EntityReaderCW extends RepIREntityReader {
+public class EntityReaderCW extends EntityReader {
 
    public static Log log = new Log(EntityReaderCW.class);
    private byte[] warcTag = "WARC/0.18".getBytes();
-   private byte[] contentlength = "\nContent-Length: ".getBytes();
-   private byte[] warcIDTag = "WARC-TREC-ID: ".getBytes();
-   private byte[] eol = "\n".getBytes();
+   private ByteSearch contentlength = ByteSearch.create("\nContent\\-Length: ");
+   private ByteSearch warcIDTag = ByteSearch.create("WARC\\-TREC\\-ID: ");
+   private ByteSearch eol = ByteSearch.create("\n");
+   private ByteSection warcID = new ByteSection(warcIDTag, eol);
    private idlist ids;
    private int spamthreshold;
 
@@ -46,7 +51,6 @@ public class EntityReaderCW extends RepIREntityReader {
       Path file = fileSplit.getPath();
       String directory = getDir(file);
       spamthreshold = conf.getInt("repository.spamthreshold", 0);
-      //log.info("directory %s", directory);
       String spamlist = conf.getSubString("repository.spamlist", null);
       String idlist = conf.getSubString("repository.idlist", null);
       if (spamlist != null) {
@@ -61,25 +65,27 @@ public class EntityReaderCW extends RepIREntityReader {
    public boolean nextKeyValue() {
       while (fsin.hasMore()) {
          readEntity();
-         String id = io.github.repir.tools.Lib.ByteTools.extract(entitywritable.entity.content, warcIDTag, eol, 0, entitywritable.entity.content.length, false, false);
-         if (id.length() == 25 && (ids == null || ids.get(id))
-                 && (onlypartition < 0 || onlypartition == io.github.repir.Repository.Repository.partition(id, partitions))) {
-            //log.info("id %s", id);
-            entitywritable.entity.get("collectionid").add(id);
-            int p = io.github.repir.tools.Lib.ByteTools.find(entitywritable.entity.content, contentlength, 0, entitywritable.entity.content.length, false, false);
-            if (p >= 0) {
-               p = io.github.repir.tools.Lib.ByteTools.find(entitywritable.entity.content, contentlength, p + contentlength.length, entitywritable.entity.content.length - p - contentlength.length, false, false);
+         String id = warcID.getFirstString(entitywritable.entity.content, 0, entitywritable.entity.content.length);
+         //log.info("id '%s' %b", id, ids.get(id));
+         //if (id.equals("clueweb09-en0018-36-15242")) {
+            if (id.length() == 25 && (ids == null || ids.get(id))
+                    && (onlypartition < 0 || onlypartition == io.github.repir.Repository.Repository.partition(id, partitions))) {
+               entitywritable.entity.get("collectionid").add(id);
+               int p = contentlength.findEnd(entitywritable.entity.content, 0, entitywritable.entity.content.length);
                if (p >= 0) {
-                  p = ByteTools.find(entitywritable.entity.content, (byte) '\n', p + contentlength.length, entitywritable.entity.content.length - p - contentlength.length);
-                  if (++p > 0) {
-                     entitywritable.entity.addSectionPos("warcheader", 0, 0, p, p);
-                     entitywritable.entity.addSectionPos("all", p, p, entitywritable.entity.content.length, entitywritable.entity.content.length);
+                  p = contentlength.findEnd(entitywritable.entity.content, p, entitywritable.entity.content.length);
+                  if (p >= 0) {
+                     p = eol.findEnd(entitywritable.entity.content, p, entitywritable.entity.content.length);
+                     if (p > 0) {
+                        entitywritable.entity.addSectionPos("warcheader", 0, 0, p, p);
+                        entitywritable.entity.addSectionPos("all", p, p, entitywritable.entity.content.length, entitywritable.entity.content.length);
+                     }
                   }
                }
+               key.set(fsin.getOffset());
+               return true;
             }
-            key.set(fsin.getOffset());
-            return true;
-         }
+         //}
       }
       return false;
    }
@@ -104,7 +110,7 @@ public class EntityReaderCW extends RepIREntityReader {
             } else {
                entitywritable.writeByte(b);
             }
-         } catch (EOFException ex) {
+         } catch (EOCException ex) {
             entitywritable.writeBytes(warcTag, 0, match);
             break;
          }

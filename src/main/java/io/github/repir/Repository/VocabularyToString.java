@@ -1,9 +1,15 @@
 package io.github.repir.Repository;
 
-import io.github.repir.tools.Content.RecordBinary;
+import io.github.repir.tools.Content.StructuredFile;
 import io.github.repir.tools.Lib.Log;
 
-public abstract class VocabularyToString<F extends RecordBinary> extends StoredUnreportableFeature<F> implements DictionaryFeature {
+/**
+ * This class can convert content that is described as an array of TermID's
+ * to an array of string tokens.
+ * @author jer
+ * @param <F> 
+ */
+public abstract class VocabularyToString<F extends StructuredFile> extends StoredUnreportableFeature<F> implements DictionaryFeature {
 
    public static Log log = new Log(VocabularyToString.class);
 

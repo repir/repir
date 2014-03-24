@@ -1,23 +1,25 @@
 package io.github.repir.Extractor.Tools;
 
-import io.github.repir.tools.ByteRegex.ByteRegex;
-import io.github.repir.tools.ByteRegex.ByteRegex.Pos;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.tools.ByteSearch.ByteRegex;
+import io.github.repir.tools.ByteSearch.ByteSearchPosition;
+import io.github.repir.EntityReader.Entity;
 import io.github.repir.Extractor.Extractor;
+import io.github.repir.tools.ByteSearch.ByteSearch;
 import io.github.repir.tools.Lib.Log;
 import java.util.ArrayList;
 
 /**
- * Marks <doctitle> </doctitle> sections.
+ * Marks a <ti> </ti> section within a <header> </header> section, which is
+ * sometimes used in news wired to tag the title.
  * <p/>
  * @author jbpvuurens
  */
 public class MarkHeader extends SectionMarker {
 
    public static Log log = new Log(MarkHeader.class);
-   public ByteRegex endmarker = new ByteRegex("</header>");
-   public ByteRegex ti = new ByteRegex("<TI>");
-   public ByteRegex endti = new ByteRegex("</TI>");
+   public ByteSearch endmarker = ByteSearch.create("</header>");
+   public ByteSearch ti = ByteSearch.create("<TI>");
+   public ByteSearch endti = ByteSearch.create("</TI>");
 
    public MarkHeader(Extractor extractor, String inputsection, String outputsection) {
       super(extractor, inputsection, outputsection);
@@ -29,18 +31,16 @@ public class MarkHeader extends SectionMarker {
    }
 
    @Override
-   public void process(Entity entity, int sectionstart, int sectionend, ArrayList<Pos> positions) {
-      for (Pos start : positions) {
-         Pos end = endmarker.find(entity.content, start.end, sectionend);
-         if (end.found() && end.start > start.end) {
-            Pos t = ti.find(entity.content, start.end, end.start);
+   public void process(Entity entity, int sectionstart, int sectionend, ByteSearchPosition position) {
+      ByteSearchPosition end = endmarker.findPos(entity.content, position.end, sectionend);
+      if (end.found() && end.start > position.end) {
+         ByteSearchPosition t = ti.findPos(entity.content, position.end, end.start);
+         if (t.found()) {
+            position.end = t.end;
+            t = endti.findPos(entity.content, position.end, end.start);
             if (t.found()) {
-               start.end = t.end;
-               t = endti.find(entity.content, start.end, end.start);
-               if (t.found()) {
-                  end.start = t.start;
-                  entity.addSectionPos(outputsection, start.start, start.end, end.start, end.end);
-               }
+               end.start = t.start;
+               entity.addSectionPos(outputsection, position.start, position.end, end.start, end.end);
             }
          }
       }

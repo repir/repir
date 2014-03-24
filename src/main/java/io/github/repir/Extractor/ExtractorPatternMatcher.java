@@ -1,11 +1,18 @@
 package io.github.repir.Extractor;
 
-import io.github.repir.tools.ByteRegex.ByteRegex;
-import io.github.repir.tools.ByteRegex.ByteRegex.Pos;
+import io.github.repir.EntityReader.Entity;
+import io.github.repir.tools.ByteSearch.ByteRegex;
+import io.github.repir.tools.ByteSearch.ByteSearchPosition;
 import io.github.repir.Extractor.Tools.SectionMarker;
 import io.github.repir.tools.Lib.Log;
 import java.util.ArrayList;
 
+/**
+ * Helper class for {@link Extractor} to mark {@link Section}s in an
+ * {@link Entity}s content.
+ *
+ * @author jer
+ */
 public class ExtractorPatternMatcher {
 
    public static Log log = new Log(ExtractorPatternMatcher.class);
@@ -26,17 +33,9 @@ public class ExtractorPatternMatcher {
    }
 
    void processSectionMarkers(Entity entity, int sectionstart, int sectionend) {
-      //log.info("processSectionMarkers %s %d %d", section, sectionstart, sectionend);
-      ArrayList<Pos> pos = patternmatcher.findAll(entity.content, sectionstart, sectionend);
-      for (int pattern = 0; pattern < markers.size(); pattern++) {
-         ArrayList<Pos> positions = new ArrayList<Pos>();
-         for (Pos start : pos) { // find all possible section starts
-            if (pattern == start.pattern) {
-               positions.add(start);
-            }
-         }
-         //log.info("markers.process %s", positions);
-         markers.get(pattern).process(entity, sectionstart, sectionend, positions);
+      ArrayList<ByteSearchPosition> positions = patternmatcher.findAllPos(entity.content, sectionstart, sectionend);
+      for (ByteSearchPosition pos : positions) { // find all possible section starts
+         markers.get(pos.pattern).process(entity, sectionstart, sectionend, pos);
       }
    }
 }

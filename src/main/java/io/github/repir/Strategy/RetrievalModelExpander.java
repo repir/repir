@@ -4,10 +4,12 @@ import io.github.repir.Retriever.Retriever;
 import io.github.repir.tools.Lib.Log; 
 
 /**
- *
+ * A RetrievalModel that reformulates it query by implementing {@link #getQueryToRetrieve() }
+ * and optionally override {@link #postReform() }, which by default switches the
+ * {@link RetrievalModel} to the default {@link RetrievalModel}.
  * @author Jeroen Vuurens
  */
-public class RetrievalModelExpander extends RetrievalModel {
+public abstract class RetrievalModelExpander extends RetrievalModel {
   public static Log log = new Log( RetrievalModelExpander.class ); 
 
    public RetrievalModelExpander(Retriever retriever) {
@@ -17,7 +19,7 @@ public class RetrievalModelExpander extends RetrievalModel {
    @Override
    public Query postReform() {
       Query q = super.postReform();
-      q.setStrategyClass(RetrievalModel.class.getSimpleName());
+      q.setStrategyClassname(RetrievalModel.class.getSimpleName());
       return q;
    }
 }

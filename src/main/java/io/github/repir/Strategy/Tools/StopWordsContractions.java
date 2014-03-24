@@ -5,9 +5,7 @@ import io.github.repir.tools.Stemmer.englishStemmer;
 import java.util.HashSet;
 
 /**
- * Stop word list of 429 terms from http://www.lextek.com/manuals/onix/stopwords1.html
- * which is the original list of stop words Salton & Buckley orginally used for
- * the SMART system at Cornell University, which was slightly trimmed down.
+ * List of contractions that can be considered stop words.
  */
 public class StopWordsContractions {
    public static Log log = new Log( StopWordsContractions.class );

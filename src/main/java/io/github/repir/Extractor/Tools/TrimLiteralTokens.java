@@ -1,8 +1,8 @@
 package io.github.repir.Extractor.Tools;
 
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.Extractor.Entity;
-import io.github.repir.Extractor.EntityAttribute;
+import io.github.repir.EntityReader.Entity;
+import io.github.repir.Extractor.EntityChannel;
 import io.github.repir.Extractor.Extractor;
 import io.github.repir.tools.DataTypes.ByteArrayPos;
 
@@ -21,8 +21,8 @@ public class TrimLiteralTokens extends ExtractorProcessor {
    }
 
    @Override
-   public void process(Entity entity, Entity.SectionPos section, String attributename) {
-      EntityAttribute attribute = entity.get(attributename);
+   public void process(Entity entity, Entity.Section section, String attributename) {
+      EntityChannel attribute = entity.get(attributename);
       if (attribute.size() > 0) {
          StringBuilder sb = new StringBuilder();
          for (String chunk : attribute) {

@@ -2,16 +2,21 @@ package io.github.repir.Repository;
 
 import io.github.repir.Retriever.Document;
 import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.RecordJump2Array;
+import io.github.repir.tools.Content.StructuredFileShortJumpTable;
 import io.github.repir.tools.Content.StructuredDataStream;
-import io.github.repir.EntityReader.TermEntityKey;
-import io.github.repir.EntityReader.TermEntityValue;
+import io.github.repir.EntityReader.MapReduce.TermEntityKey;
+import io.github.repir.EntityReader.MapReduce.TermEntityValue;
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.EntityReader.Entity;
 import io.github.repir.Repository.DocLiteral.File;
-import java.io.EOFException;
+import io.github.repir.tools.Content.EOCException;
 
-public class DocLiteral extends EntityStoredFeature<File, String> implements ReducableFeature, ReportableFeature<String>  {
+/**
+ * Can store one literal String per Document, e.g. collection ID, title, url.
+ * @see EntityStoredFeature
+ * @author jer
+ */
+public class DocLiteral extends EntityStoredFeature<File, String> implements ReducibleFeature, ReportableFeature<String>  {
 
    public static Log log = new Log(DocLiteral.class);
 
@@ -34,13 +39,13 @@ public class DocLiteral extends EntityStoredFeature<File, String> implements Red
          TermEntityValue value = values.iterator().next();
          String literal = value.reader.readString();
          file.literal.write(literal);
-      } catch (EOFException ex) {
+      } catch (EOCException ex) {
          log.exception(ex, "reduceInput( %s, %s ) file %s", key, values, file);
       }
    }
 
    @Override
-   public void encode(Document d) {
+   public void encode(Document d, int reportid) {
       //log.info("encode %s doc %d reportid %d value %s", this.getCanonicalName(), d.docid, reportid, d.getReportedFeature(reportid));
       String literal = (String) d.getReportedFeature(reportid);
       bdw.write(literal);
@@ -48,23 +53,19 @@ public class DocLiteral extends EntityStoredFeature<File, String> implements Red
    }
 
    @Override
-   public void decode(Document d) {
+   public void decode(Document d, int reportid) {
       reader.setBuffer((byte[]) d.getReportedFeature(reportid));
-      try {
-         d.setReportedFeature(reportid, reader.readString());
-      } catch (EOFException ex) {
-         log.fatalexception(ex, "decode( %s ) reader %s", d, reader);
-      }
+      d.setReportedFeature(reportid, reader.readString());
    }
 
    @Override
-   public void report(Document doc) {
+   public void report(Document doc, int reportid) {
       //log.info("report %s doc %d reportid %d value %s", this.getCanonicalName(), doc.docid, reportid, getValue());
       doc.setReportedFeature(reportid, getValue());
    }
 
    @Override
-   public String valueReported(Document doc) {
+   public String valueReported(Document doc, int reportid) {
       return (String) doc.getReportedFeature(reportid);
    }
    
@@ -121,7 +122,7 @@ public class DocLiteral extends EntityStoredFeature<File, String> implements Red
       return getFile().isLoadedInMem();
    }
    
-   public static class File extends RecordJump2Array {
+   public static class File extends StructuredFileShortJumpTable {
 
       public StringField literal = this.addString("directterm");
 

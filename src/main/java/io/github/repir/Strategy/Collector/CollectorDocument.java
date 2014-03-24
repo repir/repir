@@ -1,6 +1,5 @@
 package io.github.repir.Strategy.Collector;
 
-import java.io.EOFException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -8,21 +7,22 @@ import java.util.HashSet;
 import java.util.TreeSet;
 import io.github.repir.Repository.ReportedUnstoredFeature;
 import io.github.repir.Strategy.GraphComponent.ANNOUNCEKEY;
-import io.github.repir.Strategy.GraphNode;
-import io.github.repir.Strategy.Tools.ScoreFunction;
+import io.github.repir.Strategy.Operator.Operator;
+import io.github.repir.Strategy.ScoreFunction.ScoreFunction;
 import io.github.repir.Retriever.Document;
+import io.github.repir.Retriever.ReportedFeature;
 import io.github.repir.Strategy.RetrievalModel;
 import io.github.repir.Strategy.Strategy;
+import io.github.repir.tools.Content.EOCException;
 import io.github.repir.tools.Content.StructureReader;
 import io.github.repir.tools.Content.StructureWriter;
 import io.github.repir.tools.Lib.Log;
 
 /**
- * Default mastercollector to retrieve a ranked list of documents. Each document
- * is scored by the documentPrior + sum of leaf usedfeatures. The {@link Retriever#getDefaultLimit()
- * }
- * is called to determine the maximum number of documents retrieved. The
- * query.documentlimit is used to documentlimit the retrieved list.
+ * Default collector used by {@link RetrievalModel} to retrieve a ranked list of documents. 
+ * Each document is scored by the documentPrior + sum of Scorable features. 
+ * The {@link Query} specifies the maximum number of documents retrieved, which can
+ * usually be configured as "retriever.documentlimit". 
  * <p/>
  * @author jeroen
  */
@@ -32,7 +32,7 @@ public class CollectorDocument extends Collector {
    private Document sortedDocs[];
    private Comparator<Document> documentcomparator;
    private TreeSet<Document> collectedDocs;
-   private ArrayList<GraphNode> scorables;
+   private ArrayList<Operator> scorables;
    RetrievalModel retrievalmodel;
    ScoreFunction scorefunction;
    double lowestscore = Double.MAX_VALUE;
@@ -81,18 +81,18 @@ public class CollectorDocument extends Collector {
 
    @Override
    public void prepareRetrieval() {
-      for (ReportedUnstoredFeature f : retrievalmodel.getFeatures().getReportedUnstoredFeatures()) {
-         f.prepareRetrieval(strategy);
+      for (ReportedFeature<ReportedUnstoredFeature> f : retrievalmodel.getReportedUnstoredFeatures()) {
+         f.feature.prepareRetrieval(strategy);
       }
       scorables = retrievalmodel.root.getAnnounce(ANNOUNCEKEY.SCORABLE);
-      HashSet<GraphNode> list = new HashSet<GraphNode>();
-      for (GraphNode n : scorables) {
+      HashSet<Operator> list = new HashSet<Operator>();
+      for (Operator n : scorables) {
          while (n.parent != retrievalmodel.root) {
-            n = (GraphNode) n.parent;
+            n = (Operator) n.parent;
          }
          list.add(n);
       }
-      for (GraphNode n : list) {
+      for (Operator n : list) {
          n.doPrepareRetrieval();
       }
       scorefunction = ScoreFunction.create(retrievalmodel.root);
@@ -114,8 +114,8 @@ public class CollectorDocument extends Collector {
    @Override
    public void prepareAggregation() {
       super.prepareAggregation();
-      containedfeatures = retrievalmodel.root.containedfeatures;
-      this.limit = retrievalmodel.query.documentlimit;
+      containedfeatures = retrievalmodel.root.containednodes;
+      this.limit = retrievalmodel.getDocumentLimit();
    }
 
    @Override
@@ -142,8 +142,8 @@ public class CollectorDocument extends Collector {
    protected void addDocumentRetrieval(Document doc) {
       if (collectedDocs.size() < limit) {
          collectedDocs.add(doc);
-         for (ReportedUnstoredFeature f : retrievalmodel.getFeatures().getReportedUnstoredFeatures()) {
-            f.report(doc);
+         for (ReportedFeature<ReportedUnstoredFeature> f : retrievalmodel.getReportedUnstoredFeatures()) {
+            f.feature.report(doc, f.reportID);
          }
          if (doc.score < lowestscore) {
             lowestscore = doc.score;
@@ -152,8 +152,8 @@ public class CollectorDocument extends Collector {
          collectedDocs.pollLast();
          collectedDocs.add(doc);
          lowestscore = collectedDocs.last().score;
-         for (ReportedUnstoredFeature f : retrievalmodel.getFeatures().getReportedUnstoredFeatures()) {
-            f.report(doc);
+         for (ReportedFeature<ReportedUnstoredFeature> f : retrievalmodel.getReportedUnstoredFeatures()) {
+            f.feature.report(doc, f.reportID);
          }
       }
    }
@@ -177,7 +177,7 @@ public class CollectorDocument extends Collector {
             doc.read(reader);
             sortedDocs[d] = doc;
          }
-      } catch (EOFException ex) {
+      } catch (EOCException ex) {
          log.fatalexception(ex, "read( %s )", reader);
       }
    }
@@ -194,7 +194,7 @@ public class CollectorDocument extends Collector {
    @Override
    public void postLoadFeatures(int partition) {
       if (!retrievalmodel.root.needsPrePass()) {
-         retriever.readReportedStoredFeatures(collectedDocs, retrievalmodel.getFeatures().getReportedStoredFeatures(), partition);
+         retriever.readReportedStoredFeatures(collectedDocs, retrievalmodel.getReportedStoredFeatures(), partition);
       }
    }
 
@@ -210,7 +210,7 @@ public class CollectorDocument extends Collector {
          }
       } else if (cd.sortedDocs != null && cd.sortedDocs.length > 0) {
          Document newlist[] = new Document[Math.min(sortedDocs.length + cd.sortedDocs.length,
-                 retrievalmodel.query.documentlimit)];
+                 retrievalmodel.getDocumentLimit())];
          int p2 = 0, p3 = 0;
          for (int p1 = 0; p1 < newlist.length; p1++) {
             if (documentcomparator.compare(sortedDocs[p2], cd.sortedDocs[p3]) < 0) {
@@ -253,11 +253,11 @@ public class CollectorDocument extends Collector {
    }
 
    @Override
-   public void readKey(StructureReader reader) throws EOFException {
+   public void readKey(StructureReader reader) throws EOCException {
    }
 
    @Override
-   public void readID(StructureReader reader) throws EOFException {
+   public void readID(StructureReader reader) throws EOCException {
       reader.readInt();
    }
 }

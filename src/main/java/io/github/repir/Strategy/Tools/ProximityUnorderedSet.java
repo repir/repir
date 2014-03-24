@@ -1,26 +1,31 @@
 package io.github.repir.Strategy.Tools;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import io.github.repir.Retriever.Document;
-import io.github.repir.Strategy.GraphNode;
-import io.github.repir.tools.Lib.ArrayTools;
+import io.github.repir.Strategy.Operator.Operator;
 import io.github.repir.tools.Lib.Log;
 
 /**
- *
+ * Iterates over all co-occurrences in the document that contain all Operators in any order.
+ * By definition, co-occurrences matched cannot overlap. ProximityUnorderedSet 
+ * minimizes the number of occurrences returned, bringing all operators before the last
+ * to a position as close as possible and before the last position. However, it does not
+ * look ahead, and therefore cannot determine whether the last Operator will be pat of a 
+ * smaller occurrence later on. The returned co-occurrences may therefore contain
+ * overlapping positions, which should be pruned by the caller.
+ * 
  * @author Jeroen Vuurens
  */
 public class ProximityUnorderedSet extends ProximitySet {
 
    public static Log log = new Log(ProximityUnorderedSet.class);
 
-   public ProximityUnorderedSet(ArrayList<GraphNode> containedfeatures) {
+   public ProximityUnorderedSet(ArrayList<Operator> containedfeatures) {
       super(containedfeatures);
    }
 
    public boolean hasProximityMatches(Document doc) {
-      for (GraphNode f : containedfeatures) {
+      for (Operator f : containedfeatures) {
          f.process(doc);
       }
       for (int i = containedfeatures.size() - 1; i >= 0; i--) {
@@ -29,23 +34,28 @@ public class ProximityUnorderedSet extends ProximitySet {
             return false;
          }
       }
+      
       proximitytermlist = new ProximityTermList();
       for (ProximityTerm t : tpi) {
          proximitytermlist.add(t);
       }
-      pollFirst();
+      pollFirstLast();
       first.moveFirstBelowNext();
+      if ( last.current + last.span - first.current > maximumspan ) {
+         return next();
+      } 
       return true;
    }
 
    @Override
    public boolean next() {
-      if (first.next() < Integer.MAX_VALUE) {
+      do {
+         if (first.next() == Integer.MAX_VALUE)
+            return false;
          proximitytermlist.add(first);
-         pollFirst();
+         pollFirstLast();
          first.moveFirstBelowNext();
-         return true;
-      }
-      return false;
+      } while (last.current + last.span - first.current > maximumspan);
+      return true;
    }
 }

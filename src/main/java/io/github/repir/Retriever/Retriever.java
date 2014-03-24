@@ -3,57 +3,47 @@ package io.github.repir.Retriever;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.TreeSet;
 import io.github.repir.Strategy.Collector.Collector;
 import io.github.repir.Strategy.Collector.CollectorCachable;
-import io.github.repir.Extractor.Entity;
-import io.github.repir.Extractor.EntityAttribute;
+import io.github.repir.EntityReader.Entity;
+import io.github.repir.Extractor.EntityChannel;
 import io.github.repir.Extractor.Extractor;
 import io.github.repir.Extractor.ExtractorQuery;
 import io.github.repir.Extractor.Tools.ConvertToLowercase;
 import io.github.repir.Extractor.Tools.ConvertToLowercaseQuery;
 import io.github.repir.Extractor.Tools.StemTokensQuery;
-import io.github.repir.Repository.ReportableFeature;
 import io.github.repir.Repository.Repository;
-import io.github.repir.Repository.StoredDynamicFeature;
 import io.github.repir.Repository.StoredReportableFeature;
-import io.github.repir.RetrieverMR.RetrieverMR;
 import io.github.repir.Strategy.RetrievalModel;
 import io.github.repir.Strategy.Strategy;
-import io.github.repir.tools.Content.RecordHeaderDataRecord;
 import io.github.repir.tools.DataTypes.TreeMapComparable;
 import io.github.repir.tools.DataTypes.TreeMapComparable.TYPE;
-import io.github.repir.tools.DataTypes.TreeSetComparable;
 import io.github.repir.tools.Lib.Log;
 import io.github.repir.tools.Stemmer.englishStemmer;
 
 /**
- * Gives access to an existing {@link Repository.Repository}. The most common
- * way to setup an Retriever is to readValue the repository Configuration from
- * file, create an Repository object using the Repository configuration, and
- * create an Retriever using the Repository.
+ * Gives access to an existing {@link Repository.Repository}. A retriever can 
+ * execute a Strategy, possibly seeded by a Query with instructions on a 
+ * repository. To maximize flexibility, the retrieval/analysis process has no 
+ * knowledge of the features contained in the Repository, the Strategy, 
+ * what the results are and how this are retrieved. The retriever rather manages
+ * the retrieval process for a given Query, by instantiating the specified 
+ * Strategy, and orchestrates the retrieval either standalone or over MapReduce.
+ * The retriever will trigger a sequence of phases in which retrieval is performed 
+ * by configurable components.
  * <p/>
  * The most common way to retrieveQueries a single Query, is to construct a
  * Query object using {@link #constructDefaultQuery(java.lang.String)} and call
  * {@link #retrieveQuery(Retriever.Query)}. The query object that is returned
  * contains the results.
  * <p/>
- * Under the hood, the retrieval process is separated in different objects
- * working together. The Query contains the name of the
- * {@link Strategy.Strategy} class, which is used to construct a Retrieval
- * Model. The Retrieval Model will use the query to build an inference model,
- * i.e. the query is parsed into a network of nodes, that first extract all
- * necessary usedfeatures from a document, then process those usedfeatures,
- * resulting in collected results.
- * <p/>
  */
 public class Retriever {
 
    public static Log log = new Log(Retriever.class);
-   public static Log log2 = new Log(RetrieverMR.class);
    public Repository repository;
    public ExtractorQuery extractor;
    public ArrayList<Query> queue = new ArrayList<Query>();
@@ -61,11 +51,14 @@ public class Retriever {
 
    /**
     * @param repository The Repository containing the location, filename,
-    * usedfeatures and statistics for the repository
+    * requestedfeatures and statistics for the repository
     */
    protected Retriever() {
    }
 
+    /**
+     * Setup an Retriever for a Repository.
+     */
    public Retriever(Repository repository) {
       this.repository = repository;
    }
@@ -86,7 +79,7 @@ public class Retriever {
     * @param docs
     * @param containedfeatures
     */
-   public void readReportedStoredFeatures(Collection<Document> docs, Collection<StoredReportableFeature> features, int partition) {
+   public void readReportedStoredFeatures(Collection<Document> docs, Collection<ReportedFeature<StoredReportableFeature>> features, int partition) {
       log.s("readReportedStoredFeatures");
       int MAXMEMORY = 100000000;
       TreeSet<Document> docids = new TreeSet<Document>(new Comparator<Document>() {
@@ -98,13 +91,13 @@ public class Retriever {
 
       int memoryleft = MAXMEMORY;
       TreeMapComparable<Long, StoredReportableFeature> sizes = new TreeMapComparable<Long, StoredReportableFeature>(TYPE.DUPLICATESASCENDING);
-      for (StoredReportableFeature f : features) {
-         if (f.partition != partition) {
-            f.setPartition(partition);
-            if (!f.isReadResident())
-               sizes.put(f.getBytesSize(), f);
+      for (ReportedFeature<StoredReportableFeature> f : features) {
+         if (f.feature.partition != partition) {
+            f.feature.setPartition(partition);
+            if (!f.feature.isReadResident())
+               sizes.put(f.feature.getBytesSize(), f.feature);
          } else {
-            memoryleft -= f.getBytesSize();
+            memoryleft -= f.feature.getBytesSize();
          }
       }
       int featuresleft = features.size();
@@ -117,19 +110,19 @@ public class Retriever {
             break;
          }
       }
-      for (StoredReportableFeature f : features) {
-         if (!f.isReadResident()) {
-            f.setBufferSize((int)Math.min(50000000, f.getBytesSize()));
-            f.openRead();
+      for (ReportedFeature<StoredReportableFeature> f : features) {
+         if (!f.feature.isReadResident()) {
+            f.feature.setBufferSize((int)Math.min(50000000, f.feature.getBytesSize()));
+            f.feature.openRead();
          } else {
-            f.reuse();
+            f.feature.reuse();
          }
          for (Document d : docids) {
-            f.read(d);
-            ((ReportableFeature)f).report(d);
+            f.feature.read(d);
+            f.feature.report(d, f.reportID);
          }
-         if (!f.isReadResident()) {
-            f.closeRead();
+         if (!f.feature.isReadResident()) {
+            f.feature.closeRead();
          }
       }
       
@@ -165,8 +158,8 @@ public class Retriever {
    public Query constructQueryRequest(int id, String query) {
       Query q = new Query(repository, id, query);
       q.documentlimit = repository.getConfiguration().getInt("retriever.documentlimit", 10);
-      q.setStrategyClass(repository.getConfiguration().getSubString("retriever.strategy", "RetrievalModel"));
-      q.setScorefunctionClass(repository.getConfiguration().getSubString("retriever.scorefunction", "ScoreFunctionKLD"));
+      q.setStrategyClassname(repository.getConfiguration().getSubString("retriever.strategy", "RetrievalModel"));
+      q.setScorefunctionClassname(repository.getConfiguration().getSubString("retriever.scorefunction", "ScoreFunctionKLD"));
       q.documentclass = repository.getConfiguration().getSubString("retriever.documentclass", Document.class.getCanonicalName());
       q.documentcomparatorclass = repository.getConfiguration().getSubString("retriever.documentcomparatorclass", DocumentComparator.class.getCanonicalName());
       q.performStemming = repository.getConfiguration().getBoolean("retriever.stem", false);
@@ -198,7 +191,6 @@ public class Retriever {
       while (!q.done()) {
          Strategy retrievalmodel = constructStrategy(q);
          q = retrieveSinglePass(retrievalmodel);
-         log.info("results %s %s", q.getScorefunctionClass(), q.getStrategyClass(), q.queryresults);
       }
       return q;
    }
@@ -308,9 +300,9 @@ public class Retriever {
       //log.info("tokenizeString %d %s %b %b %b", q.id, q.originalquery, q.performLowercasing, q.performStemming, q.removeStopwords);
       getExtractor();
       if (!q.performLowercasing)
-         extractor.removeProcessor("repirquery", ConvertToLowercaseQuery.class);
+         extractor.removeProcessor("rrquery", ConvertToLowercaseQuery.class);
       if (!q.performStemming)
-         extractor.removeProcessor("repirquery", StemTokensQuery.class);
+         extractor.removeProcessor("rrquery", StemTokensQuery.class);
       String query = q.originalquery.replaceAll("[!/]", " ").replaceAll("\\s+", " ");
       Entity entity = new Entity();
       ConvertToLowercase lc = new ConvertToLowercase(extractor, "");
@@ -318,7 +310,7 @@ public class Retriever {
       extractor.process(entity);
       StringBuilder sb = new StringBuilder();
       ArrayList<String> finalterms = new ArrayList<String>();
-      EntityAttribute channel = entity.get("repirquery");
+      EntityChannel channel = entity.get("rrquery");
       for (String chunk : channel) {
          char last = sb.length() == 0 ? 0 : sb.charAt(sb.length() - 1);
          char first = chunk.length() == 0 ? 0 : chunk.charAt(0);

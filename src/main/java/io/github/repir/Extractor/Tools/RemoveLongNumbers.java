@@ -1,7 +1,7 @@
 package io.github.repir.Extractor.Tools;
 
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.EntityReader.Entity;
 import io.github.repir.Extractor.Extractor;
 import io.github.repir.tools.Lib.BoolTools;
 import java.util.Iterator;
@@ -17,26 +17,23 @@ import java.util.Iterator;
 public class RemoveLongNumbers extends ExtractorProcessor {
 
    private static Log log = new Log(RemoveLongNumbers.class);
-   boolean number[] = BoolTools.createASCIIAcceptRange('0', '9');
    final int maxlength;
+   boolean number[];
 
    public RemoveLongNumbers(Extractor extractor, String process) {
       super(extractor, process);
-      number['.'] = true;
       maxlength = extractor.conf.getInt("extractor." + process + ".removelongnumbers", 5);
+      number = BoolTools.createASCIIAcceptRange('0', '9');
    }
 
    @Override
-   public void process(Entity entity, Entity.SectionPos section, String attribute) {
+   public void process(Entity entity, Entity.Section section, String attribute) {
       int j;
       Iterator<String> iter = entity.get(attribute).iterator();
       while (iter.hasNext()) {
          String chunk = iter.next();
-         if (chunk.length() > maxlength) {
-            char c = chunk.charAt(0);
-            if (c <= '9' && c >= '0') {
+         if (number[chunk.charAt(0)] && chunk.length() > maxlength) {
                iter.remove();
-            }
          }
       }
    }

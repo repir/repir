@@ -1,7 +1,9 @@
 package io.github.repir.Extractor;
 
-import io.github.repir.tools.ByteRegex.ByteRegex;
-import io.github.repir.Extractor.Entity.SectionPos;
+import io.github.repir.EntityReader.Entity;
+import io.github.repir.tools.ByteSearch.ByteRegex;
+import io.github.repir.EntityReader.Entity.Section;
+import io.github.repir.EntityReader.EntityRemovedException;
 import io.github.repir.Extractor.Tools.ExtractorProcessor;
 import io.github.repir.Extractor.Tools.SectionMarker;
 import io.github.repir.Repository.Repository;
@@ -12,10 +14,25 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import io.github.repir.tools.DataTypes.Configuration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
+ * The Extractor is a generic processor that converts {@link Entity}s submitted
+ * by an {@link EntityReader} into extracted values to store as features.
+ * <p/>
+ * Extraction proceeds in 3 phases. (1) the raw byte content of the
+ * {@link Entity} is pre-processed by the modules configured as
+ * "extractor.preprocess". Typical operations are converting tagnames to
+ * lowercase, converting unicodes to ASCII, and removing irrelevant parts, to
+ * simplify further processing. (2) mark sections in the content using the
+ * modules configured with "extractor.sectionmarker". One default section is
+ * "all" to indicate all content. Other {@link SectionMarker}s can process an
+ * existing section, to mark subsections. (3) each section can have its own (set
+ * of) processing pipeline(s), configured with "extractor.sectionprocess". For
+ * the marked sections the modules configured with "extractor.<processname>" are
+ * performed sequentially.
  *
  * @author jeroen
  */
@@ -86,26 +103,26 @@ public class Extractor {
       }
    }
 
-   public String getConfigurationString( String process, String identifier, String defaultstring ) {
+   public String getConfigurationString(String process, String identifier, String defaultstring) {
       return conf.getSubString("extractor." + process + "." + identifier, defaultstring);
    }
-   
-   public String[] getConfigurationStrings( String process, String identifier, String defaultstring[] ) {
+
+   public String[] getConfigurationStrings(String process, String identifier, String defaultstring[]) {
       return conf.getStrings("extractor." + process + "." + identifier, defaultstring);
    }
-   
-   public boolean getConfigurationBoolean( String process, String identifier, boolean defaultboolean ) {
+
+   public boolean getConfigurationBoolean(String process, String identifier, boolean defaultboolean) {
       return conf.getBoolean("extractor." + process + "." + identifier, defaultboolean);
    }
-   
-   public int getConfigurationInt( String process, String identifier, int defaultint ) {
+
+   public int getConfigurationInt(String process, String identifier, int defaultint) {
       return conf.getInt("extractor." + process + "." + identifier, defaultint);
    }
-   
-   public float getConfigurationFloat( String process, String identifier, float defaultfloat ) {
+
+   public float getConfigurationFloat(String process, String identifier, float defaultfloat) {
       return conf.getFloat("extractor." + process + "." + identifier, defaultfloat);
    }
-   
+
    public void createProcess(String process) {
       ArrayList<ExtractorProcessor> list = new ArrayList<ExtractorProcessor>();
       this.processor.put(process, list);
@@ -126,8 +143,8 @@ public class Extractor {
       return null;
    }
 
-   public SectionPos getAll(Entity entity) {
-      ArrayList<SectionPos> list = entity.getSectionPos("all");
+   public Section getAll(Entity entity) {
+      ArrayList<Section> list = entity.getSectionPos("all");
       if (list.size() == 0) {
          entity.addSectionPos("all", 0, 0, entity.content.length, entity.content.length);
          list = entity.getSectionPos("all");
@@ -135,6 +152,11 @@ public class Extractor {
       return list.get(0);
    }
 
+   /**
+    * Processes the entity according to the configured extraction process.
+    *
+    * @param entity
+    */
    public void process(Entity entity) {
       int bufferpos = 0;
       int bufferend = entity.content.length;
@@ -142,28 +164,31 @@ public class Extractor {
       if (bufferpos >= bufferend) {
          return;
       }
-      for (ExtractorProcessor proc : this.preprocess) {
-         proc.process(entity, getAll(entity), null);
-      }
-      this.processSectionMarkers(entity, bufferpos, bufferend);
-      for (SectionProcess p : this.processors) {
-         //log.info("process %s sections %s", p.process, p.section);
-         for (SectionPos section : entity.getSectionPos(p.section)) {
-            //log.info("section %s %d %d", p.section, section.open, section.close );
-            for (ExtractorProcessor proc : processor.get(p.process)) {
-               //log.info("proc.process %s", proc.toClass().getCanonicalName()); 
-               proc.process(entity, section, p.entityattribute);
+      try {
+         for (ExtractorProcessor proc : this.preprocess) {
+            proc.process(entity, getAll(entity), null);
+         }
+         this.processSectionMarkers(entity, bufferpos, bufferend);
+         for (SectionProcess p : this.processors) {
+            //log.info("process %s sections %s", p.process, p.section);
+            for (Section section : entity.getSectionPos(p.section)) {
+               //log.info("section %s %d %d", p.section, section.open, section.close );
+               for (ExtractorProcessor proc : processor.get(p.process)) {
+                  //log.info("proc.process %s", proc.toClass().getCanonicalName()); 
+                  proc.process(entity, section, p.entityattribute);
+               }
             }
          }
+      } catch (EntityRemovedException ex) {
       }
    }
-   
-   public void removeProcessor( String process, Class processclass ) {
+
+   public void removeProcessor(String process, Class processclass) {
       ArrayList<ExtractorProcessor> get = processor.get(process);
       Iterator<ExtractorProcessor> iter = get.iterator();
       while (iter.hasNext()) {
          ExtractorProcessor p = iter.next();
-         if ( processclass.isAssignableFrom(p.getClass()) ) {
+         if (processclass.isAssignableFrom(p.getClass())) {
             iter.remove();
          }
       }
@@ -175,7 +200,7 @@ public class Extractor {
          String sectionname = sections.get(section);
          //log.info("processSectionMarkers %s", sectionname);
          ExtractorPatternMatcher patternmatcher = patternmatchers.get(section);
-         for (SectionPos pos : entity.getSectionPos(sectionname)) {
+         for (Section pos : entity.getSectionPos(sectionname)) {
             patternmatcher.processSectionMarkers(entity, pos.open, pos.close);
          }
       }

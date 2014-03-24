@@ -1,22 +1,23 @@
 package io.github.repir.Extractor.Tools;
 
-import io.github.repir.tools.ByteRegex.ByteRegex;
-import io.github.repir.tools.ByteRegex.ByteRegex.Pos;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.tools.ByteSearch.ByteRegex;
+import io.github.repir.tools.ByteSearch.ByteSearchPosition;
+import io.github.repir.EntityReader.Entity;
 import io.github.repir.Extractor.Extractor;
+import io.github.repir.tools.ByteSearch.ByteSearch;
 import io.github.repir.tools.Lib.Log;
 import java.util.ArrayList;
 
 /**
- * Marks <doctitle> </doctitle> sections.
+ * Marks <title> </title> sections, which is use in some news wires and in HTML
+ * documents to mark the title.
  * <p/>
  * @author jbpvuurens
  */
 public class MarkTitle extends SectionMarker {
 
    public static Log log = new Log(MarkTitle.class);
-   public ByteRegex endmarker = new ByteRegex("</title\\s*>");
-   public ByteRegex tagend = new ByteRegex("\\Q>"); // quotes safe end of tag
+   public ByteSearch endmarker = ByteSearch.create("</title").add(ByteSearch.create(">"));
 
    public MarkTitle(Extractor extractor, String inputsection, String outputsection) {
       super(extractor, inputsection, outputsection);
@@ -28,14 +29,13 @@ public class MarkTitle extends SectionMarker {
    }
 
    @Override
-   public void process(Entity entity, int sectionstart, int sectionend, ArrayList<Pos> positions) {
-      for (Pos start : positions) {
-         Pos tagclose = tagend.find(entity.content, start.end, sectionend);
-         if (tagclose.found()) {
-            Pos end = endmarker.find(entity.content, tagclose.end, sectionend);
-            if (end.found()) {
-               entity.addSectionPos(outputsection, start.start, tagclose.end, end.start, end.end);
-            }
+   public void process(Entity entity, int sectionstart, int sectionend, ByteSearchPosition position) {
+      int tagclose = findQuoteSafeTagEnd(entity, position.end, sectionend);
+      if (tagclose > -1) {
+         position.end = tagclose;
+         ByteSearchPosition end = endmarker.findPos(entity.content, tagclose, sectionend);
+         if (end.found()) {
+            entity.addSectionPos(outputsection, position.start, tagclose, end.start, end.end);
          }
       }
    }

@@ -1,5 +1,6 @@
 package io.github.repir.Strategy;
 
+import io.github.repir.Strategy.Operator.Operator;
 import io.github.repir.tools.Content.Datafile;
 import io.github.repir.Retriever.Retriever;
 import io.github.repir.Retriever.Query;
@@ -12,9 +13,17 @@ import java.util.Collection;
 import java.util.HashSet;
 import io.github.repir.Strategy.Collector.Collector;
 import io.github.repir.Strategy.Collector.MasterCollector;
+import io.github.repir.tools.Lib.ArrayTools;
 
 /**
- * The Strategy controls the retrieval process. A Strategy is created by {@link #buildGraph(Retriever.Query)
+ * The Strategy contains the logic for the retrieval/analysis of the task, 
+ * which is independent of the Query given. In an abstract sense, a strategy
+ * is always a process that collects results by inspecting stored features.
+ * Two specialization branches exists: a {@link RetrievalModel} results in 
+ * a list of ranked {@link Document}s, and an P@link 
+ * 
+ * 
+ * A Strategy is created by {@link #buildGraph(Retriever.Query)
  * }
  * which uses a {@link Query} request that is parsed into an {@link GraphRoot}. For standard
  * retrieval, the default Strategy should work fine, but alternatively, a Strategy can
@@ -144,7 +153,25 @@ public abstract class Strategy {
    }
 
    /* hook to modify storedfeatures when they are cloned for the next cycle */
-   public GraphNode cloneFeature(GraphNode f, GraphRoot newmodel, int cycle) {
+   public Operator cloneFeature(Operator f, GraphRoot newmodel, int cycle) {
       return f.clone(newmodel);
+   }
+   
+   /**
+    * @return querystring that is used to construct a processing Graph. This is
+    * a one time conversion, which should be based on Query.stemmedquery and is
+    * set as Query.query which is used operational. A RetrievalModel can override
+    * this method to modify the query string used.
+    */
+   public String getQueryToRetrieve() {
+      return query.stemmedquery;
+   }
+   
+   public int getDocumentLimit() {
+      return query.documentlimit;
+   }
+
+   public String getScorefunctionClass() {
+      return query.getScorefunctionClass();
    }
 }

@@ -1,7 +1,7 @@
 package io.github.repir.Extractor.Tools;
 
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.EntityReader.Entity;
 import io.github.repir.Extractor.Extractor;
 import java.util.Iterator;
 
@@ -23,7 +23,7 @@ public class RemoveLargeTokens extends ExtractorProcessor {
    }
 
    @Override
-   public void process(Entity entity, Entity.SectionPos pos, String attribute) {
+   public void process(Entity entity, Entity.Section pos, String attribute) {
       Iterator<String> iter = entity.get(attribute).iterator();
       while (iter.hasNext()) {
          String chunk = iter.next();

@@ -1,12 +1,24 @@
 package io.github.repir.Extractor.Tools;
 
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.EntityReader.Entity;
 import io.github.repir.Extractor.Extractor;
 import java.util.ArrayList;
 
 /**
- *
+ * A configurable tokenizer, that processes a section of byte content, storing the
+ * tokens identified in the designated {@link EntityChannel}. The following 
+ * configuration settings can be used to control how tokens are identified.
+ * <ul>
+ * <li>extractor.sectionname.splittokenbefore : characters that indicate a new token may start </li>
+ * <li>extractor.sectionname.splittokenafter : characters that indicate a token ends </li>
+ * <li>extractor.sectionname.splitnumber=true/false : split when letters switch to numbers and vice versa </li>
+ * <li>extractor.sectionname.leavefirst : all other characters than these are removed from the front of the token </li>
+ * <li>extractor.sectionname.leavelast : all other characters than these are removed from the end of the token </li>
+ * <li>extractor.sectionname.maxtokenlength : all tokens that exceed this length are not stored </li>
+ * </ul>
+ * For the configuration of characters, range =s may be specified, e.g. "A-Z a-z". Whitespaces are
+ * added to splittokenbefore and splittokenafter by default.
  * @author jeroen
  */
 public class Tokenizer extends ExtractorProcessor {
@@ -19,6 +31,7 @@ public class Tokenizer extends ExtractorProcessor {
    public boolean[] tokenpoststripper = new boolean[128];
    public boolean[] tokenprestripper = new boolean[128];
    public boolean[][] splitpeek = new boolean[128][128];
+   public final char[] tokenchar = new char[256];
    public final char maxbyte = Byte.MAX_VALUE;
    public final char minbyte = 0x0;
    public final int maxtokenlength;
@@ -86,6 +99,15 @@ public class Tokenizer extends ExtractorProcessor {
          this.splitpeek('0', '9', 'A', 'Z');
       }
       maxtokenlength = extractor.conf.getInt("extractor." + process + ".maxtokenlength", Integer.MAX_VALUE);
+      if (extractor.getConfigurationBoolean(process, "lowercase", true)) {
+         for (int i = 0; i < 256; i++) {
+            tokenchar[i] = (char)((i >= 'A' && i <= 'Z')?(i|32):i);
+         }
+      } else {
+         for (int i = 0; i < 256; i++) {
+            tokenchar[i] = (char)i;
+         }
+      }
    }
 
    protected void splitpeek(char firststart, char firstend, char secondstart, char secondend) {
@@ -97,7 +119,7 @@ public class Tokenizer extends ExtractorProcessor {
    }
 
    @Override
-   public void process(Entity entity, Entity.SectionPos section, String attribute) {
+   public void process(Entity entity, Entity.Section section, String attribute) {
       this.buffer = entity.content;
       this.bufferpos = section.open;
       this.bufferend = section.close;
@@ -197,7 +219,7 @@ public class Tokenizer extends ExtractorProcessor {
             c = new char[realchars];
             for (int cnr = 0, p = tokenStart; p <= tokenend; p++) {
                if (buffer[p] > 0) {
-                  c[cnr++] = (char) buffer[p];
+                  c[cnr++] = tokenchar[buffer[p] & 0xFF];
                }
             }
             //log.info("addToken %s", new String(c));

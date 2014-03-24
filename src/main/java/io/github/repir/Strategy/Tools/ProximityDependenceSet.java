@@ -3,18 +3,28 @@ package io.github.repir.Strategy.Tools;
 import java.util.ArrayList;
 import java.util.Iterator;
 import io.github.repir.Retriever.Document;
-import io.github.repir.Strategy.GraphNode;
+import io.github.repir.Strategy.Operator.Operator;
 import io.github.repir.tools.Lib.Log;
 
 /**
+ * Like {@link ProximityPartialSet}, occurrences of 2 or more Operators are
+ * returned, but dependencies between Operators are considered. For example,
+ * when all partial combinations of "Joan of Arc" are matched, but "of" should
+ * only be matched when "Joan" and "Arc" are also present, "of" can be made
+ * dependent on the other Operators. When the dependencies for "of" are not
+ * satisfied, it will no longer be used for that document. In this case, the
+ * iterator will return false for
+ * {@link #hasProximityMatches(io.github.repir.Retriever.Document)} for
+ * documents that do not contain both "Joan" and "Arc", and will return false on
+ * {@link #next()} when the last occurrence of either is passed.
  *
  * @author Jeroen Vuurens
  */
-public abstract class ProximityDependenceSet extends ProximitySet {
+public abstract class ProximityDependenceSet extends ProximityPartialSet {
 
    public static Log log = new Log(ProximityDependenceSet.class);
 
-   public ProximityDependenceSet(ArrayList<GraphNode> containedfeatures) {
+   public ProximityDependenceSet(ArrayList<Operator> containedfeatures) {
       super(containedfeatures);
    }
 
@@ -22,7 +32,7 @@ public abstract class ProximityDependenceSet extends ProximitySet {
    public boolean hasProximityMatches(Document doc) {
       proximitytermlist = new ProximityTermList();
       presentterms = 0;
-      for (GraphNode f : containedfeatures) {
+      for (Operator f : containedfeatures) {
          f.process(doc);
       }
       for (int i = containedfeatures.size() - 1; i >= 0; i--) {
@@ -39,7 +49,7 @@ public abstract class ProximityDependenceSet extends ProximitySet {
          }
       }
       if (proximitytermlist.size() > 1) {
-         pollFirst();
+         pollFirstLast();
          first.moveFirstBelowNext();
          return true;
       } else {
@@ -52,14 +62,14 @@ public abstract class ProximityDependenceSet extends ProximitySet {
       if (first.next() < Integer.MAX_VALUE) {
          if (proximitytermlist.size() > 0) {
             proximitytermlist.add(first);
-            pollFirst();
+            pollFirstLast();
             first.moveFirstBelowNext();
             return true;
          }
       } else if (proximitytermlist.size() > 1) {
          remove(first);
          if (proximitytermlist.size() > 1) {
-            pollFirst();
+            pollFirstLast();
             first.moveFirstBelowNext();
             return true;
          }

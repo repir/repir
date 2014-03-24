@@ -1,8 +1,11 @@
 package io.github.repir.Extractor.Tools;
 
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.EntityReader.Entity;
 import io.github.repir.Extractor.Extractor;
+import io.github.repir.tools.ByteSearch.ByteSearch;
+import io.github.repir.tools.ByteSearch.ByteSearchPosition;
+import io.github.repir.tools.ByteSearch.ByteSection;
 
 /**
  * Removes HTML comment that is marked with <!-- -->
@@ -12,30 +15,19 @@ import io.github.repir.Extractor.Extractor;
 public class RemoveHtmlComment extends ExtractorProcessor {
 
    public static Log log = new Log(RemoveHtmlComment.class);
-   public byte open[] = "<!--".getBytes();
-   public byte close[] = "-->".getBytes();
+   public ByteSection open = ByteSearch.create("<!--").add(ByteSearch.create("-->"));
 
    public RemoveHtmlComment(Extractor extractor, String process) {
       super(extractor, process);
    }
 
    @Override
-   public void process(Entity entity, Entity.SectionPos section, String attribute) {
+   public void process(Entity entity, Entity.Section section, String attribute) {
       int startpos = section.open;
-      while (true) {
-         startpos = io.github.repir.tools.Lib.ByteTools.find(entity.content, open, startpos, section.close, false, false);
-         if (startpos < 0) {
-            break;
-         }
-         int closepos = io.github.repir.tools.Lib.ByteTools.find(entity.content, close, startpos, section.close, false, false);
-         if (closepos < 0) {
-            break;
-         }
-         closepos += close.length;
-         for (int p = startpos; p < closepos; p++) {
+      for (ByteSearchPosition pos : open.findAllPos(entity.content, section.open, section.close) ) {
+         for (int p = pos.start; p < pos.end; p++) {
             entity.content[p] = 32;
          }
-         startpos = closepos;
       }
    }
 }

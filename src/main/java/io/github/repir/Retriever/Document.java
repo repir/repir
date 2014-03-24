@@ -4,25 +4,27 @@ import io.github.repir.tools.Content.BufferDelayedWriter;
 import io.github.repir.tools.Content.StructureReader;
 import io.github.repir.tools.Content.StructureWriter;
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.Repository.DocForward;
-import io.github.repir.Repository.DocLiteral;
-import io.github.repir.Repository.DocTF;
 import io.github.repir.Repository.ReportableFeature;
-import io.github.repir.Strategy.Strategy;
-import java.io.EOFException;
 import io.github.repir.Strategy.RetrievalModel;
+import io.github.repir.tools.Content.BufferSerializable;
+import io.github.repir.tools.Content.EOCException;
 
 /**
- * Data class to contain values of retrieved documents. These object are to be
- * persistently stored in a metadatafile that contains literal string
- * storedfeatures and statistics and a directfile that contains positional
- * storedfeatures.
+ * Data class to contain values of retrieved documents. A Repository is assumed
+ * to consist of entities that can be analyzed, we use Document to represent 
+ * these entities, but the same generic mechanism can probably be used for other
+ * types of entities, e.g. images, videos. That stored remains bound to these
+ * Documents, during a retrieval task Documents can be retrieved with the 
+ * feature values it is associated with, e.g. title, url, collectionid, size. 
+ * <p/>
+ * Documents are identified internally buy a unique (docid, partition), where document
+ * is a sequence that is unique only within a partition. The Document itself
+ * is more a data class without logic, its feature values are managed by the 
+ * features.
  */
-public class Document implements BufferDelayedWriter.Serialize {
+public class Document implements BufferSerializable {
 
    public static Log log = new Log(Document.class);
-   public static DocTF doctf;
-   public static DocForward docforward;
    public RetrievalModel retrievalmodel;
    /**
     * partition/partition where the document is stored
@@ -32,15 +34,7 @@ public class Document implements BufferDelayedWriter.Serialize {
     * internal document id, unique per partition
     */
    public int docid;
-   /**
-    * the literal storedfeatures of the documents literal[ literalchannel ] e.g.
-    * literal[0] is the collection ID, and other common literals are URL and
-    * title
-    */
-   /**
-    * term frequency of the document (i.e. length in terms)
-    */
-   public int tf = -1;
+
    /**
     * Score assigned to the document for ranking
     */
@@ -66,12 +60,12 @@ public class Document implements BufferDelayedWriter.Serialize {
    public void setRetrievalModel(RetrievalModel rm) {
       this.retrievalmodel = rm;
       if (reportdata == null)
-         reportdata = new Object[retrievalmodel.getFeatures().getReportableFeatures().size()];
+         reportdata = new Object[retrievalmodel.getReportedFeaturesMap().size()];
    }
 
    public void decode() {
-      for (ReportableFeature f : retrievalmodel.getFeatures().getReportableFeatures()) {
-         f.decode(this);
+      for (ReportedFeature<ReportableFeature> f : retrievalmodel.getReportableFeatures()) {
+         f.feature.decode(this, f.reportID);
       }
    }
 
@@ -83,45 +77,36 @@ public class Document implements BufferDelayedWriter.Serialize {
       return reportdata[f];
    }
 
-   public Object getReportedFeature(String name) {
-      return reportdata[retrievalmodel.getFeatures().getReportedFeature(name).getReportID()];
+   private Object getReportedFeature(ReportedFeature f) {
+      return reportdata[f.reportID];
    }
 
-   public String getCollectionID() {
-      if (collectionID == null) {
-         DocLiteral f = (DocLiteral)retrievalmodel.getFeatures().getReportedFeature("DocLiteral:collectionid");
-         collectionID = (String)reportdata[ f.getReportID() ];
-      }
-      return collectionID;
+   public String getString(ReportedFeature feature) {
+      return (String)getReportedFeature(feature);
    }
 
-   public String getLiteral(String name) {
-      return retrievalmodel.getFeatures().getLiteral(name).valueReported(this);
+   public String getString(ReportableFeature feature) {
+      return (String)getReportedFeature(retrievalmodel.getReportID(feature));
    }
 
-   public String getLiteral(DocLiteral feature) {
-      return feature.valueReported(this);
+   public int getInt(ReportedFeature feature) {
+      return (Integer)getReportedFeature(feature);
    }
 
-   public int[] getReportedForward() {
-      return (int[])this.getReportedFeature("DocForward:all");
+   public int getInt(ReportableFeature feature) {
+      return (Integer)getReportedFeature(retrievalmodel.getReportID(feature));
    }
 
-   public int[] getForward() {
-      if (docforward == null)
-         docforward = (DocForward) retrievalmodel.repository.getFeature("DocForward:all");
-      docforward.read(this);
-      return docforward.getValue();
+   public double getDouble(ReportedFeature feature) {
+      return (Double)getReportedFeature(feature);
    }
 
-   public int getTF() {
-      if (tf < 0) {
-         if (doctf == null)
-            doctf = (DocTF)retrievalmodel.repository.getFeature("DocTF:all");
-         doctf.read(this);
-         tf = doctf.getValue();
-      }
-      return tf;
+   public int[] getIntArray(ReportedFeature feature) {
+      return (int[])getReportedFeature(feature);
+   }
+
+   public int[] getIntArray(ReportableFeature feature) {
+      return (int[])getReportedFeature(retrievalmodel.getReportID(feature));
    }
    
    @Override
@@ -130,10 +115,8 @@ public class Document implements BufferDelayedWriter.Serialize {
       writer.write(docid);
       writer.write(score);
       writer.write(reportdata.length);
-      //log.info("WRITE %d %d %s", docid, partition, reportdata.length);
-      for (ReportableFeature c : retrievalmodel.getFeatures().getReportableFeatures()) {
-         //log.info("mapOutput doc %d literal %s", docid, (String)reportdata[c.getReportID()]);
-         c.encode(this);
+      for (ReportedFeature c : retrievalmodel.getReportableFeatures()) {
+         c.feature.encode(this, c.reportID);
       }
       for (int i = 0; i < reportdata.length; i++) {
          writer.writeByteBlock((byte[]) reportdata[ i]);
@@ -153,7 +136,7 @@ public class Document implements BufferDelayedWriter.Serialize {
             reportdata[i] = reader.readByteBlock();
          }
          report = reader.readStringBuilder();
-      } catch (EOFException ex) {
+      } catch (EOCException ex) {
          log.exception(ex, "read( %s )", reader);
       }
    }

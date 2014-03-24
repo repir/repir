@@ -7,14 +7,9 @@ import io.github.repir.Strategy.RetrievalModel;
 import io.github.repir.tools.Lib.Log;
 
 /**
- * Merges the posting lists of several terms into one Document iterator. The
- * Iterator generates a {@link Document} d, with an array of term positions
- * d.pos[term nr][], of which d.pos[term nr].length is the term frequency, d.tf
- * is the size of the document and d.docid and d.partition the documents ID.
- * <p/>
- * A PostingIterator can merge one or more segments, however, it can only be
- * used with the same set of terms for all segments. can have only one set of
- * terms, and term frequencies
+ * Resuable version of PostingIterator, that loads as much data in memory as
+ * possible, and resets the pointers to repeat retrieval for the same 
+ * retrievalmodel, but for instance with different parameter settings or statistics.
  * <p/>
  * @author jeroen
  */
@@ -52,13 +47,10 @@ public class PostingIteratorReusable extends PostingIterator {
          }
          if (exists) {
             t.reuse();
-            log.info("reuse %s %d %d", t.getCanonicalName(), lastdocid, t.docid);
          }else {
             t.setPartition(partition);
-            //t.openRead();
             t.readResident();
             tdf.add(t);
-            log.info("new %s %b", t.getCanonicalName(), t.hasNext());
          }
       }
       dsfarray = getDSF( retrievalmodel );
@@ -75,10 +67,8 @@ public class PostingIteratorReusable extends PostingIterator {
             //t.openRead();
             t.readResident();
             dsf.add(t);
-            log.info("new %s %b", t.getCanonicalName(), t.hasNext());
          } else if (partition != t.partition) {
             t.setPartition(partition);
-            log.info("reuse %s %b", t.getCanonicalName(), t.hasNext());
          }
       }
    }

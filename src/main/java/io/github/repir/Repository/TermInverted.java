@@ -1,17 +1,27 @@
 package io.github.repir.Repository;
 
 import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.RecordSequentialArray;
-import io.github.repir.Extractor.Entity;
-import io.github.repir.EntityReader.TermEntityKey;
-import io.github.repir.EntityReader.TermEntityValue;
+import io.github.repir.tools.Content.StructuredFileSequential;
+import io.github.repir.EntityReader.Entity;
+import io.github.repir.EntityReader.MapReduce.TermEntityKey;
+import io.github.repir.EntityReader.MapReduce.TermEntityValue;
 import io.github.repir.Repository.TermInverted.File;
 import io.github.repir.Retriever.Document;
+import io.github.repir.tools.Content.EOCException;
 import io.github.repir.tools.Lib.Log;
-import java.io.EOFException;
 import java.util.ArrayList;
 
-public class TermInverted extends AutoTermDocumentFeature<File, int[]> implements ReducableFeature, ReportableFeature<int[]> {
+/**
+ * A stored feature that uses a term-document structure similar to a textbook inverted index. This 
+ * data structure is best used for sparse data that is to be accessed by term, which gives an ordered
+ * list of the documents in which the term appears. The base class can be extended to define the
+ * exact data that needs to be stored, such as the term frequency or the list of positions of the
+ * term in the document. 
+ * @author jeroen
+ * @param <F>
+ * @param <C> 
+ */
+public class TermInverted extends AutoTermDocumentFeature<File, int[]> implements ReducibleFeature {
 
    public static Log log = new Log(TermInverted.class);
    static final int ZEROPOS[] = new int[0];
@@ -46,7 +56,7 @@ public class TermInverted extends AutoTermDocumentFeature<File, int[]> implement
          file.setOffsetTupleStart(offset);
          file.recordEnd();
          termid++;
-      } catch (EOFException ex) {
+      } catch (EOCException ex) {
          log.exception(ex, "ReduceInput");
       }
    }
@@ -77,32 +87,32 @@ public class TermInverted extends AutoTermDocumentFeature<File, int[]> implement
    }
 
    @Override
-   public void decode(Document d) {
-      reader.setBuffer( (byte[]) d.getReportedFeature(reportid) );
+   public void decode(Document d, int reportid) {
+      reader.setBuffer((byte[]) d.getReportedFeature(reportid));
       try {
          d.setReportedFeature( reportid, reader.readCIntArray() );
-      } catch (EOFException ex) {
+      } catch (EOCException ex) {
          log.fatalexception(ex, "decode %d %d %d", d.docid, d.partition, d.getReportedFeature(reportid));
       }
    }
 
    @Override
-   public void encode(Document d) {
+   public void encode(Document d, int reportid) {
       bdw.writeC( (int[]) d.getReportedFeature( reportid ) );
       d.setReportedFeature( reportid, bdw.getBytes() );
    }
 
    @Override
-   public void report(Document doc) {
+   public void report(Document doc, int reportid) {
       doc.setReportedFeature(reportid, getValue(doc) );
    }
 
    @Override
-   public int[] valueReported(Document doc) {
+   public int[] valueReported(Document doc, int reportid) {
       return (int[]) doc.getReportedFeature(reportid);
    }
 
-   public static class File extends RecordSequentialArray {
+   public static class File extends StructuredFileSequential {
 
       public IntField docid = this.addInt("docid");
       public CIntIncrField data = this.addCIntIncr("pos");

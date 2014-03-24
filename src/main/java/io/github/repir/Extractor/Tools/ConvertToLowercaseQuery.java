@@ -1,15 +1,13 @@
 package io.github.repir.Extractor.Tools;
 
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.Extractor.EntityAttribute;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.Extractor.EntityChannel;
+import io.github.repir.EntityReader.Entity;
 import io.github.repir.Extractor.Extractor;
 
 /**
- * convert all uppercase characters to lowercase. This processor is not context
- * aware so multi-byte characters such as unicode characters should be converted
- * before running this processor.
- * <p/>
+ * Query specific converter to lowercase, which leaves all names preceding a
+ * colon (:) in orginal case, because this is a Java Class name in RR syntax.
  * @author jbpvuurens
  */
 public class ConvertToLowercaseQuery extends ConvertToLowercase {
@@ -29,7 +27,7 @@ public class ConvertToLowercaseQuery extends ConvertToLowercase {
    }
 
    @Override
-   public void process(Entity entity, Entity.SectionPos section, String attribute) {
+   public void process(Entity entity, Entity.Section section, String attribute) {
       byte buffer[] = entity.content;
       int p;
       int start = section.open;
@@ -42,8 +40,8 @@ public class ConvertToLowercaseQuery extends ConvertToLowercase {
                colonseen = false;
             } else {
                for (int i = start; i <= p; i++) 
-                  if (uppercase[ buffer[i] ] )
-                     buffer[i] = (byte) (buffer[i] | 32);
+                  if ( buffer[i] >= 'A' && buffer[i] <= 'Z' )
+                     buffer[i] |= 32;
             }
             start = p+1;
          }

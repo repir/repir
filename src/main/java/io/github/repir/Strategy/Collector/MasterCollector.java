@@ -1,35 +1,14 @@
 package io.github.repir.Strategy.Collector;
 
 import java.util.ArrayList;
-import io.github.repir.Strategy.Collector.Collector;
 import io.github.repir.Retriever.Document;
 import io.github.repir.tools.Lib.Log;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import io.github.repir.Repository.Repository;
-import io.github.repir.Strategy.GraphRoot;
-import io.github.repir.tools.Content.RecordHeaderDataRecord;
 
 /**
- * Each GraphRoot uses a MasterCollector object to collect data during a
- * retrieval pass. The MasterCollector is a generic class that controls
- * collection of data in SubCollectors. The most common example of a Collector,
- * collects a ranked list of top-n documents retrieved. Through 
- * {@link #write(Content.StructureWriter) } and {@link #read(Content.StructureReader)
- * }
- * collectors can be communicated through the MapReduce framework, aggregating
- * the collectors from several Mappers using {@link #aggregate(Retriever.MasterCollector)
- * }.
- * <p/>
- * Collectors can be customized to collect any data, such as statistics of
- * co-occurrences not stored in the unigram repository. In that scenario, the
- * co-occurrence feature will use the {@link RetrievalModel.Feature#prepareAggregation()
- * } hook to add a Collector to the MasterCollector. During retrieval, the
- * Collector determines the co-occurrence frequency. When the
- * {@link RetrievalModel.RetrievalModel} reformulates the query, the feature
- * will return a reformulation that includes the obtained statistics for the
- * next pass. a query for a second pass.
+ * {@link GraphRoot} internally uses a MasterCollector to manage and control all {@link Collector}s.
  * <p/>
  * @author jeroen
  */

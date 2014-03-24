@@ -1,9 +1,10 @@
 package io.github.repir.Extractor.Tools;
 
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.Extractor.EntityAttribute;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.Extractor.EntityChannel;
+import io.github.repir.EntityReader.Entity;
 import io.github.repir.Extractor.Extractor;
+import io.github.repir.tools.Lib.BoolTools;
 
 /**
  * convert all uppercase characters to lowercase. This processor is not context
@@ -15,23 +16,19 @@ import io.github.repir.Extractor.Extractor;
 public class ConvertToLowercase extends ExtractorProcessor {
 
    public static Log log = new Log(ConvertToLowercase.class);
-   public boolean highercase[] = new boolean[128];
-   public boolean lowernumber[] = new boolean[128];
-
+   boolean capital[];
+   
    public ConvertToLowercase(Extractor extractor, String process) {
       super(extractor, process);
-      for (int i = 0; i < 128; i++) {
-         highercase[i] = (i >= 'A' && i <= 'Z');
-         lowernumber[i] = (i >= 'a' && i <= 'z') || (i >= '0' && i <= '9');
-      }
+      capital = BoolTools.createASCIIAcceptRange('A', 'Z');
    }
 
    @Override
-   public void process(Entity entity, Entity.SectionPos section, String attribute) {
+   public void process(Entity entity, Entity.Section section, String attribute) {
       byte buffer[] = entity.content;
       int p;
       for (p = section.open; p < section.close; p++) {
-         if (highercase[buffer[p]]) {
+         if (buffer[p] >= 'A' && buffer[p] <= 'Z') {
             buffer[p] = (byte) (buffer[p] | 32);
          }
       }
@@ -40,7 +37,7 @@ public class ConvertToLowercase extends ExtractorProcessor {
    public String process(String s) {
       Entity e = new Entity();
       e.content = s.getBytes();
-      Entity.SectionPos pos = new Entity.SectionPos();
+      Entity.Section pos = new Entity.Section();
       pos.open = 0;
       pos.close = e.content.length;
       process(e, pos, "section");

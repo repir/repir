@@ -2,8 +2,8 @@ package io.github.repir.Strategy.Tools;
 
 import java.util.ArrayList;
 import io.github.repir.Retriever.Document;
-import io.github.repir.Strategy.GraphNode;
-import io.github.repir.Strategy.Term;
+import io.github.repir.Strategy.Operator.Operator;
+import io.github.repir.Strategy.Operator.Term;
 import io.github.repir.tools.Lib.Log;
 
 /**
@@ -18,7 +18,7 @@ public class ProximityStopwordsSet extends ProximityDependenceSet {
 
    public static Log log = new Log(ProximityStopwordsSet.class);
 
-   public ProximityStopwordsSet(ArrayList<GraphNode> containedfeatures) {
+   public ProximityStopwordsSet(ArrayList<Operator> containedfeatures) {
       super(containedfeatures);
    }
 

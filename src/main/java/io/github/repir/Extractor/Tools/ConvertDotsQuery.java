@@ -1,8 +1,9 @@
 package io.github.repir.Extractor.Tools;
 
-import io.github.repir.tools.ByteRegex.ByteRegex;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.tools.ByteSearch.ByteRegex;
+import io.github.repir.EntityReader.Entity;
 import io.github.repir.Extractor.Extractor;
+import io.github.repir.tools.ByteSearch.ByteSearchPosition;
 import io.github.repir.tools.Lib.Log;
 import java.util.ArrayList;
 import io.github.repir.tools.DataTypes.ByteArrayPos;
@@ -25,9 +26,9 @@ public class ConvertDotsQuery extends ExtractorProcessor {
       super(extractor, process);
    }
 
-   public void process(Entity entity, Entity.SectionPos pos, String attribute) {
-      ArrayList<ByteRegex.Pos> positions = combi.findAll(entity.content, pos.open, pos.close);
-      for (ByteRegex.Pos p : positions) {
+   public void process(Entity entity, Entity.Section pos, String attribute) {
+      ArrayList<ByteSearchPosition> positions = combi.findAllPos(entity.content, pos.open, pos.close);
+      for (ByteSearchPosition p : positions) {
          switch (p.pattern) {
             case 0: // number
                      break;

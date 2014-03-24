@@ -1,22 +1,23 @@
 package io.github.repir.Extractor.Tools;
 
-import io.github.repir.tools.ByteRegex.ByteRegex;
-import io.github.repir.tools.ByteRegex.ByteRegex.Pos;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.tools.ByteSearch.ByteRegex;
+import io.github.repir.tools.ByteSearch.ByteSearchPosition;
+import io.github.repir.EntityReader.Entity;
 import io.github.repir.Extractor.Extractor;
+import io.github.repir.tools.ByteSearch.ByteSearch;
+import io.github.repir.tools.ByteSearch.ByteSection;
 import io.github.repir.tools.Lib.Log;
 import java.util.ArrayList;
 
 /**
- * Marks <doctitle> </doctitle> sections.
+ * Marks <audio> </audio> sections.
  * <p/>
  * @author jbpvuurens
  */
 public class MarkAudio extends SectionMarker {
 
    public static Log log = new Log(MarkAudio.class);
-   public ByteRegex endmarker = new ByteRegex("</audio\\s*>");
-   public ByteRegex tagend = new ByteRegex("\\Q>"); // quotes safe end of tag
+   public ByteSection endmarker = ByteSearch.create("</audio").add(ByteSearch.create(">"));
 
    public MarkAudio(Extractor extractor, String inputsection, String outputsection) {
       super(extractor, inputsection, outputsection);
@@ -28,14 +29,12 @@ public class MarkAudio extends SectionMarker {
    }
 
    @Override
-   public void process(Entity entity, int sectionstart, int sectionend, ArrayList<Pos> positions) {
-      for (Pos start : positions) {
-         Pos tagclose = tagend.find(entity.content, start.end, sectionend);
-         if (tagclose.end > start.end) {
-            Pos end = endmarker.find(entity.content, start.end, sectionend);
-            if (end.found() && end.start > start.end) {
-               entity.addSectionPos(outputsection, start.start, tagclose.end, end.start, end.end);
-            }
+   public void process(Entity entity, int sectionstart, int sectionend, ByteSearchPosition position) {
+      int tagclose = findQuoteSafeTagEnd(entity, position.end, sectionend) + 1;
+      if (tagclose > -1) {
+         ByteSearchPosition end = endmarker.findPos(entity.content, position.end, sectionend);
+         if (end.found() && end.start > position.end) {
+            entity.addSectionPos(outputsection, position.start, tagclose, end.start, end.end);
          }
       }
    }

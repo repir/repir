@@ -1,22 +1,22 @@
 package io.github.repir.Extractor.Tools;
 
-import io.github.repir.tools.ByteRegex.ByteRegex;
-import io.github.repir.tools.ByteRegex.ByteRegex.Pos;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.tools.ByteSearch.ByteRegex;
+import io.github.repir.tools.ByteSearch.ByteSearchPosition;
+import io.github.repir.EntityReader.Entity;
 import io.github.repir.Extractor.Extractor;
+import io.github.repir.tools.ByteSearch.ByteSearch;
 import io.github.repir.tools.Lib.Log;
 import java.util.ArrayList;
 
 /**
- * Marks <doctitle> </doctitle> sections.
+ * Marks <script> </script> sections, which mark scripts within HTML pages.
  * <p/>
  * @author jbpvuurens
  */
 public class MarkScript extends SectionMarker {
 
    public static Log log = new Log(MarkScript.class);
-   public ByteRegex endmarker = new ByteRegex("</script\\s*>");
-   public ByteRegex tagend = new ByteRegex("\\Q>"); // quotes safe end of tag
+   public ByteSearch endmarker = ByteSearch.create("</script").add(ByteSearch.create(">"));
 
    public MarkScript(Extractor extractor, String inputsection, String outputsection) {
       super(extractor, inputsection, outputsection);
@@ -28,14 +28,12 @@ public class MarkScript extends SectionMarker {
    }
 
    @Override
-   public void process(Entity entity, int sectionstart, int sectionend, ArrayList<Pos> positions) {
-      for (Pos start : positions) {
-         Pos tagclose = tagend.find(entity.content, start.end, sectionend);
-         if (tagclose.found()) {
-            Pos end = endmarker.find(entity.content, start.end, sectionend);
-            if (end.start > start.end) {
-               entity.addSectionPos(outputsection, start.start, tagclose.end, end.start, end.end);
-            }
+   public void process(Entity entity, int sectionstart, int sectionend, ByteSearchPosition position) {
+      int tagclose = findQuoteSafeTagEnd(entity, position.end, sectionend) + 1;
+      if (tagclose > -1) {
+         ByteSearchPosition end = endmarker.findPos(entity.content, position.end, sectionend);
+         if (end.start > position.end) {
+            entity.addSectionPos(outputsection, position.start, tagclose, end.start, end.end);
          }
       }
    }

@@ -1,13 +1,11 @@
 package io.github.repir.Extractor.Tools;
 
-import io.github.repir.tools.ByteRegex.ByteRegex;
-import io.github.repir.tools.ByteRegex.ByteRegex.Pos;
-import static io.github.repir.tools.Lib.ByteTools.*;
+import io.github.repir.tools.ByteSearch.ByteSearchPosition;
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.Extractor.EntityAttribute;
-import io.github.repir.Extractor.Entity;
-import io.github.repir.Extractor.Entity.SectionPos;
+import io.github.repir.EntityReader.Entity;
+import io.github.repir.EntityReader.Entity.Section;
 import io.github.repir.Extractor.Extractor;
+import io.github.repir.tools.ByteSearch.ByteSearch;
 import java.util.ArrayList;
 
 /**
@@ -18,22 +16,22 @@ import java.util.ArrayList;
 public class ConvertHtmlASCIICodes extends ExtractorProcessor {
 
    public static Log log = new Log(ConvertHtmlASCIICodes.class);
-   private ByteRegex regex = new ByteRegex("&#\\d+;");
+   private ByteSearch regex = ByteSearch.create("&#\\d+;");
 
    public ConvertHtmlASCIICodes(Extractor extractor, String process) {
       super(extractor, process);
    }
 
    @Override
-   public void process(Entity entity, SectionPos section, String attribute) {
-      ArrayList<Pos> pos = regex.findAll(entity.content, section.open, section.close);
-      for (Pos p : pos) {
+   public void process(Entity entity, Section section, String attribute) {
+      ArrayList<ByteSearchPosition> pos = regex.findAllPos(entity.content, section.open, section.close);
+      for (ByteSearchPosition p : pos) {
          int ascii = 0;
          for (int i = p.start + 2; i < p.end - 1; i++) {
             ascii = ascii * 10 + entity.content[i] - '0';
          }
          if (ascii > 31 && ascii < 128) {
-            entity.content[p.start] = (ascii > 31 && ascii < 128) ? (byte) ascii : 0;
+            entity.content[p.start] = (ascii > 31 && ascii < 256) ? (byte) ascii : 0;
          }
          for (int i = p.start + 1; i < p.end; i++) {
             entity.content[i] = 0;

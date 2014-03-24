@@ -1,13 +1,22 @@
 package io.github.repir.Repository;
 
-import io.github.repir.Extractor.EntityAttribute;
-import io.github.repir.tools.Content.RecordBinary;
+import io.github.repir.Extractor.EntityChannel;
+import io.github.repir.tools.Content.StructuredFile;
 import io.github.repir.tools.Lib.Log;
 import java.util.ArrayList;
 import io.github.repir.tools.DataTypes.ByteArrayPos;
 import io.github.repir.tools.Lib.ArrayTools;
 
-public abstract class VocabularyToID<F extends RecordBinary> extends StoredUnreportableFeature<F> implements DictionaryFeature {
+/**
+ * Abstract class for looking up the TermID in a vocabulary based on the stemmed
+ * term string. This adds {@link #getContent(Extractor.EntityChannel)} which is 
+ * used by the standard extractor to convert an EntityChannel consisting of 
+ * string tokens to an array of TermID's.
+ * <p/>
+ * @author jer
+ * @param <F> 
+ */
+public abstract class VocabularyToID<F extends StructuredFile> extends StoredUnreportableFeature<F> implements DictionaryFeature {
 
    public static Log log = new Log(VocabularyToID.class);
 
@@ -17,7 +26,7 @@ public abstract class VocabularyToID<F extends RecordBinary> extends StoredUnrep
 
    public abstract int get(String term);
    
-   public int[] getContent(EntityAttribute dc) {
+   public int[] getContent(EntityChannel dc) {
       ArrayList<Integer> r = new ArrayList<Integer>();
       int p = 0;
       if (dc != null) {

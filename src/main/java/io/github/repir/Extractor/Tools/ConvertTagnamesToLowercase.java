@@ -1,20 +1,24 @@
 package io.github.repir.Extractor.Tools;
 
-import io.github.repir.Extractor.Entity;
+import io.github.repir.EntityReader.Entity;
 import io.github.repir.Extractor.Extractor;
+import io.github.repir.tools.ByteSearch.ByteRegex;
+import io.github.repir.tools.ByteSearch.ByteSearchPosition;
 import io.github.repir.tools.Lib.BoolTools;
 import io.github.repir.tools.Lib.Log;
+import java.util.ArrayList;
 
 /**
  * This processor converts tag names to lowercase, for easy processing Note:
  * this has to be done in the raw byte array instead of using regular
- * expressions as the byte array may contain non-ascii.
+ * expressions as the byte array may contain non-ASCII.
  * <p/>
  * @author jbpvuurens
  */
 public class ConvertTagnamesToLowercase extends ExtractorProcessor {
 
    public static Log log = new Log(ConvertTagnamesToLowercase.class);
+   public ByteRegex tagname = new ByteRegex("</?[A-Za-z]\\w*?[/\\s>]");
    public boolean[] isTagNameEnd = new boolean[128];
    char minbyte = 0;
    char maxbyte = 127;
@@ -27,20 +31,13 @@ public class ConvertTagnamesToLowercase extends ExtractorProcessor {
    }
 
    @Override
-   public void process(Entity entity, Entity.SectionPos section, String attribute) {
+   public void process(Entity entity, Entity.Section section, String attribute) {
       byte buffer[] = entity.content;
-      int c, p, i, j, length;
-      for (p = section.open; p < section.close;) {
-         if (buffer[p++] == '<') {
-            if (p < section.close && buffer[p] == '/') {
-               p++;
-            }
-            for (byte1 = buffer[p]; p < section.close && byte1 >= minbyte && !isTagNameEnd[byte1];) {
-               buffer[p] |= 32;         // transform all tagnames to lowercase
-               if (++p < section.close) {
-                  byte1 = buffer[p];
-               }
-            }
+      ArrayList<ByteSearchPosition> findAll = tagname.findAllPos(buffer, section.open, section.close);
+      for (ByteSearchPosition p : findAll) {
+         p.end--;
+         for (int i = p.start; i < p.end; i++) {
+            buffer[i] |= 32;
          }
       }
    }

@@ -7,8 +7,8 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
-<project name="AREF" default="default" basedir=".">
-    <description>Builds, tests, and runs the project AREF.</description>
+<project name="RR" default="default" basedir=".">
+    <description>Builds, tests, and runs the project RR.</description>
     <import file="nbproject/build-impl.xml"/>
     <!--
 
@@ -71,11 +71,23 @@
     nbproject/build-impl.xml file. 
 
     -->
-<target name="-post-jar">   
-    <scp remoteToFile="jeroenv@login.alley.sara.nl:/home/jeroenv/rep/lib/0.22-SNAPSHOT/RepIR-0.22-SNAPSHOT.jar"
-         localFile="/media/D/Dropbox/Java/RR/dist/RR.jar"
-         keyfile="/home/jer/.ssh/sara_rsa" trust="yes" sftp="true">
+<property name="version" value="0.22-SNAPSHOT"/>    
+<property name="projectname" value="RepIR"/>    
+<property name="localproject" value="RR"/>    
+<property name="sshkey" value="/home/jer/.ssh/sara_rsa"/>    
+<property name="remoteserver" value="jeroenv@login.alley.sara.nl"/>    
+<property name="remotelocation" value="/home/jeroenv/rr/lib/${version}/"/>    
+<property name="remotejar" value="${projectname}-${version}.jar"/>    
+<property name="locallocation" value="/media/D/Dropbox/Java/"/>    
+<property name="localfile" value="${locallocation}${localproject}/dist/${localproject}.jar"/>    
+<property name="remotefile" value="${remoteserver}:${remotelocation}${remotejar}"/>    
+    
+<target name="-post-jar">
+    <echo message="${localfile}"/>
+    <scp remoteToFile="${remotefile}"
+         localFile="${localfile}"
+         keyfile="${sshkey}" trust="yes" sftp="true">
       </scp>
-</target>    
+</target>   
     
 </project>

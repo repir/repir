@@ -6,6 +6,7 @@ import io.github.repir.Repository.Repository;
 import io.github.repir.tools.Stemmer.englishStemmer;
 
 /**
+ * List of stop words, which is not stored as a feature, but rather configured.
  * @author jeroen
  */
 public class StopWords {

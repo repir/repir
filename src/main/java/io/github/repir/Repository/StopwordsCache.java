@@ -1,14 +1,15 @@
 package io.github.repir.Repository;
-import java.io.EOFException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import io.github.repir.Repository.StopwordsCache.File;
 import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.RecordBinary;
+import io.github.repir.tools.Content.EOCException;
+import io.github.repir.tools.Content.StructuredFile;
 import io.github.repir.tools.Lib.Log; 
 
 /**
- *
+ * This feature caches the configured list of stop words as a list of TermID
+ * integers, for fast access.
  * @author Jeroen Vuurens
  */
 public class StopwordsCache extends StoredFeature<File> {
@@ -23,7 +24,7 @@ public class StopwordsCache extends StoredFeature<File> {
    @Override
    public File getFile() {
       if (file == null)
-         file = new File( repository.getStoredFeatureFile(this) );
+         file = new File( getStoredFeatureFile() );
       return file;
    }
 
@@ -34,7 +35,7 @@ public class StopwordsCache extends StoredFeature<File> {
       if (file.datafile.exists() && file.hasNext()) {
          try {
             stopwords = new HashSet<Integer>( file.stopwords.readArrayList() );
-         } catch (EOFException ex) {
+         } catch (EOCException ex) {
          }
       }
       file.closeRead();
@@ -72,7 +73,7 @@ public class StopwordsCache extends StoredFeature<File> {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
    
-   public static class File extends RecordBinary {
+   public static class File extends StructuredFile {
       CIntArrayField stopwords = this.addCIntArray("stopwords");
       public File( Datafile df ) {
          super( df );

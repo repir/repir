@@ -1,9 +1,10 @@
 package io.github.repir.Extractor.Tools;
 
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.Extractor.Entity;
-import io.github.repir.Extractor.Entity.SectionPos;
+import io.github.repir.EntityReader.Entity;
+import io.github.repir.EntityReader.Entity.Section;
 import io.github.repir.Extractor.Extractor;
+import io.github.repir.tools.ByteSearch.ByteSearch;
 
 /**
  * Shows the current raw content buffer for debugging
@@ -19,7 +20,8 @@ public class ShowContent extends ExtractorProcessor {
    }
 
    @Override
-   public void process(Entity entity, SectionPos section, String attribute) {
-      log.info("content process %s content %s", attribute, new String(entity.content, section.open, section.close - section.open));
+   public void process(Entity entity, Section section, String attribute) {
+         log.info("---");
+         log.info("content process %s content %s", attribute, new String(entity.content, section.open, section.close - section.open));
    }
 }

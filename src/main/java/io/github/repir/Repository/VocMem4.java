@@ -2,16 +2,16 @@ package io.github.repir.Repository;
 
 import io.github.repir.tools.Content.BufferReaderWriter;
 import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.RecordSort;
-import io.github.repir.tools.Content.RecordSortCollision;
+import io.github.repir.tools.Content.StructuredFileSort;
+import io.github.repir.tools.Content.StructuredFileCollision;
 import io.github.repir.tools.Lib.Log;
 import io.github.repir.Repository.VocMem4.File;
+import io.github.repir.tools.Content.EOCException;
 import io.github.repir.tools.Lib.ByteTools;
 import io.github.repir.tools.Lib.HDTools;
-import java.io.EOFException;
 import io.github.repir.tools.DataTypes.Configuration;
-import io.github.repir.tools.Content.RecordSortCollisionRecord;
-import io.github.repir.tools.Content.RecordSortRecord;
+import io.github.repir.tools.Content.StructuredFileCollisionRecord;
+import io.github.repir.tools.Content.StructuredFileSortRecord;
 
 /**
  * Fetches the internal term id for a term string. To improve lookup speed, the
@@ -23,6 +23,7 @@ import io.github.repir.tools.Content.RecordSortRecord;
  * term, while {@link #getContent(Extractor.EntityAttribute)} is used to obtain
  * an array of term id's to represent a multi term text.
  * <p/>
+ * This implementation is limited to vocabularies of max 2^32.
  * @author jeroen
  */
 public class VocMem4 extends VocabularyToIDRAM<File> {
@@ -69,11 +70,11 @@ public class VocMem4 extends VocabularyToIDRAM<File> {
    }
    
    @Override
-   public void reduceInput(int id, String term, long tf, long df) {
+   public void reduceInput(int id, String term, long cf, long df) {
       Record record = createRecord();
       record.id = id;
       record.term = term;
-      record.tf = tf;
+      record.cf = cf;
       record.write();
    }
 
@@ -87,25 +88,25 @@ public class VocMem4 extends VocabularyToIDRAM<File> {
       closeWrite();
    }
    
-   public static void build(Repository repository) throws EOFException {
-      VocMem4 vocmem4 = (VocMem4) repository.getFeature("VocMem4");
+   public static void build(Repository repository) throws EOCException {
+      VocMem4 vocmem4 = (VocMem4) repository.getFeature(VocMem4.class);
       vocmem4.startReduce(0, 0);
-      TermTF termtf = (TermTF)repository.getFeature("TermTF");
+      TermCF termtf = (TermCF)repository.getFeature(TermCF.class);
       termtf.openRead();
       termtf.setBufferSize(10000000);
-      TermString termstring = (TermString)repository.getFeature("TermString");
+      TermString termstring = (TermString)repository.getFeature(TermString.class);
       termstring.getFile().openRead();
       termstring.setBufferSize(10000000);
       for (int id = 0; id < repository.getVocabularySize(); id++) {
-         long tf = termtf.file.tf.read();
+         long cf = termtf.file.cf.read();
          String term = termstring.file.term.read();
-         //log.info("%d %s %d", id, term, tf);
-         vocmem4.reduceInput(id, term, tf, 0);
+         //log.info("%d %s %d", id, term, cf);
+         vocmem4.reduceInput(id, term, cf, 0);
       }
       vocmem4.finishReduce();
    }
 
-   public static void main(String[] args) throws EOFException {
+   public static void main(String[] args) throws EOCException {
       Configuration conf = HDTools.readConfig(args[0]);
       Repository repository = new Repository( conf );
       build( repository );
@@ -118,8 +119,8 @@ public class VocMem4 extends VocabularyToIDRAM<File> {
 
    /**
     * The terms are sorted in a collision table, based on hashcode of the term,
-    * and secondary on tf desc. The memory table can contain the first 2^24
-    * terms from the file (sorted on tf desc), if a term is missing it should be
+    * and secondary on cf desc. The memory table can contain the first 2^24
+    * terms from the file (sorted on cf desc), if a term is missing it should be
     * looked up in the disk-stored term file.
     * <p/>
     * This file used during indexing, to improve the speed of converting
@@ -127,10 +128,10 @@ public class VocMem4 extends VocabularyToIDRAM<File> {
     * <p/>
     * @author jeroen
     */
-   public class File extends RecordSortCollision {
+   public class File extends StructuredFileCollision {
 
       public String0Field term = this.addString0("term");
-      public LongField tf = this.addLong("tf");
+      public LongField cf = this.addLong("cf");
       public IntField id = this.addInt("id");
 
       public File(Datafile df) {
@@ -145,41 +146,41 @@ public class VocMem4 extends VocabularyToIDRAM<File> {
       
       @Override
       public void openRead() {
-         this.remove(tf);
+         this.remove(cf);
          super.openRead();
       }
 
       @Override
       public void openWriteFinal() {
-         this.remove(tf);
+         this.remove(cf);
          super.openWriteFinal();
       }
 
       @Override
-      public RecordSortRecord createRecord() {
+      public StructuredFileSortRecord createRecord() {
          Record record = new Record( this );
          record.id = id.value;
          record.term = term.value;
-         record.tf = tf.value;
+         record.cf = cf.value;
          return record;
       }
 
       /**
-       * used to reversely sort colliding entries based on tf, to slightly
+       * used to reversely sort colliding entries based on cf, to slightly
        * improve performance.
        */
       @Override
-      public int secondaryCompare(RecordSort o1, RecordSort o2) {
-         return ((File) o1).tf.value > ((File) o2).tf.value ? -1 : 1;
+      public int secondaryCompare(StructuredFileSort o1, StructuredFileSort o2) {
+         return ((File) o1).cf.value > ((File) o2).cf.value ? -1 : 1;
       }
 
       @Override
-      public int secondaryCompare(RecordSortRecord o1, RecordSortRecord o2) {
-         return ((Record) o1).tf > ((Record) o2).tf ? -1 : 1;
+      public int secondaryCompare(StructuredFileSortRecord o1, StructuredFileSortRecord o2) {
+         return ((Record) o1).cf > ((Record) o2).cf ? -1 : 1;
       }
 
       /**
-       * this function is called by the internal {@link #find(Content.RecordSortCollision.SortableCollisionRecord)
+       * this function is called by the internal {@link #find(Content.StructuredFileCollision.SortableCollisionRecord)
        * }
        * method, which seeks the offset at which the bucketIndex is position.
        * Because this is a collision table, if a matching entry exists, it is
@@ -195,7 +196,7 @@ public class VocMem4 extends VocabularyToIDRAM<File> {
        * @return a matching entry, with its id, or null if it doesn't exist.
        */
       @Override
-      public RecordSortCollisionRecord find(BufferReaderWriter table, RecordSortCollisionRecord r) {
+      public StructuredFileCollisionRecord find(BufferReaderWriter table, StructuredFileCollisionRecord r) {
          Record rr = (Record) r;
          byte needle[] = rr.term.getBytes();
          int match;
@@ -214,7 +215,7 @@ public class VocMem4 extends VocabularyToIDRAM<File> {
                }
                table.skipString0();
                table.skip(4);
-            } catch (EOFException ex) {
+            } catch (EOCException ex) {
                log.exception(ex, "find( %s, %s )", table, r);
             }
          }
@@ -223,10 +224,10 @@ public class VocMem4 extends VocabularyToIDRAM<File> {
 
    }
    
-   public class Record extends RecordSortCollisionRecord {
+   public class Record extends StructuredFileCollisionRecord {
 
          public String term;
-         public long tf;
+         public long cf;
          public int id;
 
          public Record( File file ) {
@@ -246,12 +247,12 @@ public class VocMem4 extends VocabularyToIDRAM<File> {
          @Override
          protected void writeTempRecordData() {
             ((File) file).term.write(term);
-            ((File) file).tf.write(tf);
+            ((File) file).cf.write(cf);
             ((File) file).id.write(id);
          }
 
          @Override
-         public boolean equals(RecordSortCollisionRecord r) {
+         public boolean equals(StructuredFileCollisionRecord r) {
             return term.equals(((Record) r).term);
          }
       }

@@ -2,19 +2,21 @@ package io.github.repir.Repository;
 
 import java.util.Collection;
 import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.RecordHeaderDataRecord;
-import io.github.repir.tools.Content.RecordHeaderInterface;
+import io.github.repir.tools.Content.StructuredFileKeyValueRecord;
+import io.github.repir.tools.Content.StructuredFileKeyInterface;
 import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.Lib.PrintTools;
 
 /**
- * Generic class for Features that are not indexed, but can be the result of
- * analysis on the corpus and then stored in the repository for later use.
- * Implementations typically store every feature value in a different file, thus
- * omitting the necessity for a RecordIdenty file. must declare a RecordIdentity
- * file, (usually an extension of RecordBinary that ensures records have a
- * unique ID (int)). For performance, the features that are merged with other
- * features should be stored physically sorted on ID. The second declaration is
- * a data type, which can be complex.
+ * Generic class for Features that are not static and must be stored dynamically.
+ * <p/>
+ * The feature's data is stored in a file that implemented the StructuredFileKeyInterface.
+ * The generic class considers separate Key and KeyValue records, allowing
+ * an implementation to choose between a separate StructuredFileKey, which allows
+ * efficient access by loading only the small keys and reading only the large 
+ * values from disk when needed, or for small amounts of data StructuredFileKeyValue
+ * in which Key and Value are stored combined which is allows for fast resident 
+ * access to keys and values.
  * <p/>
  * if the configuration contains <classsimplename>.suffix (all lowercase!) then
  * the file used is append with "." and the suffix to allow to use a different version
@@ -23,7 +25,7 @@ import io.github.repir.tools.Lib.Log;
  * @param <F> FileType that extends RecordIdentity
  * @param <C> Data type of the feature
  */
-public abstract class StoredDynamicFeature<F extends RecordHeaderInterface<R>, R extends RecordHeaderDataRecord> extends StoredFeature<F> {
+public abstract class StoredDynamicFeature<F extends StructuredFileKeyInterface<R>, R extends StructuredFileKeyValueRecord> extends StoredFeature<F> {
 
    public static Log log = new Log(StoredDynamicFeature.class);
    private F file;
@@ -79,7 +81,7 @@ public abstract class StoredDynamicFeature<F extends RecordHeaderInterface<R>, R
    }
    
    protected F createFile() {
-      Datafile df = repository.getTempFeatureFile(this);
+      Datafile df = getStoredFeatureFile();
       return createFile(df);
    }
    
@@ -116,5 +118,19 @@ public abstract class StoredDynamicFeature<F extends RecordHeaderInterface<R>, R
    
    public void closeWrite() {
       getFile().closeWrite();
+   }
+   
+   @Override
+   public Datafile getStoredFeatureFile() {
+      Datafile datafile;
+      String name = getCanonicalName();
+      name = name.replaceFirst(":", ".");
+      String path = repository.getConfigurationString(name.toLowerCase() + ".path");
+      if (path != null && path.length() > 0)
+         datafile = new Datafile( repository.fs, path);
+      else
+         datafile = repository.basedir.getFile(PrintTools.sprintf("repository/dynamic/%s.%s", repository.getPrefix(), getFileNameSuffix()));
+      log.info("getStoredFeatureFile %s", datafile.getFullPath());
+      return datafile;
    }
 }

@@ -1,32 +1,32 @@
 package io.github.repir.Repository;
 
-import java.io.EOFException;
 import io.github.repir.Retriever.Document;
 import io.github.repir.Strategy.Tools.StopWords;
-import io.github.repir.tools.Content.RecordIdentity;
+import io.github.repir.tools.Content.EOCException;
+import io.github.repir.tools.Content.StructuredFileIntID;
 import io.github.repir.tools.Lib.ArrayTools;
 import io.github.repir.tools.Lib.Log;
 
 /**
  * A stored feature that uses a term-document structure similar to a textbook inverted index. This 
- * data structure is best used for sparse data that is to be accessed by term, which gives an ordered
+ * data structure is best used for sparse data that is to be accessed by termID, which gives an ordered
  * list of the documents in which the term appears. The base class can be extended to define the
  * exact data that needs to be stored, such as the term frequency or the list of positions of the
  * term in the document. 
  * @author jeroen
- * @param <F>
- * @param <C> 
+ * @param <F> StructuredFileIntID that contains the data per termID 
+ * @param <C> datatype returned when values are read with {@link #getValue(io.github.repir.Retriever.Document)}
  */
-public abstract class TermDocumentFeature<F extends RecordIdentity, C> extends StoredReportableFeature<F, C> implements Comparable<TermDocumentFeature> {
+public abstract class TermDocumentFeature<F extends StructuredFileIntID, C> extends StoredReportableFeature<F, C> implements Comparable<TermDocumentFeature> {
 
    public static Log log = new Log(TermDocumentFeature.class); 
    public int termid;
    String term;
    public boolean isstopword;
    public int docid = -1;
-   public int maxbuffersize;
    public int sequence; // used to assign an identifier during retrieval to set to the n-th query term
    private TermDocumentFeature dependencies[][];
+   private final TermDocumentFeature NODEPENDENCIES[][] = new  TermDocumentFeature[0][];
 
    public TermDocumentFeature(Repository repository, String field) {
       super(repository, field);
@@ -54,7 +54,7 @@ public abstract class TermDocumentFeature<F extends RecordIdentity, C> extends S
    /**
     * Sets the TDF's dependencies. This is used to make retrieval more efficient by
     * skipping documents that do not contain any scorable term combinations, e.g.
-    * fr the query "albert-einstein" documents with only albert or only einstein can
+    * for the query "albert-einstein" documents with only albert or only einstein can
     * be omitted. Independent terms should call this with an array length zero
     * overriding all other dependencies as documents containing this term are always
     * scorable.
@@ -62,7 +62,7 @@ public abstract class TermDocumentFeature<F extends RecordIdentity, C> extends S
     */
    public void setDependencies( TermDocumentFeature[] dep ) {
       if (dep.length == 0)
-         dependencies = new TermDocumentFeature[0][];
+         dependencies = NODEPENDENCIES;
       else if (dependencies == null || dependencies.length > 0) {
          if (dependencies == null) {
             dependencies = new TermDocumentFeature[1][];
@@ -74,7 +74,7 @@ public abstract class TermDocumentFeature<F extends RecordIdentity, C> extends S
    }
    
    public void setNoDependencies( ) {
-      dependencies = new TermDocumentFeature[0][];
+      dependencies = NODEPENDENCIES;
    }
    
    public void resetDependencies() {
@@ -84,7 +84,7 @@ public abstract class TermDocumentFeature<F extends RecordIdentity, C> extends S
    public boolean meetsDependencies() {
       if (dependencies == null)
          return false;
-      if (dependencies.length == 0)
+      if (dependencies == NODEPENDENCIES)
          return true;
       //log.info("meetsDependencies %s", this.term);
       NEXT:
@@ -104,7 +104,7 @@ public abstract class TermDocumentFeature<F extends RecordIdentity, C> extends S
    public void readResident() {
       try {
          getFile().readResident(termid);
-      } catch (EOFException ex) {
+      } catch (EOCException ex) {
          log.exception(ex, "Find id %d", termid);
       }
    }
@@ -132,7 +132,7 @@ public abstract class TermDocumentFeature<F extends RecordIdentity, C> extends S
       try {
          getFile().find(termid);
          size = file.getCeiling() - file.getOffset();
-      } catch (EOFException ex) {
+      } catch (EOCException ex) {
          log.exception(ex, "getBytesSize id=%d", termid);
       }
       return size;

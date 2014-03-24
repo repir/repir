@@ -1,14 +1,18 @@
 package io.github.repir.Extractor.Tools;
 
-import io.github.repir.Extractor.Entity;
-import io.github.repir.Extractor.Entity.SectionPos;
+import io.github.repir.EntityReader.Entity;
+import io.github.repir.EntityReader.Entity.Section;
 import io.github.repir.Extractor.Extractor;
 import io.github.repir.tools.Lib.Log;
 import java.util.ArrayList;
 
 /**
- * Extract HTML Metadata for the keywords and description field. This data is
- * also added to the 'all' field.
+ * Allows extracting pieces of content, that can be restored after erasing an entire
+ * section. For example, for HTML Pages the head section may be erased because
+ * it contains much noise, but the title of the page must be kept. In such case,
+ * an extension of ExtracRestore can be used to {@link #add(io.github.repir.EntityReader.Entity, int, int) }
+ * pieces of content that must be preserved, and after erasing the section
+ * use "+extractor.sectionprocess = all ExtractRestore" to restore.
  * <p/>
  * @author jbpvuurens
  */
@@ -22,19 +26,15 @@ public class ExtractRestore extends ExtractorProcessor {
    }
 
    @Override
-   public void process(Entity entity, SectionPos section, String attribute) {
-      restore(entity);
-      content = new ArrayList<StoredContent>();
-   }
-
-   public static void add(Entity entity, int start, int end) {
-      content.add(new StoredContent(entity.content, start, end));
-   }
-
-   public void restore(Entity entity) {
+   public void process(Entity entity, Section section, String attribute) {
       for (StoredContent sc : content) {
          sc.restore(entity.content);
       }
+      content = new ArrayList<StoredContent>();
+   }
+
+   public void add(Entity entity, int start, int end) {
+      content.add(new StoredContent(entity.content, start, end));
    }
 
    static class StoredContent {

@@ -2,16 +2,24 @@ package io.github.repir.Repository;
 
 import io.github.repir.Retriever.Document;
 import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.RecordSequentialArray;
-import io.github.repir.EntityReader.TermEntityKey;
-import io.github.repir.EntityReader.TermEntityValue;
-import io.github.repir.Extractor.Entity;
-import io.github.repir.Extractor.EntityAttribute;
+import io.github.repir.tools.Content.StructuredFileSequential;
+import io.github.repir.EntityReader.MapReduce.TermEntityKey;
+import io.github.repir.EntityReader.MapReduce.TermEntityValue;
+import io.github.repir.EntityReader.Entity;
+import io.github.repir.Extractor.EntityChannel;
 import io.github.repir.tools.Lib.Log;
 import io.github.repir.Repository.DocForward.File;
-import java.io.EOFException;
+import io.github.repir.tools.Content.EOCException;
 
-public class DocForward extends EntityStoredFeature<File, int[]> implements ReducableFeature, ReportableFeature<int[]>  {
+/**
+ * A forward index, that store all tokens contained in a document in the collection.
+ * Per document, the tokens are stored as a simple array of ints, each int being 
+ * a TermID, and the order of the tokens is the order in which they appear in the 
+ * original document. 
+ * @see EntityStoredFeature
+ * @author jer
+ */
+public class DocForward extends EntityStoredFeature<File, int[]> implements ReducibleFeature  {
 
    public static Log log = new Log(DocForward.class);
 
@@ -21,7 +29,7 @@ public class DocForward extends EntityStoredFeature<File, int[]> implements Redu
 
    @Override
    public void mapOutput(TermEntityValue value, Entity doc) {
-      EntityAttribute attr = doc.get(getField());
+      EntityChannel attr = doc.get(getField());
       if (attr.tokenized == null) {
          attr.tokenized = repository.tokenize(attr);
       }
@@ -34,35 +42,36 @@ public class DocForward extends EntityStoredFeature<File, int[]> implements Redu
          TermEntityValue value = values.iterator().next();
          int t[] = value.reader.readCIntArray();
          write(t);
-      } catch (EOFException ex) {
+      } catch (EOCException ex) {
          log.fatal(ex);
       }
    }
 
    @Override
-   public void encode(Document d) {
-      bdw.writeC(getValue());
+   public void encode(Document d, int reportid) {
+      int forward[] = (int[]) d.getReportedFeature(reportid);
+      bdw.writeC(forward);
       d.setReportedFeature(reportid, bdw.getBytes());
    }
 
    @Override
-   public void decode(Document d) {
+   public void decode(Document d, int reportid) {
       reader.setBuffer((byte[]) d.getReportedFeature(reportid));
       try {
          d.setReportedFeature(reportid, reader.readCIntArray());
-      } catch (EOFException ex) {
+      } catch (EOCException ex) {
          log.fatalexception(ex, "decode( %s ) reader %s reportid %d", d, reader, reportid);
       }
    }
 
    @Override
-   public void report(Document doc) {
+   public void report(Document doc, int reportid) {
       //log.info("report %s doc %d reportid %d value %s", this.getCanonicalName(), doc.docid, reportid, getValue());
       doc.setReportedFeature(reportid, getValue());
    }
 
    @Override
-   public int[] valueReported(Document doc) {
+   public int[] valueReported(Document doc, int reportid) {
       return (int[]) doc.getReportedFeature(reportid);
    }   
    
@@ -96,7 +105,7 @@ public class DocForward extends EntityStoredFeature<File, int[]> implements Redu
       return false;
    }
 
-   public static class File extends RecordSequentialArray {
+   public static class File extends StructuredFileSequential {
 
       public CIntArrayField tokens = this.addCIntArray("tokens");
 

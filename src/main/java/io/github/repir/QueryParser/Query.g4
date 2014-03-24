@@ -1,12 +1,45 @@
 grammar Query;
 
 @header {
-    package io.github.repir.QueryParser;
-    import java.util.ArrayList;
-    import io.github.repir.Repository.*;
-    import io.github.repir.Retriever.*;
-    import io.github.repir.Strategy.*;
-    import io.github.repir.tools.Lib.Log;
+package io.github.repir.QueryParser;
+
+import java.util.ArrayList;
+import io.github.repir.Repository.*;
+import io.github.repir.Retriever.*;
+import io.github.repir.Strategy.*;
+import io.github.repir.Strategy.Operator.*;
+import io.github.repir.tools.Lib.Log;
+
+/** 
+ * !!!Do not edit this code!!! 
+ * It was generated with Antlr using the Query.g4 source code. 
+ * <p/>
+ * This parser converts a query string into a Graph that is processed for every
+ * entity retrieved by a {@link RetrievalModel}. Prasing uses the following syntax rules:
+ * <ul>
+ * <li>termA -> Term( termA ) (i.e. termA is converted into a Term object with termA as parameter)
+ * <li>termA termB" -> Term( termA ) Term( termsB ) (i.e. whitespace separates terms)
+ * <li>{termA termB ...} -> FeatureProximityUnordered( termA, termB, ... ) by default maximum span = unlimited
+ * <li>(termA termB ...) -> FeatureProximityOrdered( termA, termB, ...), by default maximum span = #terms
+ * <li>termA-termB-... -> (termA termB ...)
+ * <li>[termA termB ...] -> FeatureSynonym( Term(termA) Term(termB) )
+ * <li>termA|termB|... -> same as [termA termB ...]
+ * <li>ClassName:(termA termB ...) -> constructs a instance of class 'ClassName', and passes an arraylist of features contained within the brackets
+ * </ul>
+ * Some constructions allow optional parameters to be passed. requirements are that 
+ * parameternames must be lowercase, the Feature MUST have methods set<parametername>() implemented,
+ * (which is not checked, so use at you own risk), and only long (ints) and double values
+ * are supported. For example:
+ * <ul>
+ * <li>termA#weight  weight must be a float or scientific notation, this uses setweight(value) on the feature
+ * <li>termA-termB#weight sets the weight for the entire ProximityOperator, not for termB
+ * <li>{termA termB ... [span=?] [cf=?] [df=?]} uses setspan(long) setcf(long) and setdf(long) on the feature
+ * <li> (termA termB ... [span=?] [cf=?] [df=?]) same as {} but for ordered phrases
+ * <li> [termA termB ... [cf=?] [df=?]] to set the cf/df fr proper processing of synonym occurrences
+ * <li> ClassName:( termA [parama=?] [parama=?] )#weight uses setparama(?) and setparamb(?)
+ * <li> termA~channel uses setchannel(channel) to set channel (e.g. title), may not be implemented 
+ * </ul>
+*/
 }
 
 @members {
@@ -16,25 +49,6 @@ grammar Query;
    public int bodychannel;
    public int titlechannel;
 }
-
-/** 
-This grammar file compiles to a parser, that converts a query string into a Document Processing Graph.
-The simple syntax rules:
-termA -> FeatureTerm( Extract( termA ) ) (i.e. termA is converted into a FeatureTerm object that uses the Extracted TF feature of termA)
-termA termB ...-> FeatureTerm( Extract( termA ) ) + FeatureTerm( Extract( termB) ... ) (i.e. scores are added, as in a logical OR)
-{termA termB ...} -> FeatureProximityUnordered( Exract(termA) Extract(termB) ... ) i.e. an unordered phrase, unlimited distance
-(termA termB ...) -> ordered phrase (FeatureProximityOrdered)
-termA-termB-... -> ordered phrase with span limitation (also uses FeatureProximityOrdered, but limits distance span=n)
-[termA termB ...] -> FeatureSynonym( Extract(termA) Extract(termB) ) i.e. termA and termB are regarded as the same symbol.
-termA|termB|... -> same as [termA termB ...]
-Feature:(termA termB ...) -> constructs a feature of class 'Feature', and passes an arraylist of features contained within the brackets
-
-Some constructions allow optional parameters:
-termA#weight  to set the weight of a term (must be a float or scientific notation), this works for any type of feature (e.g. {termA termB}#0.2)
-{termA termB ... [span=?] [tf=?] [df=?]} to limit the span, set the tf/df fr proper processing of phrase occurrences
-(termA termB ... [span=?] [tf=?] [df=?]) same as {} but for ordered phrases
-[termA termB ... [tf=?] [df=?]] to set the tf/df fr proper processing of synonym occurrences
-*/
 
 prog 
    @init { 
@@ -47,7 +61,7 @@ prog
    )+
 ;
 
-endterm returns [ GraphNode feature ]
+endterm returns [ Operator feature ]
    //options{greedy=true;}
    :
    term
@@ -59,81 +73,108 @@ endterm returns [ GraphNode feature ]
    )? 
    (WS)? ( channel 
       { $feature.setchannel( $channel.value );
-        log.info("aap");
       }
    )? 
 ;
 
-phrase returns [ GraphNode feature ]
-   @init { $feature = new FeatureProximityOrdered( root ); }
-   @after { if ($feature.containedfeatures.size() == 1)
-                $feature = $feature.containedfeatures.get(0);
+phrase returns [ Operator feature ]
+   @init { ArrayList<Operator> terms = new ArrayList<Operator>(); 
+           ArrayList<String> varl = new ArrayList<String>(); 
+           ArrayList<String> vard = new ArrayList<String>(); }
+   @after { if (terms.size() == 1)
+               $feature = terms.get(0);
+            else {
+               ProximityOperatorOrdered f = new ProximityOperatorOrdered( root, terms );
+               f.setspan( new Long( f.containednodes.size() ));
+               for (String v : varl)
+                  f.setGenericL( v );
+               for (String v : vard)
+                  f.setGenericD( v );
+               $feature = f;
+            }
           }
    :  ( BRACKOPEN (WS?)
-      ( ( term       { ((FeatureProximity)$feature).add( $term.feature ); }
-         |VARIABLE  { if ($VARIABLE.text.indexOf(".") >= 0)
-                        $feature.setGenericD( $VARIABLE.text );
+      ( ( term  { terms.add( $term.feature ); } 
+       | VARIABLE  { if ($VARIABLE.text.indexOf(".") >= 0)
+                        vard.add( $VARIABLE.text );
                      else 
-                        $feature.setGenericL( $VARIABLE.text ); }
+                        varl.add( $VARIABLE.text ); }
         )(WS)?
       )+ 
       BRACKCLOSE )
 ;
 
-phrase2 returns [ FeatureProximity feature ]
-   @init { $feature = new FeatureProximityOrdered( root ); }
-   @after { 
-             $feature.setspan( new Long( $feature.containedfeatures.size() ));
+phrase2 returns [ ProximityOperatorOrdered feature ]
+   @init { ArrayList<Operator> terms = new ArrayList<Operator>();  }
+   @after { $feature = new ProximityOperatorOrdered( root, terms );
+            $feature.setspan( new Long( $feature.containednodes.size() ));
           }
    : 
       ( PHRASETERM 
-          { $feature.add( root.getTerm( $PHRASETERM.text.substring(0, $PHRASETERM.text.length()-1 )));  }
+          { terms.add( root.getTerm( $PHRASETERM.text.substring(0, $PHRASETERM.text.length()-1 )));  }
       )+
       TERM
-          { $feature.add( root.getTerm( $TERM.text ) ); }
+          { terms.add( root.getTerm( $TERM.text ) ); }
 ;
 
-syn returns [ FeatureSynonym feature ]
-   @init { $feature = new FeatureSynonym( root ); }
+syn returns [ SynonymOperator feature ]
+   @init { ArrayList<Operator> terms = new ArrayList<Operator>(); }
+   @after { $feature = new SynonymOperator( root, terms ); }
    : 
       (ALTTERM  
-          { $feature.add( root.getTerm( $ALTTERM.text.substring(0, $ALTTERM.text.length() - 1 ) ) ); 
+          { terms.add( root.getTerm( $ALTTERM.text.substring(0, $ALTTERM.text.length() - 1 ) ) ); 
           }
           (WS)?
       )+
       TERM
-          { $feature.add( root.getTerm( $TERM.text ) ); }
+          { terms.add( root.getTerm( $TERM.text ) ); }
 ;
 
-syn2 returns [ FeatureSynonym feature ]
-   @init { $feature = new FeatureSynonym( root ); }
+syn2 returns [ SynonymOperator feature ]
+   @init { ArrayList<Operator> terms = new ArrayList<Operator>(); 
+           ArrayList<String> varl = new ArrayList<String>(); 
+           ArrayList<String> vard = new ArrayList<String>();  }
+   @after { $feature = new SynonymOperator( root, terms );
+            for (String v : varl)
+               $feature.setGenericL( v );
+            for (String v : vard)
+               $feature.setGenericD( v );
+          }
    : 
       BLOCKOPEN (WS)?
-      (( term { $feature.add( $term.feature );  }
-         |VARIABLE  { if ($VARIABLE.text.indexOf(".") >= 0)
-                        $feature.setGenericD( $VARIABLE.text );
+      (( term  { terms.add( $term.feature ); } 
+       | VARIABLE  { if ($VARIABLE.text.indexOf(".") >= 0)
+                        vard.add( $VARIABLE.text );
                      else 
-                        $feature.setGenericL( $VARIABLE.text ); }
+                        varl.add( $VARIABLE.text ); }
        )(WS)?
       )+
      BLOCKCLOSE
 ;
 
-set returns [ FeatureProximity feature ]
-   @init { $feature = new FeatureProximityUnordered( root ); }
+set returns [ ProximityOperatorUnordered feature ]
+   @init { ArrayList<Operator> terms = new ArrayList<Operator>(); 
+           ArrayList<String> varl = new ArrayList<String>(); 
+           ArrayList<String> vard = new ArrayList<String>(); }
+   @after { $feature = new ProximityOperatorUnordered( root, terms );
+            for (String v : varl)
+               $feature.setGenericL( v );
+            for (String v : vard)
+               $feature.setGenericD( v );
+          }
    :   BRACEOPEN (WS?)
-      ( (term        { $feature.add( $term.feature ); }
-         |VARIABLE  { if ($VARIABLE.text.indexOf(".") >= 0)
-                        $feature.setGenericD( $VARIABLE.text );
+      ( (term  { terms.add( $term.feature ); } 
+       | VARIABLE  { if ($VARIABLE.text.indexOf(".") >= 0)
+                        vard.add( $VARIABLE.text );
                      else 
-                        $feature.setGenericL( $VARIABLE.text ); }
+                        varl.add( $VARIABLE.text ); }
       )(WS)?
       )+ 
       BRACECLOSE 
 ;
 
-function returns [ GraphNode feature ]
-   @init { ArrayList<GraphNode> terms = new ArrayList<GraphNode>(); 
+function returns [ Operator feature ]
+   @init { ArrayList<Operator> terms = new ArrayList<Operator>(); 
            ArrayList<String> varl = new ArrayList<String>(); 
            ArrayList<String> vard = new ArrayList<String>(); 
            String functionclass;
@@ -158,7 +199,7 @@ function returns [ GraphNode feature ]
      BRACKCLOSE
 ;
 
-term returns [ GraphNode feature ]
+term returns [ Operator feature ]
    : TERM 
        { $feature = root.getTerm( $TERM.text ); }
    | phrase

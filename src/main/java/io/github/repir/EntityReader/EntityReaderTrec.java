@@ -1,18 +1,19 @@
 package io.github.repir.EntityReader;
 
-import java.io.EOFException;
+import io.github.repir.EntityReader.MapReduce.EntityWritable;
+import io.github.repir.tools.ByteSearch.ByteSearch;
+import io.github.repir.tools.Content.EOCException;
 import io.github.repir.tools.Content.HDFSIn;
-import io.github.repir.Extractor.Entity;
 import io.github.repir.tools.Lib.Log;
 import java.io.IOException;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
 /**
- * An implementation of RepIREntityReader that scans the input for TREC style
+ * An implementation of EntityReader that scans the input for TREC style
  * documents, that are enclosed in <DOC></DOC> tags. The used tags may be
  * overridden by setting different tags in entityreader.entitystart and
- * entityreader.entityend.
+ * entityreader.entityend. 
  * <p/>
  * NOTE that the original TREC disks contain .z files, which cannot be
  * decompressed by Java. The files must therefore be decompressed outside this
@@ -20,9 +21,10 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
  * <p/>
  * @author jeroen
  */
-public class EntityReaderTrec extends RepIREntityReader {
+public class EntityReaderTrec extends EntityReader {
 
    public static Log log = new Log(EntityReaderTrec.class);
+   private ByteSearch zickel = ByteSearch.create("zickel");
    private byte[] startTag;
    private byte[] endTag;
 
@@ -76,7 +78,7 @@ public class EntityReaderTrec extends RepIREntityReader {
 //                  return false;
 //               }
             }
-         } catch (EOFException ex) {
+         } catch (EOCException ex) {
             return false;
          }
       }
@@ -100,7 +102,7 @@ public class EntityReaderTrec extends RepIREntityReader {
                   return false;
                }
             }
-         } catch (EOFException ex) {
+         } catch (EOCException ex) {
             return false;
          }
       }

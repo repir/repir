@@ -1,11 +1,44 @@
 // Generated from Query.g4 by ANTLR 4.1
 
-    package io.github.repir.QueryParser;
-    import java.util.ArrayList;
-    import io.github.repir.Repository.*;
-    import io.github.repir.Retriever.*;
-    import io.github.repir.Strategy.*;
-    import io.github.repir.tools.Lib.Log;
+package io.github.repir.QueryParser;
+
+import java.util.ArrayList;
+import io.github.repir.Repository.*;
+import io.github.repir.Retriever.*;
+import io.github.repir.Strategy.*;
+import io.github.repir.Strategy.Operator.*;
+import io.github.repir.tools.Lib.Log;
+
+/** 
+ * !!!Do not edit this code!!! 
+ * It was generated with Antlr using the Query.g4 source code. 
+ * <p/>
+ * This parser converts a query string into a Graph that is processed for every
+ * entity retrieved by a {@link RetrievalModel}. Prasing uses the following syntax rules:
+ * <ul>
+ * <li>termA -> Term( termA ) (i.e. termA is converted into a Term object with termA as parameter)
+ * <li>termA termB" -> Term( termA ) Term( termsB ) (i.e. whitespace separates terms)
+ * <li>{termA termB ...} -> FeatureProximityUnordered( termA, termB, ... ) by default maximum span = unlimited
+ * <li>(termA termB ...) -> FeatureProximityOrdered( termA, termB, ...), by default maximum span = #terms
+ * <li>termA-termB-... -> (termA termB ...)
+ * <li>[termA termB ...] -> FeatureSynonym( Term(termA) Term(termB) )
+ * <li>termA|termB|... -> same as [termA termB ...]
+ * <li>ClassName:(termA termB ...) -> constructs a instance of class 'ClassName', and passes an arraylist of features contained within the brackets
+ * </ul>
+ * Some constructions allow optional parameters to be passed. requirements are that 
+ * parameternames must be lowercase, the Feature MUST have methods set<parametername>() implemented,
+ * (which is not checked, so use at you own risk), and only long (ints) and double values
+ * are supported. For example:
+ * <ul>
+ * <li>termA#weight  weight must be a float or scientific notation, this uses setweight(value) on the feature
+ * <li>termA-termB#weight sets the weight for the entire ProximityOperator, not for termB
+ * <li>{termA termB ... [span=?] [cf=?] [df=?]} uses setspan(long) setcf(long) and setdf(long) on the feature
+ * <li> (termA termB ... [span=?] [cf=?] [df=?]) same as {} but for ordered phrases
+ * <li> [termA termB ... [cf=?] [df=?]] to set the cf/df fr proper processing of synonym occurrences
+ * <li> ClassName:( termA [parama=?] [parama=?] )#weight uses setparama(?) and setparamb(?)
+ * <li> termA~channel uses setchannel(channel) to set channel (e.g. title), may not be implemented 
+ * </ul>
+*/
 
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
@@ -123,7 +156,7 @@ public class QueryParser extends Parser {
 	}
 
 	public static class EndtermContext extends ParserRuleContext {
-		public GraphNode feature;
+		public Operator feature;
 		public TermContext term;
 		public WeightContext weight;
 		public ChannelContext channel;
@@ -196,7 +229,6 @@ public class QueryParser extends Parser {
 				{
 				setState(42); ((EndtermContext)_localctx).channel = channel();
 				 _localctx.feature.setchannel( ((EndtermContext)_localctx).channel.value );
-				        log.info("aap");
 				      
 				}
 			}
@@ -215,7 +247,7 @@ public class QueryParser extends Parser {
 	}
 
 	public static class PhraseContext extends ParserRuleContext {
-		public GraphNode feature;
+		public Operator feature;
 		public TermContext term;
 		public Token VARIABLE;
 		public List<TermContext> term() {
@@ -251,7 +283,9 @@ public class QueryParser extends Parser {
 	public final PhraseContext phrase() throws RecognitionException {
 		PhraseContext _localctx = new PhraseContext(_ctx, getState());
 		enterRule(_localctx, 4, RULE_phrase);
-		 ((PhraseContext)_localctx).feature =  new FeatureProximityOrdered( root ); 
+		 ArrayList<Operator> terms = new ArrayList<Operator>(); 
+		           ArrayList<String> varl = new ArrayList<String>(); 
+		           ArrayList<String> vard = new ArrayList<String>(); 
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
@@ -285,16 +319,16 @@ public class QueryParser extends Parser {
 				case BLOCKOPEN:
 					{
 					setState(51); ((PhraseContext)_localctx).term = term();
-					 ((FeatureProximity)_localctx.feature).add( ((PhraseContext)_localctx).term.feature ); 
+					 terms.add( ((PhraseContext)_localctx).term.feature ); 
 					}
 					break;
 				case VARIABLE:
 					{
 					setState(54); ((PhraseContext)_localctx).VARIABLE = match(VARIABLE);
 					 if ((((PhraseContext)_localctx).VARIABLE!=null?((PhraseContext)_localctx).VARIABLE.getText():null).indexOf(".") >= 0)
-					                        _localctx.feature.setGenericD( (((PhraseContext)_localctx).VARIABLE!=null?((PhraseContext)_localctx).VARIABLE.getText():null) );
+					                        vard.add( (((PhraseContext)_localctx).VARIABLE!=null?((PhraseContext)_localctx).VARIABLE.getText():null) );
 					                     else 
-					                        _localctx.feature.setGenericL( (((PhraseContext)_localctx).VARIABLE!=null?((PhraseContext)_localctx).VARIABLE.getText():null) ); 
+					                        varl.add( (((PhraseContext)_localctx).VARIABLE!=null?((PhraseContext)_localctx).VARIABLE.getText():null) ); 
 					}
 					break;
 				default:
@@ -317,8 +351,17 @@ public class QueryParser extends Parser {
 			setState(65); match(BRACKCLOSE);
 			}
 			}
-			 if (_localctx.feature.containedfeatures.size() == 1)
-			                ((PhraseContext)_localctx).feature =  _localctx.feature.containedfeatures.get(0);
+			 if (terms.size() == 1)
+			               ((PhraseContext)_localctx).feature =  terms.get(0);
+			            else {
+			               ProximityOperatorOrdered f = new ProximityOperatorOrdered( root, terms );
+			               f.setspan( new Long( f.containednodes.size() ));
+			               for (String v : varl)
+			                  f.setGenericL( v );
+			               for (String v : vard)
+			                  f.setGenericD( v );
+			               ((PhraseContext)_localctx).feature =  f;
+			            }
 			          
 		}
 		catch (RecognitionException re) {
@@ -333,7 +376,7 @@ public class QueryParser extends Parser {
 	}
 
 	public static class Phrase2Context extends ParserRuleContext {
-		public FeatureProximity feature;
+		public ProximityOperatorOrdered feature;
 		public Token PHRASETERM;
 		public Token TERM;
 		public TerminalNode PHRASETERM(int i) {
@@ -358,7 +401,7 @@ public class QueryParser extends Parser {
 	public final Phrase2Context phrase2() throws RecognitionException {
 		Phrase2Context _localctx = new Phrase2Context(_ctx, getState());
 		enterRule(_localctx, 6, RULE_phrase2);
-		 ((Phrase2Context)_localctx).feature =  new FeatureProximityOrdered( root ); 
+		 ArrayList<Operator> terms = new ArrayList<Operator>();  
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
@@ -370,7 +413,7 @@ public class QueryParser extends Parser {
 				{
 				{
 				setState(67); ((Phrase2Context)_localctx).PHRASETERM = match(PHRASETERM);
-				 _localctx.feature.add( root.getTerm( (((Phrase2Context)_localctx).PHRASETERM!=null?((Phrase2Context)_localctx).PHRASETERM.getText():null).substring(0, (((Phrase2Context)_localctx).PHRASETERM!=null?((Phrase2Context)_localctx).PHRASETERM.getText():null).length()-1 )));  
+				 terms.add( root.getTerm( (((Phrase2Context)_localctx).PHRASETERM!=null?((Phrase2Context)_localctx).PHRASETERM.getText():null).substring(0, (((Phrase2Context)_localctx).PHRASETERM!=null?((Phrase2Context)_localctx).PHRASETERM.getText():null).length()-1 )));  
 				}
 				}
 				setState(71); 
@@ -378,10 +421,10 @@ public class QueryParser extends Parser {
 				_la = _input.LA(1);
 			} while ( _la==PHRASETERM );
 			setState(73); ((Phrase2Context)_localctx).TERM = match(TERM);
-			 _localctx.feature.add( root.getTerm( (((Phrase2Context)_localctx).TERM!=null?((Phrase2Context)_localctx).TERM.getText():null) ) ); 
+			 terms.add( root.getTerm( (((Phrase2Context)_localctx).TERM!=null?((Phrase2Context)_localctx).TERM.getText():null) ) ); 
 			}
-			 
-			             _localctx.feature.setspan( new Long( _localctx.feature.containedfeatures.size() ));
+			 ((Phrase2Context)_localctx).feature =  new ProximityOperatorOrdered( root, terms );
+			            _localctx.feature.setspan( new Long( _localctx.feature.containednodes.size() ));
 			          
 		}
 		catch (RecognitionException re) {
@@ -396,7 +439,7 @@ public class QueryParser extends Parser {
 	}
 
 	public static class SynContext extends ParserRuleContext {
-		public FeatureSynonym feature;
+		public SynonymOperator feature;
 		public Token ALTTERM;
 		public Token TERM;
 		public List<TerminalNode> WS() { return getTokens(QueryParser.WS); }
@@ -425,7 +468,7 @@ public class QueryParser extends Parser {
 	public final SynContext syn() throws RecognitionException {
 		SynContext _localctx = new SynContext(_ctx, getState());
 		enterRule(_localctx, 8, RULE_syn);
-		 ((SynContext)_localctx).feature =  new FeatureSynonym( root ); 
+		 ArrayList<Operator> terms = new ArrayList<Operator>(); 
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
@@ -437,7 +480,7 @@ public class QueryParser extends Parser {
 				{
 				{
 				setState(76); ((SynContext)_localctx).ALTTERM = match(ALTTERM);
-				 _localctx.feature.add( root.getTerm( (((SynContext)_localctx).ALTTERM!=null?((SynContext)_localctx).ALTTERM.getText():null).substring(0, (((SynContext)_localctx).ALTTERM!=null?((SynContext)_localctx).ALTTERM.getText():null).length() - 1 ) ) ); 
+				 terms.add( root.getTerm( (((SynContext)_localctx).ALTTERM!=null?((SynContext)_localctx).ALTTERM.getText():null).substring(0, (((SynContext)_localctx).ALTTERM!=null?((SynContext)_localctx).ALTTERM.getText():null).length() - 1 ) ) ); 
 				          
 				setState(79);
 				_la = _input.LA(1);
@@ -454,8 +497,9 @@ public class QueryParser extends Parser {
 				_la = _input.LA(1);
 			} while ( _la==ALTTERM );
 			setState(85); ((SynContext)_localctx).TERM = match(TERM);
-			 _localctx.feature.add( root.getTerm( (((SynContext)_localctx).TERM!=null?((SynContext)_localctx).TERM.getText():null) ) ); 
+			 terms.add( root.getTerm( (((SynContext)_localctx).TERM!=null?((SynContext)_localctx).TERM.getText():null) ) ); 
 			}
+			 ((SynContext)_localctx).feature =  new SynonymOperator( root, terms ); 
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
@@ -469,7 +513,7 @@ public class QueryParser extends Parser {
 	}
 
 	public static class Syn2Context extends ParserRuleContext {
-		public FeatureSynonym feature;
+		public SynonymOperator feature;
 		public TermContext term;
 		public Token VARIABLE;
 		public List<TermContext> term() {
@@ -505,7 +549,9 @@ public class QueryParser extends Parser {
 	public final Syn2Context syn2() throws RecognitionException {
 		Syn2Context _localctx = new Syn2Context(_ctx, getState());
 		enterRule(_localctx, 10, RULE_syn2);
-		 ((Syn2Context)_localctx).feature =  new FeatureSynonym( root ); 
+		 ArrayList<Operator> terms = new ArrayList<Operator>(); 
+		           ArrayList<String> varl = new ArrayList<String>(); 
+		           ArrayList<String> vard = new ArrayList<String>();  
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
@@ -536,16 +582,16 @@ public class QueryParser extends Parser {
 				case BLOCKOPEN:
 					{
 					setState(92); ((Syn2Context)_localctx).term = term();
-					 _localctx.feature.add( ((Syn2Context)_localctx).term.feature );  
+					 terms.add( ((Syn2Context)_localctx).term.feature ); 
 					}
 					break;
 				case VARIABLE:
 					{
 					setState(95); ((Syn2Context)_localctx).VARIABLE = match(VARIABLE);
 					 if ((((Syn2Context)_localctx).VARIABLE!=null?((Syn2Context)_localctx).VARIABLE.getText():null).indexOf(".") >= 0)
-					                        _localctx.feature.setGenericD( (((Syn2Context)_localctx).VARIABLE!=null?((Syn2Context)_localctx).VARIABLE.getText():null) );
+					                        vard.add( (((Syn2Context)_localctx).VARIABLE!=null?((Syn2Context)_localctx).VARIABLE.getText():null) );
 					                     else 
-					                        _localctx.feature.setGenericL( (((Syn2Context)_localctx).VARIABLE!=null?((Syn2Context)_localctx).VARIABLE.getText():null) ); 
+					                        varl.add( (((Syn2Context)_localctx).VARIABLE!=null?((Syn2Context)_localctx).VARIABLE.getText():null) ); 
 					}
 					break;
 				default:
@@ -567,6 +613,12 @@ public class QueryParser extends Parser {
 			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << TERM) | (1L << PHRASETERM) | (1L << VARIABLE) | (1L << ALTTERM) | (1L << FUNCTION) | (1L << BRACKOPEN) | (1L << BRACEOPEN) | (1L << BLOCKOPEN))) != 0) );
 			setState(106); match(BLOCKCLOSE);
 			}
+			 ((Syn2Context)_localctx).feature =  new SynonymOperator( root, terms );
+			            for (String v : varl)
+			               _localctx.feature.setGenericL( v );
+			            for (String v : vard)
+			               _localctx.feature.setGenericD( v );
+			          
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
@@ -580,7 +632,7 @@ public class QueryParser extends Parser {
 	}
 
 	public static class SetContext extends ParserRuleContext {
-		public FeatureProximity feature;
+		public ProximityOperatorUnordered feature;
 		public TermContext term;
 		public Token VARIABLE;
 		public List<TermContext> term() {
@@ -616,7 +668,9 @@ public class QueryParser extends Parser {
 	public final SetContext set() throws RecognitionException {
 		SetContext _localctx = new SetContext(_ctx, getState());
 		enterRule(_localctx, 12, RULE_set);
-		 ((SetContext)_localctx).feature =  new FeatureProximityUnordered( root ); 
+		 ArrayList<Operator> terms = new ArrayList<Operator>(); 
+		           ArrayList<String> varl = new ArrayList<String>(); 
+		           ArrayList<String> vard = new ArrayList<String>(); 
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
@@ -649,16 +703,16 @@ public class QueryParser extends Parser {
 				case BLOCKOPEN:
 					{
 					setState(112); ((SetContext)_localctx).term = term();
-					 _localctx.feature.add( ((SetContext)_localctx).term.feature ); 
+					 terms.add( ((SetContext)_localctx).term.feature ); 
 					}
 					break;
 				case VARIABLE:
 					{
 					setState(115); ((SetContext)_localctx).VARIABLE = match(VARIABLE);
 					 if ((((SetContext)_localctx).VARIABLE!=null?((SetContext)_localctx).VARIABLE.getText():null).indexOf(".") >= 0)
-					                        _localctx.feature.setGenericD( (((SetContext)_localctx).VARIABLE!=null?((SetContext)_localctx).VARIABLE.getText():null) );
+					                        vard.add( (((SetContext)_localctx).VARIABLE!=null?((SetContext)_localctx).VARIABLE.getText():null) );
 					                     else 
-					                        _localctx.feature.setGenericL( (((SetContext)_localctx).VARIABLE!=null?((SetContext)_localctx).VARIABLE.getText():null) ); 
+					                        varl.add( (((SetContext)_localctx).VARIABLE!=null?((SetContext)_localctx).VARIABLE.getText():null) ); 
 					}
 					break;
 				default:
@@ -680,6 +734,12 @@ public class QueryParser extends Parser {
 			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << TERM) | (1L << PHRASETERM) | (1L << VARIABLE) | (1L << ALTTERM) | (1L << FUNCTION) | (1L << BRACKOPEN) | (1L << BRACEOPEN) | (1L << BLOCKOPEN))) != 0) );
 			setState(126); match(BRACECLOSE);
 			}
+			 ((SetContext)_localctx).feature =  new ProximityOperatorUnordered( root, terms );
+			            for (String v : varl)
+			               _localctx.feature.setGenericL( v );
+			            for (String v : vard)
+			               _localctx.feature.setGenericD( v );
+			          
 		}
 		catch (RecognitionException re) {
 			_localctx.exception = re;
@@ -693,7 +753,7 @@ public class QueryParser extends Parser {
 	}
 
 	public static class FunctionContext extends ParserRuleContext {
-		public GraphNode feature;
+		public Operator feature;
 		public Token FUNCTION;
 		public TermContext term;
 		public Token VARIABLE;
@@ -731,7 +791,7 @@ public class QueryParser extends Parser {
 	public final FunctionContext function() throws RecognitionException {
 		FunctionContext _localctx = new FunctionContext(_ctx, getState());
 		enterRule(_localctx, 14, RULE_function);
-		 ArrayList<GraphNode> terms = new ArrayList<GraphNode>(); 
+		 ArrayList<Operator> terms = new ArrayList<Operator>(); 
 		           ArrayList<String> varl = new ArrayList<String>(); 
 		           ArrayList<String> vard = new ArrayList<String>(); 
 		           String functionclass;
@@ -825,7 +885,7 @@ public class QueryParser extends Parser {
 	}
 
 	public static class TermContext extends ParserRuleContext {
-		public GraphNode feature;
+		public Operator feature;
 		public Token TERM;
 		public PhraseContext phrase;
 		public FunctionContext function;

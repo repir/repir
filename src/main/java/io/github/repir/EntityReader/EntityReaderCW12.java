@@ -1,38 +1,22 @@
 package io.github.repir.EntityReader;
 
+import io.github.repir.EntityReader.MapReduce.EntityWritable;
 import io.github.repir.tools.Content.Datafile;
-import io.github.repir.Extractor.Entity;
 import io.github.repir.tools.Lib.ByteTools;
 import io.github.repir.tools.Lib.Log;
-import java.io.EOFException;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
-import io.github.repir.tools.ByteRegex.ByteRegex;
+import io.github.repir.tools.ByteSearch.ByteRegex;
+import io.github.repir.tools.ByteSearch.ByteSearchPosition;
+import io.github.repir.tools.Content.EOCException;
 
 /**
- * An implementation of RepIREntityReader that reads the ClueWeb09 collection. In
- * this collection, each document is preceded by a WARC header, which contains
- * document metadata and length. Each document has a WarcIDTag of 25 characters,
- * which s used to validate Warc headers of correct documents.
- * <p/>
- * Different from the TREC disks, the .gz format used for ClueWeb09 can be
- * decompressed by Java. So the disks can be read in its original format. A
- * technical problem with reading compressed files is that there is no way to
- * determine the distance to end-of-file. The file must therefore be read until
- * and EOF exception is encountered. The Datafile class will correctly throw an
- * EOF. However, after EOF has been reached, no further attempts should be made
- * reading the file, by checking {@link Datafile#hasMore()} first.
- * <p/>
- * Notorious for the amount of spam contained in the documents, the Fusion
- * spamlist provided by the University of Waterloo can be used to limit the
- * documents processed to a percentage of the spamlist. For this,
- * repository.spamlist should point to the directory that contains the spamlist
- * files, and repository.spamthreshold controls the percentage of spammiest
- * documents left out (i.e. 10 leaves out the spammiest 10%).
+ * An implementation of EntityReader that reads the ClueWeb12 collection, 
+ * similar to {@link EntityReaderCW}, just some differences in Record structure.
  * <p/>
  * @author jeroen
  */
-public class EntityReaderCW12 extends RepIREntityReader {
+public class EntityReaderCW12 extends EntityReader {
 
    public static Log log = new Log(EntityReaderCW12.class);
    private byte[] warcTag = "WARC/1.0".getBytes();
@@ -60,14 +44,13 @@ public class EntityReaderCW12 extends RepIREntityReader {
       while (fsin.hasMore()) {
          readEntity();
          Position pos = new Position();
-         ByteRegex.Pos find = WarcIDTag.find(entitywritable.entity.content, 0, entitywritable.entity.content.length);
+         ByteSearchPosition find = WarcIDTag.findPos(entitywritable.entity.content, 0, entitywritable.entity.content.length);
          if (find.found()) {
-            ByteRegex.Pos find1 = EOL.find(entitywritable.entity.content, find.end, entitywritable.entity.content.length);
+            ByteSearchPosition find1 = EOL.findPos(entitywritable.entity.content, find.end, entitywritable.entity.content.length);
             if (find1.found()) {
                String id = new String(entitywritable.entity.content, find.end, find1.start - find.end);
                //log.info("entity %s", new String(entitywritable.entity.content));
                if (id.length() == 25 && (ids == null || ids.get(id))) {
-                  log.info("id %s", id);
                   entitywritable.entity.get("collectionid").add(id);
                   int recordlength = getLength(pos);
                   if (recordlength > 0) {
@@ -123,7 +106,7 @@ public class EntityReaderCW12 extends RepIREntityReader {
             } else {
                entitywritable.writeByte(b);
             }
-         } catch (EOFException ex) {
+         } catch (EOCException ex) {
             entitywritable.writeBytes(warcTag, 0, match);
             break;
          }

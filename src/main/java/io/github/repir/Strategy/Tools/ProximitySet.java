@@ -6,14 +6,39 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import io.github.repir.Retriever.Document;
-import io.github.repir.Strategy.FeatureValues;
-import io.github.repir.Strategy.GraphNode;
-import io.github.repir.Strategy.Term;
+import io.github.repir.Strategy.Operator.OperatorValues;
+import io.github.repir.Strategy.Operator.Operator;
+import io.github.repir.Strategy.Operator.Term;
 import io.github.repir.tools.Lib.ArrayTools;
 import io.github.repir.tools.Lib.Log;
 import io.github.repir.tools.Lib.MathTools;
 
 /**
+ * A general multiple position lists iterator, that iterates through the
+ * co-occurrences of operators in a {@link Document}.
+ * <p/>
+ * To use, instantiate with a list of operators that are used to create a list
+ * of co-occurrences. Optionally {@link #setMaxSpan(int)} can be used to limit
+ * occurrences returned to a maximum span. Use by calling
+ * {@link #hasProximityMatches(io.github.repir.Retriever.Document)}, which will
+ * recursively process the operators used, traverse to the first occurrence that
+ * meets all requirements (e.g. span, dependencies, all required operators,
+ * sequential requirements) and return true if there is such a first occurrence
+ * in the document. The occurrence can be inspected using {@link #getFirst()} to
+ * return the operator in the left most position, {@link #otherTermList()} to
+ * retrieve a list of the other operators in order of their position (the first
+ * is not included, the last is), and {@link #getLast()} to get the operator in
+ * last position.
+ * <p/>
+ * ProximitySet will properly handle duplicate operators, e.g. "to be or not to
+ * be".
+ * <p/>
+ * Internally occurrences and dependencies are represented as a long bit-pattern
+ * over the contained operators. Therefore, Proximity sets are currently limited
+ * to a maximum of 64 operators. In case partial matches are used, on a set of
+ * operators that contain duplicates, {@link #convertDuplicatesInPattern(long)}
+ * should be used to replace used Operators of Duplicate sets by the first of
+ * those Duplicates.
  *
  * @author Jeroen Vuurens
  */
@@ -22,14 +47,15 @@ public abstract class ProximitySet {
    public static Log log = new Log(ProximitySet.class);
    public ProximityTerm[] tpi;
    public long[] dependency;
-   ArrayList<GraphNode> containedfeatures;
+   public int maximumspan = Integer.MAX_VALUE;
+   ArrayList<Operator> containedfeatures;
    public ProximityTermDupl duplicateof[];
    final protected ProximityTermList ZEROLIST = new ProximityTermList();
    public ProximityTermList proximitytermlist;
-   public ProximityTerm first;
+   public ProximityTerm first, last;
    public long presentterms;
 
-   public ProximitySet(ArrayList<GraphNode> containedfeatures) {
+   public ProximitySet(ArrayList<Operator> containedfeatures) {
       this.containedfeatures = containedfeatures;
       tpi = new ProximityTerm[containedfeatures.size()];
       duplicateof = new ProximityTermDupl[containedfeatures.size()];
@@ -77,6 +103,13 @@ public abstract class ProximitySet {
    }
 
    /**
+    * @param span maximum span of co-occurrences matched 
+    */
+   public void setMaxSpan(int span) {
+      this.maximumspan = span;
+   }
+
+   /**
     * transforms a dependency pattern, shifting ids of duplicates so that each
     * number of n contained duplicates remains the same, but is converted to the
     * first n of that set of duplicates. This is necessary because of two
@@ -89,7 +122,7 @@ public abstract class ProximitySet {
       return convertDuplicatesInPattern(id, -1);
    }
 
-   public long convertDuplicatesInPattern(long id, int sequence) {
+   private long convertDuplicatesInPattern(long id, int sequence) {
       long modifiedid = id;
       HashMap<Integer, Integer> duplicates = new HashMap<Integer, Integer>();
       long bit = 1;
@@ -98,7 +131,7 @@ public abstract class ProximitySet {
             // for duplicate terms we have to make sure to use the first values in the list
             // i.e. transform the id mask so that the n occurences of term x are
             // replaced with the first n occurrences of term x
-            int firstid = ((ProximityTermDupl)tpi[p]).first.sequence;
+            int firstid = ((ProximityTermDupl) tpi[p]).first.sequence;
             Integer count = duplicates.get(firstid);
             if (count == null) {
                duplicates.put(firstid, 1);
@@ -130,34 +163,82 @@ public abstract class ProximitySet {
       return modifiedid;
    }
 
+   /**
+    * By default no dependencies are used. When overridden, bits set indicate
+    * that these operators can only be scored in combinations with the dependent
+    * operators, and can otherwise be ignored. e.g. suppose "Joan of Arc" has
+    * three corresponding for the three terms. The sequence ids will the be
+    * Joan:0, of:1, Arc:2. If "of" is dependent on "Joan" and "Arc",
+    * dependency[1] = (2^0 + 2^2) = 5.
+    *
+    * @return
+    */
    protected long[] getDependence() {
       return new long[containedfeatures.size()];
    }
 
+   /**
+    *
+    * @param doc
+    * @return true if the ProximitySet has at least 1 ProximityOccurrence for
+    * this {@link Document}. If the Operators do not satisfy the requirements
+    * (more than 1 operator for partial matches, all operators for full matches,
+    * meeting all other requirements (e.g. in correct order). Note that
+    * ProximitySet has no knowledge of additional requirements such as maximum
+    * span.
+    *
+    */
    public abstract boolean hasProximityMatches(Document doc);
 
    public abstract boolean next();
 
-   protected void pollFirst() {
+   protected void pollFirstLast() {
       first = proximitytermlist.pollFirst();
+      last = proximitytermlist.last();
    }
 
-   public int size() {
-      return tpi.length;
+   /**
+    * @return The positional first Operator of the currently matched co-occurrence. 
+    */
+   public ProximityTerm getFirst() {
+      return first;
    }
 
+   /**
+    * @return a list of all {@link Operator}s, in positional order of the current occurrence
+    * in the document. The Operator in first position is not in this list, that can be
+    * obtained using {@link #getFirst() }.
+    * 
+    */
+   public ProximityTermList otherTermList() {
+      return proximitytermlist;
+   }
+
+   /**
+    * @return the positional last Operator of the currently matched co-occurrence.
+    */
+   public ProximityTerm getLast() {
+      return last;
+   }
+
+   /**
+    * 
+    * @return For debug purposes.
+    */
    public String toString() {
       StringBuilder sb = new StringBuilder();
       for (int i = 0; i < containedfeatures.size(); i++) {
          sb.append(containedfeatures.get(i)).append(" ").append(tpi[i]);
       }
       return sb.toString();
-
    }
 
+   /**
+    * Contains the positional information of an Operator.
+    */
    public class ProximityTerm implements Comparable<ProximityTerm> {
 
-      FeatureValues featurevalues;
+      OperatorValues featurevalues;
       int[] position;
       public int sequence;
       public long bitsequence;
@@ -169,18 +250,18 @@ public abstract class ProximitySet {
       public long dependency;
       int p;
 
-      protected ProximityTerm(FeatureValues values, int sequence, int span) {
+      protected ProximityTerm(OperatorValues values, int sequence, int span) {
          this.featurevalues = values;
          this.sequence = sequence;
          this.bitsequence = (1l << sequence);
          this.span = span;
       }
 
-      public void setDependency( long dependency ) {
+      public void setDependency(long dependency) {
          this.dependency = dependency;
          this.alldependency = dependency | bitsequence;
       }
-      
+
       protected void reset() {
          this.position = featurevalues.pos;
          p = 0;
@@ -200,11 +281,11 @@ public abstract class ProximitySet {
       public boolean satisfiesDependency(long pattern) {
          return (dependency & pattern) == dependency;
       }
-      
+
       public int peek() {
          return next;
       }
-      
+
       protected int next() {
          previous = current;
          current = next;
@@ -250,6 +331,15 @@ public abstract class ProximitySet {
       }
    }
 
+   /**
+    * ProximityTerm variant for duplicate operators, e.g. "to be or not to be",
+    * connecting N duplicate ProximityTermDupl, initially positioning them on the
+    * first N positions of the Operator, and when the first is moved to the next,
+    * the other duplicates are too. For proper handling of duplicates, any
+    * unordered partial bit pattern must be converted using {@link #convertDuplicatesInPattern(long)},
+    * e.g. "not to be" will be converted from "111000" to "001011", using the 
+    * first "to" and "be" operators.
+    */
    public class ProximityTermDupl extends ProximityTerm {
 
       public ArrayList<ProximityTermDupl> dupl;
@@ -257,7 +347,7 @@ public abstract class ProximitySet {
       ProximityTermDupl first, previousdupl, nextdupl, last;
       private int initshift = 0;
 
-      protected ProximityTermDupl(FeatureValues values, int sequence, int span) {
+      protected ProximityTermDupl(OperatorValues values, int sequence, int span) {
          super(values, sequence, span);
       }
 
@@ -277,9 +367,9 @@ public abstract class ProximitySet {
       }
 
       public int peek() {
-         return last.next;  
+         return last.next;
       }
-      
+
       protected void setDuplicateDependency() {
          ArrayList<ProximityTermDupl> list = first.dupl;
          HashSet<Long> dep = new HashSet<Long>();
@@ -297,13 +387,14 @@ public abstract class ProximitySet {
          }
          HashSet<Long> dep1 = new HashSet<Long>();
          SKIP:
-         for (long d : dep ) {
+         for (long d : dep) {
             for (long m : dep) {
-               if (m != d && (d & m) == m) 
+               if (m != d && (d & m) == m) {
                   continue SKIP;
+               }
             }
             dep1.add(d);
-         }         
+         }
          dependency = ArrayTools.toLongArray(dep1);
       }
 
@@ -334,8 +425,9 @@ public abstract class ProximitySet {
                   t.next();
                   if (t.current < Integer.MAX_VALUE) {
                      proximitytermlist.add(t);
-                  } else if (proximitytermlist.size() == 0)
+                  } else if (proximitytermlist.size() == 0) {
                      return Integer.MAX_VALUE;
+                  }
                }
             }
          }

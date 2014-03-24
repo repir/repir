@@ -1,11 +1,16 @@
 package io.github.repir.Extractor;
 
+import io.github.repir.EntityReader.Entity;
 import io.github.repir.Repository.Repository;
 import io.github.repir.tools.Lib.Log;
 
 /**
- * For the extraction pipeline of query input, instead of 'all' the input is
- * marked as section 'repirquery', on which the 'repirquery' process is executed.
+ * Implements an extractor for RepIR {@link Query} strings that occur within
+ * the source for a {@link TestSet}. The extraction
+ * {@link Entity.Section} and extraction process are called 'rrtestset', which can
+ * be configured similar to the Extractor used to build the Repository. Typically,
+ * for test sets, characters that are used with a different meaning than in the
+ * RR Query syntax are removed (e.g. hyphens, brackets).
  * <p/>
  * @author jeroen
  */
@@ -19,12 +24,12 @@ public class ExtractorTestSet extends Extractor {
 
    @Override
    public void init() {
-      createProcess("repirtestset");
-      linkSectionToProcess("repirtestset", "repirtestset", "repirtestset");
+      createProcess("rrtestset");
+      linkSectionToProcess("rrtestset", "rrtestset", "rrtestset");
    }
 
    @Override
    void processSectionMarkers(Entity entity, int bufferpos, int bufferend) {
-      entity.addSectionPos("repirtestset", bufferpos, bufferpos, bufferend, bufferend);
+      entity.addSectionPos("rrtestset", bufferpos, bufferpos, bufferend, bufferend);
    }
 }

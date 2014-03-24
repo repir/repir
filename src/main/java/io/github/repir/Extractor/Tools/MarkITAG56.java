@@ -1,21 +1,23 @@
 package io.github.repir.Extractor.Tools;
 
-import io.github.repir.tools.ByteRegex.ByteRegex;
-import io.github.repir.tools.ByteRegex.ByteRegex.Pos;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.tools.ByteSearch.ByteRegex;
+import io.github.repir.tools.ByteSearch.ByteSearchPosition;
+import io.github.repir.EntityReader.Entity;
 import io.github.repir.Extractor.Extractor;
+import io.github.repir.tools.ByteSearch.ByteSearch;
 import io.github.repir.tools.Lib.Log;
 import java.util.ArrayList;
 
 /**
- * Marks <doctitle> </doctitle> sections.
+ * Marks <ITAG tagnum=56> </ITAG> sections, which is used in some news wires to
+ * tag a title.
  * <p/>
  * @author jbpvuurens
  */
 public class MarkITAG56 extends SectionMarker {
 
    public static Log log = new Log(MarkITAG56.class);
-   public ByteRegex endmarker = new ByteRegex("</ITAG>");
+   public ByteSearch endmarker = ByteSearch.create("</ITAG>");
 
    public MarkITAG56(Extractor extractor, String inputsection, String outputsection) {
       super(extractor, inputsection, outputsection);
@@ -27,12 +29,10 @@ public class MarkITAG56 extends SectionMarker {
    }
 
    @Override
-   public void process(Entity entity, int sectionstart, int sectionend, ArrayList<Pos> positions) {
-      for (Pos start : positions) {
-         Pos end = endmarker.find(entity.content, start.end, sectionend);
-         if (end.found()) {
-            entity.addSectionPos(outputsection, start.start, start.end, end.start, end.end);
-         }
+   public void process(Entity entity, int sectionstart, int sectionend, ByteSearchPosition position) {
+      ByteSearchPosition end = endmarker.findPos(entity.content, position.end, sectionend);
+      if (end.found()) {
+         entity.addSectionPos(outputsection, position.start, position.end, end.start, end.end);
       }
    }
 }

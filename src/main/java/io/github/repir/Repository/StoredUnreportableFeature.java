@@ -1,7 +1,7 @@
 package io.github.repir.Repository;
 
 import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.RecordBinary;
+import io.github.repir.tools.Content.StructuredFile;
 
 /**
  * Atm, all StoredFeature types have to be content related and need to implement
@@ -12,16 +12,16 @@ import io.github.repir.tools.Content.RecordBinary;
  * their interface. In some cases, RepIR itself uses this type for system stored 
  * values such as PartitionLocation.
  * <p/>
- * These StoredUnreportableFeature can be announced in the config file, so RepIR will now
+ * These StoredUnreportableFeature can be announced in the config file, so RepIR will know
  * that they need to be constructed during extraction, and they can be accessed
- * through the Repository by their Canonical or SimpleName.
+ * through the Repository using {@link Repository#getFeature(java.lang.Class)}.
  * <p/>
  * Implementations are PartitionLocation, and Vocabulary instances (which lookup the
  * termID for a given String).
  * @author jeroen
  * @param <F> 
  */
-public abstract class StoredUnreportableFeature<F extends RecordBinary> extends StoredFeature<F> {
+public abstract class StoredUnreportableFeature<F extends StructuredFile> extends StoredFeature<F> {
 
    public F file;
 
@@ -35,7 +35,7 @@ public abstract class StoredUnreportableFeature<F extends RecordBinary> extends 
    
    public F getFile() {
       if (file == null)
-         file = createFile(repository.getStoredFeatureFile(this));
+         file = createFile(getStoredFeatureFile());
       return file;
    }
 

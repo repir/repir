@@ -1,9 +1,9 @@
 package io.github.repir.Extractor.Tools;
 
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.Extractor.Entity;
-import io.github.repir.Extractor.Entity.SectionPos;
-import io.github.repir.Extractor.EntityAttribute;
+import io.github.repir.EntityReader.Entity;
+import io.github.repir.EntityReader.Entity.Section;
+import io.github.repir.Extractor.EntityChannel;
 import io.github.repir.Extractor.Extractor;
 import java.util.Map;
 
@@ -21,8 +21,8 @@ public class ShowAttributes extends ExtractorProcessor {
    }
 
    @Override
-   public void process(Entity entity, SectionPos section, String attribute) {
-      for (Map.Entry<String, EntityAttribute> entry : entity.entrySet()) {
+   public void process(Entity entity, Section section, String attribute) {
+      for (Map.Entry<String, EntityChannel> entry : entity.entrySet()) {
          log.info("%s=%s", entry.getKey(), entry.getValue().getContentStr());
       }
    }

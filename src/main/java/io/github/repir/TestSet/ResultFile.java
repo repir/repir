@@ -1,7 +1,7 @@
 package io.github.repir.TestSet;
 
 import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.RecordCSV;
+import io.github.repir.tools.Content.StructuredTextfileCSV;
 import io.github.repir.Repository.DocLiteral;
 import io.github.repir.Repository.Repository;
 import io.github.repir.Retriever.Document;
@@ -12,8 +12,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.TreeMap;
 import io.github.repir.Strategy.RetrievalModel;
+import java.util.Map;
 
-public class ResultFile extends RecordCSV {
+/**
+ * File Structure to store the results of a {@link TestSet} in a text file.
+ * @author jer
+ */
+public class ResultFile extends StructuredTextfileCSV {
 
    TestSet ts;
    Repository repository;
@@ -38,19 +43,20 @@ public class ResultFile extends RecordCSV {
       super(df);
    }
 
+   /**
+    * @return Collection of {@link Query}s that are specified in the {@link TestSet}, 
+    * containing the results stored in the given file. 
+    */
    public Collection<Query> getResults() {
       TreeMap<Integer, RetrievalModel> results = new TreeMap<Integer, RetrievalModel>();
       int current = -1;
       Retriever retriever = new Retriever(repository);
       RetrievalModel currentrm = null;
       this.openRead();
-      for (int topic : ts.topics.keySet()) {
-         Query q = retriever.constructQueryRequest("test");
+      for (Query q : ts.getQueries(retriever)) {
          q.addFeature(ts.repository.getCollectionIDFeature());
          currentrm = RetrievalModel.create(retriever, q);
-         currentrm.query.setRepository(repository);
-         currentrm.query.id = topic;
-         results.put(topic, currentrm);
+         results.put(q.id, currentrm);
       }
       while (this.next()) {
          if (ts.topics.containsKey(topic.value)) {
@@ -78,6 +84,10 @@ public class ResultFile extends RecordCSV {
       return r;
    }
 
+   /**
+    * Stores the results in the list of {@link Query}s, in the file.
+    * @param results 
+    */
    public void writeresults(ArrayList<Query> results) {
       openWrite();
       for (Query q : results) {
@@ -87,7 +97,7 @@ public class ResultFile extends RecordCSV {
             topic.write(q.getID());
             id.write(d.docid);
             segment.write(d.partition);
-            docid.write((String) d.getReportedFeature(collectionid.reportid));
+            docid.write(collectionid.valueReported(d, 0));
             score.write(d.score);
          }
       }

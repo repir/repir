@@ -1,11 +1,12 @@
 package io.github.repir.Extractor.Tools;
 
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.EntityReader.Entity;
 import io.github.repir.Extractor.Extractor;
 
 /**
- * This is used to remove user defined chars from queries in test sets.
+ * This is used to remove chars from test set queries, that are configured using
+ * "extractor.rrtestset.removechars=".
  * <p/>
  * @author jbpvuurens
  */
@@ -24,7 +25,7 @@ public class RemoveQueryChars extends ExtractorProcessor {
    }
    
    @Override
-   public void process(Entity entity, Entity.SectionPos section, String attribute) {
+   public void process(Entity entity, Entity.Section section, String attribute) {
       byte buffer[] = entity.content;
       for (int i = section.open; i < section.close; i++) {
          if ( removechars[ buffer[i] ] )

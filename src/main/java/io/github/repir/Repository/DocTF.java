@@ -2,20 +2,22 @@ package io.github.repir.Repository;
 
 import io.github.repir.Retriever.Document;
 import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.RecordBinary;
-import io.github.repir.tools.Content.RecordIdentity;
-import io.github.repir.EntityReader.TermEntityKey;
-import io.github.repir.EntityReader.TermEntityValue;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.tools.Content.StructuredFile;
+import io.github.repir.tools.Content.StructuredFileIntID;
+import io.github.repir.EntityReader.MapReduce.TermEntityKey;
+import io.github.repir.EntityReader.MapReduce.TermEntityValue;
+import io.github.repir.EntityReader.Entity;
 import io.github.repir.tools.Lib.Log;
 import io.github.repir.Repository.DocTF.File;
-import java.io.EOFException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import static io.github.repir.Repository.StoredReportableFeature.log;
 import io.github.repir.tools.Content.BufferReaderWriter;
+import io.github.repir.tools.Content.EOCException;
 
-public class DocTF extends EntityStoredFeature<File, Integer> implements ReducableFeature, ReportableFeature<Integer>  {
+/**
+ * Stores the number of tokens in a Document as an Integer.
+ * @see EntityStoredFeature
+ * @author jer
+ */
+public class DocTF extends EntityStoredFeature<File, Integer> implements ReducibleFeature, ReportableFeature<Integer>  {
 
    public static Log log = new Log(DocTF.class);
 
@@ -32,36 +34,36 @@ public class DocTF extends EntityStoredFeature<File, Integer> implements Reducab
    public void reduceInput(TermEntityKey key, Iterable<TermEntityValue> values) {
       try {
          file.dtf.write(values.iterator().next().reader.readInt());
-      } catch (EOFException ex) {
+      } catch (EOCException ex) {
          log.fatal(ex);
       }
    }
 
    @Override
-   public void encode(Document d) {
-      bdw.write((Long) d.getReportedFeature(reportid));
+   public void encode(Document d, int reportid) {
+      bdw.write((Integer) d.getReportedFeature(reportid));
       d.setReportedFeature(reportid, bdw.getBytes());
    }
 
    @Override
-   public void decode(Document d) {
+   public void decode(Document d, int reportid) {
       reader.setBuffer((byte[]) d.getReportedFeature(reportid));
       try {
-         d.setReportedFeature(reportid, reader.readLong());
-      } catch (EOFException ex) {
+         d.setReportedFeature(reportid, reader.readInt());
+      } catch (EOCException ex) {
          log.fatalexception(ex, "decode( %s ) reader %s", d, reader);
       }
    }
 
    @Override
-   public void report(Document doc) {
+   public void report(Document doc, int reportid) {
       //log.info("report %s doc %d reportid %d value %s", this.getCanonicalName(), doc.docid, reportid, getValue());
       doc.setReportedFeature(reportid, getValue());
    }
 
    @Override
-   public Integer valueReported(Document doc) {
-      return (Integer) doc.getReportedFeature(reportid);
+   public Integer valueReported(Document doc, int docid) {
+      return (Integer) doc.getReportedFeature(docid);
    }   
    
    @Override
@@ -87,7 +89,7 @@ public class DocTF extends EntityStoredFeature<File, Integer> implements Reducab
    public void readResident() {
       try {
          getFile().readResident(0);
-      } catch (EOFException ex) {
+      } catch (EOCException ex) {
          log.fatalexception(ex, "readResident()");
       }
    }
@@ -96,7 +98,7 @@ public class DocTF extends EntityStoredFeature<File, Integer> implements Reducab
       return getFile().isresident;
    }
 
-   public static class File extends RecordBinary implements RecordIdentity {
+   public static class File extends StructuredFile implements StructuredFileIntID {
 
       public Int3Field dtf = this.addInt3("dtf");
       public boolean isresident = false;
@@ -110,7 +112,7 @@ public class DocTF extends EntityStoredFeature<File, Integer> implements Reducab
          reader.setOffset(id * 3);
          try {
             dtf.readNoReturn();
-         } catch (EOFException ex) {
+         } catch (EOCException ex) {
             log.exception(ex, "read( %d ) dtf %s", id, dtf);
          }
       }
@@ -120,7 +122,7 @@ public class DocTF extends EntityStoredFeature<File, Integer> implements Reducab
          this.setOffset(id * 3);
       }
 
-      public void readResident(int id) throws EOFException {
+      public void readResident(int id) throws EOCException {
          openRead();
          BufferReaderWriter w = new BufferReaderWriter(datafile.readFully());
          reader = w;

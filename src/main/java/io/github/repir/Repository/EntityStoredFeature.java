@@ -1,15 +1,22 @@
 package io.github.repir.Repository;
 
-import java.io.EOFException;
 import java.util.HashMap;
-import io.github.repir.tools.Content.RecordIdentity;
-import io.github.repir.Extractor.Entity;
-import io.github.repir.EntityReader.TermEntityKey;
-import io.github.repir.EntityReader.TermEntityValue;
+import io.github.repir.tools.Content.StructuredFileIntID;
+import io.github.repir.EntityReader.Entity;
+import io.github.repir.EntityReader.MapReduce.TermEntityKey;
+import io.github.repir.EntityReader.MapReduce.TermEntityValue;
 import io.github.repir.Retriever.Document;
-import io.github.repir.tools.Content.BufferReaderWriter;
 
-public abstract class EntityStoredFeature<F extends RecordIdentity, C> extends StoredReportableFeature<F, C> implements ReducableFeature {
+/**
+ * An abstract feature that can store a value per Document in the Repository.
+ * This value can be accessed with an internal DocumentID passed through
+ * {@link EntityStoredFeature#read(io.github.repir.Retriever.Document) }
+ * @author jer
+ * @param <F> a StructuredFileIntID file to store it's values, allowing 
+ * the stored Record to be accessed through an internal integer ID
+ * @param <C> The datatype stored
+ */
+public abstract class EntityStoredFeature<F extends StructuredFileIntID, C> extends StoredReportableFeature<F, C> implements ReducibleFeature {
 
    public HashMap<Integer, C> cache;
    

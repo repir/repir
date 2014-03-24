@@ -1,16 +1,25 @@
 package io.github.repir.Strategy.Collector;
-import java.io.EOFException;
 import java.util.ArrayList;
 import java.util.Collection;
 import io.github.repir.Repository.StoredDynamicFeature;
 import io.github.repir.Strategy.Strategy;
-import io.github.repir.tools.Content.RecordHeaderDataRecord;
-import io.github.repir.tools.Content.RecordHeaderInterface;
+import io.github.repir.tools.Content.EOCException;
+import io.github.repir.tools.Content.StructuredFileKeyValueRecord;
 import io.github.repir.tools.Content.StructureReader;
 import io.github.repir.tools.Content.StructureWriter;
 import io.github.repir.tools.Lib.Log;
 
-public abstract class CollectorCachable<R extends RecordHeaderDataRecord> extends Collector {
+/**
+ * An abstract for a {@link Collector}s that stores its results in a {@link StoredDynamicFeature}.
+ * Implementations must specify the Record structure used to write the data as a 
+ * generic parameter and implement {@link #getStoredDynamicFeature()}
+ * to provide the feature used. By default, the CanonicalName is used as an identifier
+ * to assign all results for the same {@link CollectorCachable} to the same reducer,
+ * allowing to write all results to the same {@link StoredDynamicFeature} together.
+ * @author jer
+ * @param <R> 
+ */
+public abstract class CollectorCachable<R extends StructuredFileKeyValueRecord> extends Collector {
    public static Log log = new Log(CollectorCachable.class);
    protected StoredDynamicFeature sdf;
    
@@ -28,10 +37,8 @@ public abstract class CollectorCachable<R extends RecordHeaderDataRecord> extend
    public abstract StoredDynamicFeature getStoredDynamicFeature();   
    
    public void startAppend() {
-      log.info("startAppend %s", this);
       sdf = getStoredDynamicFeature();
       sdf.openWrite();
-      //log.info("%s", sdf.file);
    }
    
    public abstract void streamappend( );
@@ -43,19 +50,21 @@ public abstract class CollectorCachable<R extends RecordHeaderDataRecord> extend
    public abstract R createRecord();
    
    public void finishAppend() {
-      log.info("finishAppend() %s", this);
       sdf.closeWrite();
    }
    
    /**
-    * Usually, CollectorCachable should noyt use different ID's, to ensure all
+    * By default, collected results are assigned to a reducer based on the CanonicalName. 
+    * CollectorCachable should not override this, to ensure all
     * collected statistics for the same StoredDynamicFeature are processed by a 
     * single reducer to avoid concurrent file writes to the StoredDynamicFeature.
+    * To collect results for different {@link Operator}s, use different keys, which
+    * is used to group the collected results in the reducer.
     * @param reader
-    * @throws EOFException 
+    * @throws EOCException 
     */
    @Override
-   public final void readID(StructureReader reader) throws EOFException {  }
+   public final void readID(StructureReader reader) throws EOCException {  }
 
    @Override
    public final void writeID(StructureWriter writer) {  }

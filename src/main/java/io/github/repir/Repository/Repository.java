@@ -4,10 +4,9 @@ import static io.github.repir.tools.Lib.ClassTools.*;
 import io.github.repir.tools.Content.Datafile;
 import io.github.repir.tools.Content.Dir;
 import io.github.repir.tools.Content.HDFSDir;
-import io.github.repir.Extractor.EntityAttribute;
+import io.github.repir.Extractor.EntityChannel;
 import io.github.repir.tools.Lib.HDTools;
 import io.github.repir.tools.Lib.Log;
-import static io.github.repir.tools.Lib.PrintTools.*;
 import io.github.repir.Strategy.Strategy;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -22,6 +21,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.hadoop.fs.FileSystem;
 import io.github.repir.tools.DataTypes.Configuration;
+import io.github.repir.tools.Lib.MathTools;
+import io.github.repir.tools.Lib.PrintTools;
 import io.github.repir.tools.Lib.StrTools;
 
 /**
@@ -29,13 +30,22 @@ import io.github.repir.tools.Lib.StrTools;
  * were extracted from the collection, configuration settings and additional
  * data files.
  * <p/>
- * The configuration of a Repository is done through a configuration file. 
- * The configuration settings are added to Hadoop's Configuration object, which 
- * can be accessed using {@link #getConfiguration()}, {@link #getConfigurationString(java.lang.String)}, etc.
+ * The Repository is THE central component in RepIR. Each collection is converted
+ * into its own Repository of extracted features. The extraction process and the 
+ * StoredFeatures can be tailor made, programs can obtain low-level access to 
+ * the stored data, new features can be added and StoredDynamicFeatures can be used
+ * as small size tables to store data that can be modified.
+ * <p/>
+ * The configuration of a Repository, and the communication of settings for tasks
+ * is done through an extension of Hadoop's Configuration class, of which a 
+ * single instance resides in the Repository, that can be accessed using
+ * {@link #getConfiguration()}, {@link #getConfigurationString(java.lang.String)}, etc.
+ * The Configuration settings are usually seeded through configuration files, but 
+ * can also be added through the command line or from code.
  * <p/>
  * For low level access to a {@link StoredFeature}, you should obtain the feature
- * through the repository with {@link #getFeature(java.lang.String)} using the
- * features CanonicalName.
+ * through the Repository with {@link #getFeature(java.lang.Class, java.lang.String[]) }
+ * using the feature's Class, and optional parameters.
  */
 public class Repository {
 
@@ -48,7 +58,7 @@ public class Repository {
    public static final double DEFAULT_LOAD_FACTOR = 0.75;
    protected int hashtablecapacity;  // for the vocabulary hashtable
    protected int vocabularysize;     // number of words in vocabulary
-   protected long tf;                // number of words in collection
+   protected long cf;                // number of words in collection
    protected VocabularyToID vocabulary;
    protected int partitions = 1;     // number of partitions the repository is divided in
    protected PartitionLocation partitionlocation; // gives fast access to the man location of each patition
@@ -90,15 +100,15 @@ public class Repository {
    }
 
    public void changeName(String newIndex) {
-
       String dir = configuration.get("repository.dir").replaceAll(prefix, newIndex);
       configuration.set("repository.dir", dir);
       configuration.set("repository.prefix", newIndex);
       basedir = new HDFSDir(configuration, configuration.getSubString("repository.dir", ""));
       prefix = newIndex;
-      if (!basedir.exists()) {
-         log.fatal("Directory %s does not exists, please create", basedir.toString());
-      }
+   }
+   
+   public boolean exists() {
+      return basedir.exists();
    }
 
    public String getPrefix() {
@@ -129,11 +139,10 @@ public class Repository {
    protected void readSettings() {
       partitions = getConfigurationInt("repository.partitions", 1);
       setVocabularySize(getConfigurationInt("repository.vocabularysize", 0));
-      setTF(getConfigurationLong("repository.corpustf", 0));
+      setCF(getConfigurationLong("repository.corpustf", 0));
       documentcount = getConfigurationInt("repository.documentcount", 0);
       hashtablecapacity = getConfigurationInt("repository.hashtablecapacity", 0);
       collectionid = (DocLiteral) getFeature(getConfigurationString("repository.collectionid"));
-      getStoredFeatures(getConfigurationSubStrings("repository.feature"));;
    }
 
    protected void getStoredFeatures(String features[]) {
@@ -172,24 +181,6 @@ public class Repository {
       return basedir.getFilename(prefix + extension);
    }
 
-   public Datafile getStoredFeatureFile(int segment, StoredFeature sf) {
-      return new Datafile(getFS(), basedir.getFilename(sprintf("repository/%s.%s.%04d", prefix, sf.getFileNameSuffix(), segment)));
-   }
-
-   public Datafile getStoredFeatureFile(StoredFeature sf) {
-      return new Datafile(getFS(), basedir.getFilename(sprintf("repository/%s.%s", prefix, sf.getFileNameSuffix())));
-   }
-
-   public Datafile getTempFeatureFile(StoredFeature sf) {
-      String filename = basedir.getFilename(sprintf("repository/temp/%s.%s", prefix, sf.getFileNameSuffix()));
-      log.info("filename %s", filename);
-      return new Datafile(getFS(), filename);
-   }
-
-   public Datafile getTempFeatureFile(StoredFeature sf, String suffix) {
-      return new Datafile(getFS(), basedir.getFilename(sprintf("repository/temp/%s.%s.%s", prefix, sf.getFileNameSuffix(), suffix)));
-   }
-
    protected Datafile getMasterFile() {
       return new Datafile(getFS(), basedir.getFilename(prefix + MASTERFILE_EXTENSION));
    }
@@ -202,8 +193,8 @@ public class Repository {
       return new Datafile(getFS(), basedir.getFilename(prefix + ".storedvalues"));
    }
 
-   public long getCorpusTF() {
-      return tf;
+   public long getCF() {
+      return cf;
    }
 
    public int getDocumentCount() {
@@ -242,7 +233,13 @@ public class Repository {
     * @param configurationstring
     */
    public void addConfiguration(String configurationstring) {
-      configuration.read(configurationstring);
+      if (configurationstring != null) {
+         if (configurationstring.contains(","))
+            for (String s : configurationstring.split(","))
+               configuration.read(s);
+         else
+            configuration.read(configurationstring);
+      }
    }
 
    public void deleteMasterFile() {
@@ -265,7 +262,7 @@ public class Repository {
          }
       }
       configuration.setLong("repository.vocabularysize", this.getVocabularySize());
-      configuration.setLong("repository.corpustf", this.getCorpusTF());
+      configuration.setLong("repository.corpustf", this.getCF());
       configuration.setLong("repository.documentcount", this.getDocumentCount());
    }
    
@@ -290,12 +287,13 @@ public class Repository {
       masterfile.closeWrite();
    }
 
-   public Collection<StoredFeature> getFeatures() {
+   public Collection<StoredFeature> getConfiguredFeatures() {
+      getStoredFeatures(getConfigurationSubStrings("repository.feature"));
       return storedfeaturesmap.values();
    }
 
    public void featuresWriteCache() {
-      for (StoredFeature f : getFeatures()) {
+      for (StoredFeature f : getConfiguredFeatures()) {
          f.writeCache();
       }
    }
@@ -304,11 +302,31 @@ public class Repository {
       return collectionid;
    }
 
+   /**
+    * Use this method to obtain access to StoredFeatures, which allows
+    * the system to reuse single instances of the exact same feature.
+    * @param canonicalname
+    * @return a Feature instance identified by the canonicalname 
+    */
    public Feature getFeature(String canonicalname) {
       return getFeature(canonicalname, canonicalname);
    }
+   
+   public Feature getFeature(Class featureclass, String ... parameter) {
+      String feature = Feature.canonicalName(featureclass, parameter);
+      return getFeature(feature, feature);
+   }
+   
+   /**
+    * @param featureclass must be a class with a unique simplename!
+    * @return a Feature instance of the featureclass 
+    */
+   public Feature getFeature(Class featureclass) {
+      String feature = Feature.canonicalName(featureclass);
+      return getFeature(feature, feature);
+   }
 
-   public Feature getFeature(String label, String canonicalname) {
+   private Feature getFeature(String label, String canonicalname) {
       Feature f = storedfeaturesmap.get(label);
       if (f != null) {
          return f;
@@ -385,7 +403,7 @@ public class Repository {
    }
 
    public Integer termToID(String term) {
-      return ((TermID) getFeature("TermID")).get(term);
+      return ((TermID) getFeature(TermID.class)).get(term);
    }
 
    public void setVocabularySize(int size) {
@@ -397,8 +415,8 @@ public class Repository {
       return vocabularysize;
    }
 
-   public void setTF(long corpustf) {
-      tf = corpustf;
+   public void setCF(long cf) {
+      this.cf = cf;
    }
 
    /**
@@ -434,7 +452,7 @@ public class Repository {
    }
 
    public String getConfigurationName() {
-      return configuration.get("repir.conf");
+      return configuration.get("rr.conf");
    }
 
    public String getConfigurationString(String key, String defaultvalue) {
@@ -481,9 +499,9 @@ public class Repository {
       return getConfigurationString("testset.queryparameters");
    }
    
-   public int[] tokenize(EntityAttribute attr) {
+   public int[] tokenize(EntityChannel attr) {
       if (vocabulary == null || !(vocabulary instanceof VocabularyToIDRAM)) {
-         for (Feature f : this.getFeatures()) {
+         for (Feature f : this.getConfiguredFeatures()) {
             if (f instanceof VocabularyToIDRAM) {
                vocabulary = (VocabularyToIDRAM) f;
                vocabulary.openRead();
@@ -492,7 +510,7 @@ public class Repository {
          }
       }
       if (vocabulary == null) {
-         for (Feature f : this.getFeatures()) {
+         for (Feature f : this.getConfiguredFeatures()) {
             if (f instanceof VocabularyToID) {
                vocabulary = (VocabularyToID) f;
                vocabulary.openRead();
@@ -507,7 +525,7 @@ public class Repository {
    }
 
    public static int partition(String docid, int partitions) {
-      return io.github.repir.tools.Lib.MathTools.Mod(docid.hashCode(), partitions);
+      return MathTools.Mod(docid.hashCode(), partitions);
    }
 
    public Repository[] getTuneRepositories() {
@@ -525,28 +543,33 @@ public class Repository {
    }
 
    public String[] getStoredFreeParameters() {
-      String freeparameters[] = getConfigurationSubStrings("retriever.freeparameter");
+      String freeparameters[] = getConfigurationSubStrings("strategy.freeparameter");
       HashSet<String> list = new HashSet<String>();
       for (int i = 0; i < freeparameters.length; i++) {
          if (freeparameters[i].indexOf('=') > 0) {
-            list.add(freeparameters[i].substring(0, freeparameters[i].indexOf('=')));
+            list.add(freeparameters[i].substring(0, freeparameters[i].indexOf('=')).trim());
          } else {
-            list.add(freeparameters[i]);
+            list.add(freeparameters[i].trim());
          }
       }
-      list.add("repir.conf");
+      list.add("rr.conf");
       if (getConfigurationString("testset.crossevaluate").equalsIgnoreCase("fold")) {
          list.add("fold");
       }
       return list.toArray(new String[list.size()]);
    }
 
-   public ArrayList<String> getFreeParameters() {
-      String freeparameters[] = getConfigurationSubStrings("retriever.freeparameter");
-      ArrayList<String> tuneparameters = new ArrayList<String>();
+   public Map<String,String> getFreeParameters() {
+      String freeparameters[] = getConfigurationSubStrings("strategy.freeparameter");
+      HashMap<String, String> tuneparameters = new HashMap<String, String>();
       for (String s : freeparameters) {
          if (s.indexOf('=') > 0) {
-            tuneparameters.add(s);
+            String parameter = s.substring(0, s.indexOf('=')).trim();
+            String value = s.substring(s.indexOf('=')+1).trim();
+            tuneparameters.put(parameter, value);
+         } else {
+            String value = getConfigurationString(s);
+            tuneparameters.put(s, PrintTools.sprintf("%s..%s..%d", value, value, 1));
          }
       }
       return tuneparameters;

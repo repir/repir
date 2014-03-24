@@ -3,59 +3,61 @@ package io.github.repir.Extractor.Tools;
 import io.github.repir.tools.Lib.Log;
 import static io.github.repir.tools.Lib.ByteTools.*;
 import io.github.repir.tools.DataTypes.Tuple2;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.EntityReader.Entity;
 import io.github.repir.Extractor.Extractor;
+import io.github.repir.tools.ByteSearch.ByteSearch;
+import io.github.repir.tools.ByteSearch.ByteSearchPosition;
 
 /**
- * Removes HTML Tags, except for the contents in the ALT attribute
+ * Removes HTML Tags, except for the contents in between open and close tags,
+ * and except for contents in the ALT attribute.
  * <p/>
  * @author jeroen
  */
 public class RemoveHtmlTagsExceptAlt extends ExtractorProcessor {
 
    public static Log log = new Log(RemoveHtmlTagsExceptAlt.class);
-   public boolean tagname[] = new boolean[128];
-   public byte alt[] = "alt".getBytes();
-   public byte tagstart[] = "<".getBytes();
-   public byte tagend[] = ">".getBytes();
+   public boolean tagname[] = new boolean[256];
+   public boolean tag[] = new boolean[256];
+   public boolean quote[] = new boolean[256];
+   public ByteSearch altattribute = ByteSearch.create("\\salt\\s*=\\s*\\Q");
+   public ByteSearch start = ByteSearch.create("<");
 
    private RemoveHtmlTagsExceptAlt(Extractor extractor, String process) {
       super(extractor, process);
       for (int i = 0; i < 128; i++) {
-         tagname[i] = (i >= 'a' && i <= 'z') || (i >= 'A' && i <= 'Z') || i == '/';
+         tagname[i] = (i >= 'a' && i <= 'z') || (i >= 'A' && i <= 'Z') || i == '/' || i == '!';
+         tag[i] = (i >= 'a' && i <= 'z') || (i >= 'A' && i <= 'Z');
+         quote[i] = (i == '"' || i == '\'');
       }
    }
 
    @Override
-   public void process(Entity entity, Entity.SectionPos section, String attribute) {
+   public void process(Entity entity, Entity.Section section, String attribute) {
       //log.info("process %d %d", startpos, endpos);
       int startpos = section.open;
       int endpos = section.close;
-      Tuple2<Integer, Integer> pos;
-      while ((pos = find(entity.content, tagstart, tagend, startpos, endpos, false, true)) != null) {
-         if (tagname[entity.content[pos.value1 + 1]]) {
-            int altpos = pos.value1;
-            int altendpos = -1;
-            while (altendpos == -1 && (altpos = find(entity.content, alt, altpos, pos.value2, true, true)) > 0) {
-               altpos += alt.length;
-               int quotestart = skipIgnoreWS(entity.content, " = ".getBytes(), altpos, pos.value2, false);
-               if (quotestart > -1) {
-                  altpos = quotestart;
-                  altendpos = findEndQuote(entity.content, altpos, pos.value2);
+      for (int pos : start.findAll(entity.content, section.open, section.close - 1)) {
+         if (tagname[entity.content[pos + 1] & 0xFF]) { // if it s a valid tag 
+            int endtag = findQuoteSafeTagEnd(entity, pos + 1, section.close);
+            if (tag[entity.content[pos + 1] & 0xFF]) { // if it is a valid open tag
+               ByteSearchPosition altpos = altattribute.findQuoteSafePos(entity.content, pos, endtag);
+               if (altpos.found()) {
+                  for (int i = pos; i < altpos.start; i++) {
+                     entity.content[i] = 32;
+                  }
+                  for (int i = altpos.start; quote[entity.content[i] & 0xFF]; i++) {
+                     entity.content[i + 1] = 32;
+                  }
+                  for (int i = altpos.end - 1; i < endtag; i++) {
+                     entity.content[i + 1] = 32;
+                  }
+                  continue;
                }
-               //log.info("ALT %d %d %d %s", altpos, quotestart, altendpos, new String(buffer, altpos, 100));
             }
-            if (altendpos > 0) {
-               for (int p = pos.value1; p < altpos; p++) {
-                  entity.content[p] = 32;
-               }
+            for (int i = pos; i < endtag; i++) {
+               entity.content[i] = 32;
             }
-            for (int p = (altendpos > 0) ? altendpos : pos.value1; p <= pos.value2; p++) {
-               entity.content[p] = 32;
-            }
-            startpos = pos.value2 + 1;
-         } else {
-            startpos = pos.value1 + 1;
          }
       }
       //log.info("afterTagEraser %s", new String(buffer, 0, endpos));

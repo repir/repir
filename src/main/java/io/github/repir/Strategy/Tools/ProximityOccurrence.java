@@ -2,7 +2,7 @@ package io.github.repir.Strategy.Tools;
 import io.github.repir.tools.Lib.Log; 
 
 /**
- *
+ * Represents an occurrence of a ProximityOperator in a Document.
  * @author Jeroen Vuurens
  */
 public class ProximityOccurrence implements Comparable<ProximityOccurrence> {

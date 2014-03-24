@@ -4,8 +4,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.Extractor.EntityAttribute;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.Extractor.EntityChannel;
+import io.github.repir.EntityReader.Entity;
 import io.github.repir.Extractor.Extractor;
 
 /**
@@ -28,7 +28,7 @@ public abstract class Translator extends ExtractorProcessor {
    }
 
    @Override
-   public void process(Entity entity, Entity.SectionPos section, String attribute) {
+   public void process(Entity entity, Entity.Section section, String attribute) {
       byte buffer[] = entity.content;
       int c, p, i, j, length;
       for (p = section.open; p < section.close; p++) {

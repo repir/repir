@@ -1,7 +1,7 @@
 package io.github.repir.Extractor.Tools;
 
-import io.github.repir.Extractor.Entity;
-import io.github.repir.Extractor.EntityAttribute;
+import io.github.repir.EntityReader.Entity;
+import io.github.repir.Extractor.EntityChannel;
 import io.github.repir.Extractor.Extractor;
 import static io.github.repir.tools.Lib.ByteTools.*;
 import io.github.repir.tools.Lib.Log;
@@ -22,9 +22,9 @@ public class ExtractWarcURL extends ExtractorProcessor {
    }
 
    @Override
-   public void process(Entity entity, Entity.SectionPos section, String attribute) {
+   public void process(Entity entity, Entity.Section section, String attribute) {
       String url = extract(entity.content, warcurl, eol, section.open, section.close, false, false);
-      EntityAttribute entityurl = new EntityAttribute(entity, attribute);
+      EntityChannel entityurl = new EntityChannel(entity, attribute);
       entity.put(attribute, entityurl);
       entityurl.add(url);
    }

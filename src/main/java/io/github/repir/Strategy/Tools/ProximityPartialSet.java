@@ -2,17 +2,22 @@ package io.github.repir.Strategy.Tools;
 import java.util.ArrayList;
 import java.util.Iterator;
 import io.github.repir.Retriever.Document;
-import io.github.repir.Strategy.GraphNode;
+import io.github.repir.Strategy.Operator.Operator;
 import io.github.repir.tools.Lib.Log; 
 
 /**
- *
+ * Matches occurrences of 2 or more Operators in any order. Every occurrence matched
+ * will have {@link #getFirst()} return a new current starting position with the
+ * Operator that occupies it, and 
+ * {@link #otherTermList()} returns a positional ordered list of the next positions 
+ * of the other terms. It is up to the caller to decide which of these partial
+ * matches is valid.
  * @author Jeroen Vuurens
  */
 public class ProximityPartialSet extends ProximitySet {
   public static Log log = new Log( ProximityPartialSet.class ); 
 
-  public ProximityPartialSet(ArrayList<GraphNode> containedfeatures) {
+  public ProximityPartialSet(ArrayList<Operator> containedfeatures) {
      super(containedfeatures);
   }
   
@@ -20,7 +25,7 @@ public class ProximityPartialSet extends ProximitySet {
   public boolean hasProximityMatches(Document doc) {
       proximitytermlist = new ProximityTermList();
       presentterms = 0;
-      for (GraphNode f : containedfeatures) {
+      for (Operator f : containedfeatures) {
          f.process(doc);
       }
       for (ProximityTerm t : tpi) {
@@ -31,7 +36,7 @@ public class ProximityPartialSet extends ProximitySet {
          }
       }
       if (proximitytermlist.size() > 1) {
-         pollFirst();
+         pollFirstLast();
          first.moveFirstBelowNext();
          return true;
       } else {
@@ -44,7 +49,7 @@ public class ProximityPartialSet extends ProximitySet {
       if (first.next() < Integer.MAX_VALUE)
          proximitytermlist.add(first);
       if (proximitytermlist.size() > 1) {
-         pollFirst();
+         pollFirstLast();
          first.moveFirstBelowNext();
          return true;
       }
