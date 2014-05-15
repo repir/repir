@@ -5,9 +5,12 @@
         <data xmlns="http://www.netbeans.org/ns/j2se-project/3">
             <name>RR</name>
             <source-roots>
-                <root id="src.java.dir"/>
+                <root id="src.grammar.dir"/>
+                <root id="src.src.dir"/>
             </source-roots>
-            <test-roots/>
+            <test-roots>
+                <root id="test.test.dir"/>
+            </test-roots>
         </data>
         <references xmlns="http://www.netbeans.org/ns/ant-project-references/1">
             <reference>
