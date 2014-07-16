@@ -3,9 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.github.repir</groupId>
-        <artifactId>RepIRMaster</artifactId>
+        <artifactId>RepIRProx</artifactId>
         <version>0.23-SNAPSHOT</version>
-        <relativePath>../RepIRMaster/pom.xml</relativePath>
+        <relativePath>../RepIRProx/pom.xml</relativePath>
     </parent>
     <artifactId>RepIR</artifactId>
     <packaging>jar</packaging>
