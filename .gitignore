@@ -1,5 +1,5 @@
 nbactions.xml
 target/
-/build/
-/dist/
-/nbproject/private/
+build/
+dist/
+nbproject/private/
