@@ -30,13 +30,6 @@ public class ResultSets extends ArrayList<ResultSet> {
          add( new ResultSet(metric, testset, systems[sys]) );
       }
    }
-
-   public ResultSets(QueryMetric metric, TestSet testset, Collection<Query> queries) {
-      this.metric = metric;
-      this.testset = testset;
-      add( new ResultSet(metric, testset) );
-      add( new ResultSet(metric, testset, queries));
-   }
    
    /**
     * @param base int of the baseline to compare over

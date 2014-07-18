@@ -73,10 +73,6 @@ public class TestSet {
       return parameters;
    }
 
-   public ResultFileRR getBaseline() {
-      return getResults(repository.configuredString("testset.baselineextension"));
-   }
-
    public ResultFileRR getResults(String f) {
       return new ResultFileRR(this, f);
    }

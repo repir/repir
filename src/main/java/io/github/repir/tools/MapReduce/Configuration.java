@@ -71,9 +71,10 @@ public class Configuration extends io.github.repir.tools.hadoop.Configuration {
 
    public static Datafile configfile(String filename) {
       if (filename.charAt(0) != '/') {
-         String irefdir = System.getenv("rrdir");
-         filename = irefdir + "/settings/" + filename;
+         String repirdir = System.getenv("rrdir");
+         filename = repirdir + "/settings/" + filename;
       }
+      log.info("configfile %s", filename);
       Datafile in = new Datafile(filename);
       return in;
    }

@@ -44,12 +44,6 @@ public class ResultSet {
         setQuery(query);
     }
 
-    public ResultSet(QueryMetric metric, TestSet ts) {
-        this(metric, ts, ts.getBaseline().getResults());
-        this.system = "baseline";
-        calculateMeasure();
-    }
-
     public void setQueries(Collection<Query> queries) {
         this.queries = new ArrayList<Query>(queries);
         Collections.sort(this.queries);
