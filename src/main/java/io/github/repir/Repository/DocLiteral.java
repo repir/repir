@@ -7,7 +7,7 @@ import io.github.repir.tools.Structure.StructuredDataStream;
 import io.github.repir.EntityReader.MapReduce.TermEntityKey;
 import io.github.repir.EntityReader.MapReduce.TermEntityValue;
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.EntityReader.Entity;
+import io.github.repir.Extractor.Entity;
 import io.github.repir.Repository.DocLiteral.File;
 import io.github.repir.tools.Content.EOCException;
 
@@ -18,7 +18,7 @@ import io.github.repir.tools.Content.EOCException;
  */
 public class DocLiteral
    extends EntityStoredFeature<File, String> 
-   implements ReducibleFeature, ReportableFeature<String>, ResidentFeature  {
+   implements ReduciblePartitionedFeature, ReportableFeature<String>, ResidentFeature  {
 
    public static Log log = new Log(DocLiteral.class);
 
@@ -26,17 +26,23 @@ public class DocLiteral
       super(repository, field);
    }
 
+   public static DocLiteral get(Repository repository, String field) {
+       String label = canonicalName(DocLiteral.class, field);
+       DocLiteral termid = (DocLiteral)repository.getStoredFeature(label);
+       if (termid == null) {
+          termid = new DocLiteral(repository, field);
+          repository.storeFeature(label, termid);
+       }
+       return termid;
+   }
+   
    @Override
-   public void mapOutput(TermEntityValue value, Entity entity) {
+   public void setMapOutputValue(TermEntityValue value, Entity entity) {
       value.writer.write(extract(entity));
    }
 
-   public String extract(Entity entity) {
-      return entity.get(entityAttribute()).getContentStr();
-   }
-
    @Override
-   public void reduceInput(TermEntityKey key, Iterable<TermEntityValue> values) {
+   public void writeReduce(TermEntityKey key, Iterable<TermEntityValue> values) {
       try {
          TermEntityValue value = values.iterator().next();
          String literal = value.reader.readString();
@@ -99,7 +105,7 @@ public class DocLiteral
       file.setBufferSize(4096 * 25000);
       file.setOffset(0);
       int id = 0;
-         while (file.next()) {
+         while (file.nextRecord()) {
             if (literal.equals(file.literal.value)) {
                return id;
             }

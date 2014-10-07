@@ -4,7 +4,6 @@ import io.github.repir.Extractor.EntityChannel;
 import io.github.repir.tools.Structure.StructuredFile;
 import io.github.repir.tools.Lib.Log;
 import java.util.ArrayList;
-import io.github.repir.tools.DataTypes.ByteArrayPos;
 import io.github.repir.tools.Lib.ArrayTools;
 
 /**

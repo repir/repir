@@ -23,6 +23,16 @@ public class StopwordsCache extends StoredFeature<File> {
      super( repository );
   }
 
+   public static StopwordsCache get(Repository repository) {
+       String label = canonicalName(StopwordsCache.class);
+       StopwordsCache stopwordscache = (StopwordsCache)StoredFeature.getStoredFeature(repository, label);
+       if (stopwordscache == null) {
+          stopwordscache = new StopwordsCache(repository);
+          StoredFeature.storeFeature(repository, label, stopwordscache);
+       }
+       return stopwordscache;
+   }
+   
    @Override
    public File getFile() {
       if (file == null)
@@ -57,9 +67,6 @@ public class StopwordsCache extends StoredFeature<File> {
    
    @Override
    public void closeRead() {  }
-
-   @Override
-   public void setBufferSize(int size) {   }
 
    @Override
    public void reuse() {

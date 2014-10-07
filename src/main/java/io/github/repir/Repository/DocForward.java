@@ -5,11 +5,13 @@ import io.github.repir.tools.Content.Datafile;
 import io.github.repir.tools.Structure.StructuredFileSequential;
 import io.github.repir.EntityReader.MapReduce.TermEntityKey;
 import io.github.repir.EntityReader.MapReduce.TermEntityValue;
-import io.github.repir.EntityReader.Entity;
+import io.github.repir.Extractor.Entity;
 import io.github.repir.Extractor.EntityChannel;
 import io.github.repir.tools.Lib.Log;
 import io.github.repir.Repository.DocForward.File;
 import io.github.repir.tools.Content.EOCException;
+import java.io.IOException;
+import org.apache.hadoop.mapreduce.Mapper;
 
 /**
  * A forward index, that store all tokens contained in a document in the collection.
@@ -19,16 +21,26 @@ import io.github.repir.tools.Content.EOCException;
  * @see EntityStoredFeature
  * @author jer
  */
-public class DocForward extends EntityStoredFeature<File, int[]> implements ReducibleFeature  {
+public class DocForward extends EntityStoredFeature<File, int[]> implements ReduciblePartitionedFeature  {
 
    public static Log log = new Log(DocForward.class);
 
-   protected DocForward(Repository repository, String field) {
+   private DocForward(Repository repository, String field) {
       super(repository, field);
    }
 
+   public static DocForward get(Repository repository, String field) {
+       String label = canonicalName(DocForward.class, field);
+       DocForward docforward = (DocForward)repository.getStoredFeature(label);
+       if (docforward == null) {
+          docforward = new DocForward(repository, field);
+          repository.storeFeature(label, docforward);
+       }
+       return docforward;
+   }
+   
    @Override
-   public void mapOutput(TermEntityValue value, Entity doc) {
+   public void setMapOutputValue(TermEntityValue value, Entity doc) {
       EntityChannel attr = doc.get(entityAttribute());
       if (attr.tokenized == null) {
          attr.tokenized = repository.tokenize(attr);
@@ -37,7 +49,7 @@ public class DocForward extends EntityStoredFeature<File, int[]> implements Redu
    }
 
    @Override
-   public void reduceInput(TermEntityKey key, Iterable<TermEntityValue> values) {
+   public void writeReduce(TermEntityKey key, Iterable<TermEntityValue> values) {
       try {
          TermEntityValue value = values.iterator().next();
          int t[] = value.reader.readCIntArray();
@@ -66,7 +78,7 @@ public class DocForward extends EntityStoredFeature<File, int[]> implements Redu
 
    public void readResident() {
       cacheResults();
-      this.setBufferSize((int)this.getLength());
+      getFile().setBufferSize((int)this.getLength());
       openRead();
       while (this.next()) {
          cache.put(cache.size(), getValue());

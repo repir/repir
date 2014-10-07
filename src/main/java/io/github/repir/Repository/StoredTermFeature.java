@@ -66,11 +66,6 @@ public abstract class StoredTermFeature<F extends StructuredFileKeyValue<R>, R e
       getFile().setKeyBufferSize(size);
    }
    
-   @Override
-   public void setBufferSize(int size) {
-      getFile().setDataBufferSize(size);
-   }
-   
    public int getDataBufferSize() {
       return getFile().getDataBufferSize();
    }
@@ -118,15 +113,7 @@ public abstract class StoredTermFeature<F extends StructuredFileKeyValue<R>, R e
    }
 
    @Override
-   public Datafile getStoredFeatureFile() {
-      Datafile datafile;
-      String name = getCanonicalName();
-      name = name.replaceFirst(":", ".");
-      String path = repository.configuredString(name.toLowerCase() + ".path");
-      if (path != null && path.length() > 0)
-         datafile = new Datafile( repository.fs, path);
-      else
-         datafile = repository.basedir.getFile(PrintTools.sprintf("dynamic/%s.%s", repository.getPrefix(), getFileNameSuffix()));
-      return datafile;
+   protected String getFeatureFolder() {
+       return "dynamic";
    }
 }

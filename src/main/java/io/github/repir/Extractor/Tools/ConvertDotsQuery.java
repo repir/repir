@@ -1,12 +1,11 @@
 package io.github.repir.Extractor.Tools;
 
 import io.github.repir.tools.ByteSearch.ByteRegex;
-import io.github.repir.EntityReader.Entity;
+import io.github.repir.Extractor.Entity;
 import io.github.repir.Extractor.Extractor;
 import io.github.repir.tools.ByteSearch.ByteSearchPosition;
 import io.github.repir.tools.Lib.Log;
 import java.util.ArrayList;
-import io.github.repir.tools.DataTypes.ByteArrayPos;
 
 /**
  * Converts dots depending on the context. Does not filter out + and - which can

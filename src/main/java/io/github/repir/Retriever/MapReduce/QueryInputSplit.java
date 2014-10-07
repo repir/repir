@@ -5,7 +5,7 @@ import io.github.repir.Retriever.Query;
 import io.github.repir.tools.Buffer.BufferDelayedWriter;
 import io.github.repir.tools.Buffer.BufferReaderWriter;
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.tools.MapReduce.MRInputSplit;
+import io.github.repir.MapReduceTools.MRInputSplit;
 
 /**
  * A custom implementation of Hadoop's InputSplit used by RetrieverMR. 

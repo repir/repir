@@ -1,11 +1,10 @@
 package io.github.repir.TestSet.Metric;
 
 import io.github.repir.Retriever.Query;
+import io.github.repir.tools.Collection.SortableList;
+import io.github.repir.tools.Lib.MathTools;
 import java.util.HashMap;
 import java.util.TreeSet;
-import io.github.repir.tools.DataTypes.TreeMapComparable.TYPE;
-import io.github.repir.tools.DataTypes.TreeSetComparable;
-import io.github.repir.tools.Lib.MathTools;
 
 /**
  * Computes a table of ndcg scores for the results of a {@link Query} and a set of
@@ -40,11 +39,11 @@ public class BaseMetricNDCG extends BaseMetric {
    @Override
    public void setTotals(Query query, HashMap<String, Integer> relevancejudgments) {
       super.setTotals(query, relevancejudgments);
-      TreeSet<Integer> scores = new TreeSetComparable<Integer>(TYPE.DUPLICATESDESCENDING, relevancejudgments.values());
+      SortableList<Integer> scores = new SortableList(relevancejudgments.values());
       int pos = 0;
       double previous = 0;
       idcg = new double[relevancejudgments.size()];
-      for (Integer i : scores) {
+      for (Integer i : scores.sortDesc()) {
          if (i < 0) {
             idcg[pos] = previous;
          } else {

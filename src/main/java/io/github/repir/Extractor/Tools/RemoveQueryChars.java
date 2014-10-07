@@ -1,7 +1,7 @@
 package io.github.repir.Extractor.Tools;
 
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.EntityReader.Entity;
+import io.github.repir.Extractor.Entity;
 import io.github.repir.Extractor.Extractor;
 
 /**
@@ -16,8 +16,12 @@ public class RemoveQueryChars extends ExtractorProcessor {
    public boolean removechars[];
 
    public RemoveQueryChars(Extractor extractor, String process) {
+      this(extractor, process, extractor.getConfigurationString(process, "removechars", "") );
+   }
+
+   public RemoveQueryChars(Extractor extractor, String process, String removechars) {
       super(extractor, process);
-      removechars = io.github.repir.tools.Lib.ByteTools.getByteArray( extractor.getConfigurationString(process, "removechars", "") );
+      this.removechars = io.github.repir.tools.Lib.ByteTools.getByteArray( removechars );
    }
 
    public void setChars(String chars) {

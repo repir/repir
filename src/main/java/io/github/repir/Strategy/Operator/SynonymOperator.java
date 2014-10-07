@@ -168,7 +168,7 @@ public class SynonymOperator extends CachableOperator {
 
    public SynStats getCache() {
       if (synstats == null) {
-         synstats = (SynStats) repository.getFeature(SynStats.class);
+         synstats = SynStats.get(repository);
          synstats.openRead();
       }
       return synstats;

@@ -62,7 +62,7 @@ public class TopicReaderSessionTrack extends StructuredTextXML implements TopicR
       ArrayList<String> topictitles = new ArrayList<String>();
       HashMap<Integer, TestSetTopic> topics = new HashMap<Integer, TestSetTopic>();
       this.openRead();
-      while (next()) {
+      while (nextRecord()) {
          int topicnr = sessionnum.get();
          String topictitle = title.get();
          if (topictitles.contains(topictitle)) {

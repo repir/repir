@@ -2,10 +2,12 @@ package io.github.repir.Repository;
 
 import java.util.HashMap;
 import io.github.repir.tools.Structure.StructuredFileIntID;
-import io.github.repir.EntityReader.Entity;
+import io.github.repir.Extractor.Entity;
 import io.github.repir.EntityReader.MapReduce.TermEntityKey;
 import io.github.repir.EntityReader.MapReduce.TermEntityValue;
 import io.github.repir.Retriever.Document;
+import java.io.IOException;
+import org.apache.hadoop.mapreduce.Mapper;
 
 /**
  * An abstract feature that can store a value per Document in the Repository.
@@ -16,7 +18,7 @@ import io.github.repir.Retriever.Document;
  * the stored Record to be accessed through an internal integer ID
  * @param <C> The datatype stored
  */
-public abstract class EntityStoredFeature<F extends StructuredFileIntID, C> extends StoredReportableFeature<F, C> implements ReducibleFeature {
+public abstract class EntityStoredFeature<F extends StructuredFileIntID, C> extends StoredReportableFeature<F, C> implements ReduciblePartitionedFeature {
 
    public HashMap<Integer, C> cache;
    
@@ -24,20 +26,37 @@ public abstract class EntityStoredFeature<F extends StructuredFileIntID, C> exte
       super(repository, field);
    }
 
-   public void writereduce(TermEntityKey key, Iterable<TermEntityValue> values) {
-      reduceInput(key, values);
+   @Override
+   public TermEntityKey createMapOutputKey(int partition, int feature, String docname, Entity entity) {
+      TermEntityKey t = TermEntityKey.createTermDocKey(partition, feature, 0, docname);
+      t.type = TermEntityKey.Type.ENTITYFEATURE;
+      return t;
+   }
+   
+   public String extract(Entity entity) {
+      return entity.get(entityAttribute()).getContentStr();
    }
 
-   abstract public void mapOutput(TermEntityValue writer, Entity doc);
+   abstract public void setMapOutputValue(TermEntityValue writer, Entity doc);
 
+   TermEntityKey outkey;
+   TermEntityValue outvalue = new TermEntityValue();
+    @Override
+    public void writeMap(Mapper.Context context, int partition, int feature, String docname, Entity entity) throws IOException, InterruptedException {
+          outkey = createMapOutputKey(partition, feature, docname, entity);
+          setMapOutputValue(outvalue, entity);
+          context.write(outkey, outvalue);
+    }
+    
    @Override
    public void finishReduce() {
       getFile().closeWrite();
    }
 
    @Override
-   public void startReduce(int partition) {
+   public void startReduce(int partition, int buffersize) {
       setPartition(partition);
+      getFile().setBufferSize(buffersize);
       getFile().openWrite();
    }
 

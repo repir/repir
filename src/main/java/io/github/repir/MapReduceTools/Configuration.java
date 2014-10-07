@@ -1,7 +1,8 @@
-package io.github.repir.tools.MapReduce;
+package io.github.repir.MapReduceTools;
 
 import io.github.repir.tools.Content.Datafile;
 import io.github.repir.tools.Content.FSFileInBuffer;
+import io.github.repir.tools.Lib.ArgsParser;
 import io.github.repir.tools.Lib.ArrayTools;
 import io.github.repir.tools.Lib.Log;
 import java.io.IOException;
@@ -10,20 +11,17 @@ import java.util.Map;
 import org.apache.hadoop.util.GenericOptionsParser;
 
 /**
- * Extension of Hadoop's Configuration, that is also used by {@link Repository}
- * to store its configuration. The extension can read/write configurations from
- * flat text files used to configure a {@link Repository} or a specific
- * {@link Strategy}.
+ * Extension of RepIRTools.Configuration, which is an extension to
+ * Hadoop's Configuration, that is also used by {@link Repository}
+ * to store its configuration. This extension reads the location
+ * of RepIR resources from the environment, and sets these in the
+ * Configuration for further use. If instantiated 
+ * with an array of arguments, the first argument should be the name
+ * of a file with configuration settings that is added to the 
+ * Configuration. 
  * <p/>
- * Valid configuration keys have at least one dot, e.g. retriever.strategy, are
- * in lowercase and can either be assigned a String, int, long (ends with l),
- * double (has a decimal point), boolean (true/false) or array (multiple lines
- * +key.name=...). A minus "-key.name=" can be used to only set keys that have
- * no value yet.
- * <p/>
- * From files, "import filename" can be used to read settings from a file in the
- * same folder, and "delete key.name" can be used to delete key.name.
- *
+ * For internal use, this extension contains methods to read and write
+ * the Configuration set for a repository to a file.
  * @author Jeroen Vuurens
  */
 public class Configuration extends io.github.repir.tools.hadoop.Configuration {
@@ -37,19 +35,28 @@ public class Configuration extends io.github.repir.tools.hadoop.Configuration {
     protected Configuration(org.apache.hadoop.conf.Configuration other) {
         super(other);
     }
+   
+   public Configuration(String args[], String template) {
+       super();
+       this.setEnv();
+       this.parseArgsConfFile(args, template);
+   }
 
-   public Configuration(Datafile df) {
-      super();
-      read(df);
+    protected void setEnv() {
       String repirdir = System.getenv("rrdir");
       String repirversion = System.getenv("rrversion");
       String user = System.getenv("rruser");
       set("rr.localdir", repirdir + "/");
       set("rr.libdir", repirdir + "/lib/");
       set("rr.configdir", repirdir + "/settings/");
-      set("rr.conf", df.getFilename());
       set("rr.version", repirversion);
       set("rr.user", user);
+    }
+    
+   @Override
+   public void processConfigFile(Datafile df) {
+      super.processConfigFile(df);
+      set("rr.conf", df.getFilename());
       String libs = get("rr.lib");
       if (libs != null && libs.length() > 0) {
          StringBuilder sb = new StringBuilder();
@@ -66,7 +73,9 @@ public class Configuration extends io.github.repir.tools.hadoop.Configuration {
    }
 
    public Configuration(String filename) {
-      this(configfile(filename));
+      super();
+      setEnv();
+      processConfigFile(configfile(filename));
    }
 
    public static Datafile configfile(String filename) {
@@ -79,24 +88,24 @@ public class Configuration extends io.github.repir.tools.hadoop.Configuration {
       return in;
    }
 
+   public Datafile configDatafile(String filename) {
+      return configfile(filename);
+   }
+
    // creates a Configuration based on a file with settings in a JAR
    public static Configuration createFromResource(String resource) {
       InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
       FSFileInBuffer fi = new FSFileInBuffer(input);
       byte[] readBytes = fi.readBytes();
       Configuration conf = new Configuration();
-      conf.read(new String(readBytes, 0, readBytes.length));
+      conf.setEnv();
+      conf.processScript(new String(readBytes, 0, readBytes.length));
       return conf;
    }
 
    public static Datafile configfile(Configuration conf) {
       Datafile in = new Datafile(conf.get("rr.configdir") + conf.get("rr.conf"));
       return in;
-   }
-
-   public Configuration(String args[], String template) {
-      this(args[0]);
-      this.parseArgs(ArrayTools.subArray(args, 1), template);
    }
 
    public void writeBoolean(Datafile df, String key) {

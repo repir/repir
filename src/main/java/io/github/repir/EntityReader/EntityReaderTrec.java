@@ -1,13 +1,11 @@
 package io.github.repir.EntityReader;
 
+import io.github.repir.Extractor.Entity;
 import io.github.repir.EntityReader.MapReduce.EntityWritable;
 import io.github.repir.tools.ByteSearch.ByteSearch;
 import io.github.repir.tools.Content.EOCException;
 import io.github.repir.tools.Content.HDFSIn;
 import io.github.repir.tools.Lib.Log;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
@@ -26,7 +24,6 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 public class EntityReaderTrec extends EntityReader {
 
    public static Log log = new Log(EntityReaderTrec.class);
-   private ByteSearch zickel = ByteSearch.create("zickel");
    private byte[] startTag;
    private byte[] endTag;
 

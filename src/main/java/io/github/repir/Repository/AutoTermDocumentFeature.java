@@ -1,11 +1,15 @@
 package io.github.repir.Repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import io.github.repir.Extractor.Entity;
 import io.github.repir.EntityReader.MapReduce.TermEntityKey;
 import io.github.repir.EntityReader.MapReduce.TermEntityValue;
-import io.github.repir.EntityReader.Entity;
+import io.github.repir.Extractor.EntityChannel;
 import io.github.repir.tools.Structure.StructuredFileIntID;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
+import org.apache.hadoop.mapreduce.Mapper.Context;
 
 /**
  * A AutoTermDocumentFeature that is configured for a Repository is automatically
@@ -15,7 +19,7 @@ import io.github.repir.tools.Structure.StructuredFileIntID;
  * @param <F>
  * @param <C> 
  */
-public abstract class AutoTermDocumentFeature<F extends StructuredFileIntID, C> extends TermDocumentFeature<F, C> implements ReducibleFeature {
+public abstract class AutoTermDocumentFeature<F extends StructuredFileIntID, C> extends TermDocumentFeature<F, C> {
 
    HashMap<String, Integer> docs;
    int reducetermid;
@@ -28,9 +32,38 @@ public abstract class AutoTermDocumentFeature<F extends StructuredFileIntID, C> 
       this.docs = docs;
       reducetermid = 0;
    }
+   
+   TermEntityKey outkey;
+   TermEntityValue outvalue = new TermEntityValue();
 
-   public void writereduce(TermEntityKey key, Iterable<TermEntityValue> values) {
-      reduceInput(key, values);
+   public void writeMap(Context context, int partition, int feature, String docname, Entity entity) throws IOException, InterruptedException {
+       HashMap<Integer, ArrayList<Integer>> tokens = getTokens(entity);
+       for (Entry<Integer, ArrayList<Integer>> entry : tokens.entrySet()) {
+          outkey = TermEntityKey.createTermDocKey(partition, feature, entry.getKey(), docname);
+          setMapOutputValue(outvalue, docname, entry.getValue());
+          context.write(outkey, outvalue);
+       }
+   }
+   
+   public abstract void reduceInput(TermEntityKey key, Iterable<TermEntityValue> values);
+   
+   public HashMap<Integer, ArrayList<Integer>> getTokens(Entity doc) {
+      HashMap<Integer, ArrayList<Integer>> list = new HashMap<Integer, ArrayList<Integer>>();
+      ArrayList<Integer> l;
+      int pos = 0;
+      EntityChannel attr = doc.get(entityAttribute());
+      if (attr.tokenized == null) {
+         attr.tokenized = repository.tokenize(attr);
+      }
+      for (int token : attr.tokenized) {
+         l = list.get(token);
+         if (l == null) {
+            l = new ArrayList<Integer>();
+            list.put(token, l);
+         }
+         l.add(pos++);
+      }
+      return list;
    }
 
    @Override
@@ -43,17 +76,16 @@ public abstract class AutoTermDocumentFeature<F extends StructuredFileIntID, C> 
       }
    }
 
-   @Override
-   public void startReduce(int partition) {
+   public void startReduce(int partition, int buffersize) {
       setPartition(partition);
+      getFile().setBufferSize(buffersize);
       getFile().openWrite();
    }
 
-   @Override
    public void finishReduce() {
       getFile().closeWrite();
    }
 
-   abstract public void writeMapOutput(TermEntityValue writer, Entity doc, ArrayList<Integer> pos);
+   abstract public void setMapOutputValue(TermEntityValue writer, String docname, ArrayList<Integer> pos);
 
 }

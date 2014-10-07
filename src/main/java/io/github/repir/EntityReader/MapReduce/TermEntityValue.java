@@ -2,7 +2,7 @@ package io.github.repir.EntityReader.MapReduce;
 
 import io.github.repir.tools.Buffer.BufferDelayedWriter;
 import io.github.repir.tools.Buffer.BufferReaderWriter;
-import io.github.repir.Repository.ReducibleFeature;
+import io.github.repir.Repository.ReduciblePartitionedFeature;
 import io.github.repir.tools.Content.EOCException;
 import io.github.repir.tools.Lib.Log;
 import java.io.DataInput;
@@ -14,7 +14,7 @@ import org.apache.hadoop.io.BytesWritable;
  * During extraction of a Repository (phase 2), the Mapper extracts the source
  * entities to TermEntityKey,TermEntityValue pairs. The mapper segments the
  * collection into partitions that are reduced separately. In a Reducer, all
- * {@link ReducibleFeature}s are created by calling their {@link ReducibleFeature#reduceInput( 
+ * {@link ReduciblePartitionedFeature}s are created by calling their {@link ReducibleFeature#reduceInput( 
  * TermEntityKey, java.lang.Iterable)}
  * <
  * p/>

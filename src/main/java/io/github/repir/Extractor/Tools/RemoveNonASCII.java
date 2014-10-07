@@ -2,7 +2,7 @@ package io.github.repir.Extractor.Tools;
 
 import io.github.repir.tools.Lib.Log;
 import io.github.repir.Extractor.EntityChannel;
-import io.github.repir.EntityReader.Entity;
+import io.github.repir.Extractor.Entity;
 import io.github.repir.Extractor.Extractor;
 import io.github.repir.tools.Lib.BoolTools;
 
@@ -19,11 +19,19 @@ public class RemoveNonASCII extends ExtractorProcessor {
    public boolean nonascii[];
 
    public RemoveNonASCII(Extractor extractor, String process) {
-      super(extractor, process);
+      this(extractor, process, extractor.getConfigurationBoolean(process, "nonasciiremoveword", true));
+   }
+
+   public RemoveNonASCII(Extractor extractor, boolean nonasciiremoveword) {
+      this(extractor, null, nonasciiremoveword);
+   }
+
+   RemoveNonASCII(Extractor extractor, String process, boolean nonasciiremoveword) {
+      super(extractor, null);
       nonascii = new boolean[256];
       for (int i = 0; i < 256; i++)
           nonascii[i] = (i > 0 && i < 32) || i > 126;
-      if (extractor.getConfigurationBoolean(process, "nonasciiremoveword", true)) {
+      if (nonasciiremoveword) {
          letterdigit = BoolTools.combineRanges(
                  BoolTools.createASCIIAcceptRange('A', 'Z'),
                  BoolTools.createASCIIAcceptRange('a', 'z'),

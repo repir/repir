@@ -1,4 +1,4 @@
-package io.github.repir.EntityReader;
+package io.github.repir.Extractor;
 
 /**
  * Indicates an Entity should not be processed any further

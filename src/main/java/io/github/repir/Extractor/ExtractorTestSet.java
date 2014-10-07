@@ -1,8 +1,8 @@
 package io.github.repir.Extractor;
 
-import io.github.repir.EntityReader.Entity;
 import io.github.repir.Repository.Repository;
 import io.github.repir.tools.Lib.Log;
+import org.apache.hadoop.conf.Configuration;
 
 /**
  * Implements an extractor for RepIR {@link Query} strings that occur within
@@ -18,14 +18,14 @@ public class ExtractorTestSet extends Extractor {
 
    public static Log log = new Log(ExtractorTestSet.class);
 
-   public ExtractorTestSet(Repository repository) {
-      super(repository);
+   public ExtractorTestSet(Configuration conf) {
+      super(conf);
    }
 
    @Override
    public void init() {
       createProcess("rrtestset");
-      linkSectionToProcess("rrtestset", "rrtestset", "rrtestset");
+      addSectionProcess("rrtestset", "rrtestset", "rrtestset");
    }
 
    @Override

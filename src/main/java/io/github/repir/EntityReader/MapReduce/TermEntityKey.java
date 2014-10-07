@@ -1,5 +1,6 @@
 package io.github.repir.EntityReader.MapReduce;
 
+import io.github.repir.EntityReader.MapReduce.TermEntityKey.Type;
 import io.github.repir.tools.Buffer.BufferDelayedWriter;
 import io.github.repir.tools.Buffer.BufferReaderWriter;
 import io.github.repir.tools.Content.EOCException;
@@ -33,7 +34,7 @@ import org.apache.hadoop.mapreduce.Partitioner;
 public class TermEntityKey implements WritableComparable<TermEntityKey> {
 
    public static Log log = new Log(TermEntityKey.class);
-   Type type;
+   public Type type;
    public int partition;
    public String collectionid;
    public int docid; // not passed over MR
@@ -42,26 +43,21 @@ public class TermEntityKey implements WritableComparable<TermEntityKey> {
 
    public static enum Type {
 
-      PRELOAD,
-      CHANNEL
+      ENTITYFEATURE,
+      LOOKUPFEATURE,
+      TERMDOCFEATURE
    }
 
    public TermEntityKey() {
    }
 
-   public static TermEntityKey createChannel(int partition, int feature, int term, String docname) {
+   public static TermEntityKey createTermDocKey(int partition, int feature, int term, String docname) {
       TermEntityKey t = new TermEntityKey();
-      t.type = Type.CHANNEL;
+      t.type = Type.TERMDOCFEATURE;
       t.partition = partition;
       t.termid = term;
       t.feature = feature;
       t.collectionid = docname;
-      return t;
-   }
-
-   public static TermEntityKey createPreload(int partition, int feature, String docname) {
-      TermEntityKey t = createChannel(partition, feature, 0, docname);
-      t.type = Type.PRELOAD;
       return t;
    }
 
@@ -152,14 +148,15 @@ public class TermEntityKey implements WritableComparable<TermEntityKey> {
       @Override
       public int compare(byte[] b1, int ss1, int l1, byte[] b2, int ss2, int l2) {
          int comp = 0;
-         if (b1[ss1 + 4] == Type.PRELOAD.ordinal()) { // make sure docs are reduced before tokens
-            if (b2[ss2 + 4] == Type.PRELOAD.ordinal()) {
+         byte b = b1[ss1+4];
+         if (b == Type.ENTITYFEATURE.ordinal() || b == Type.LOOKUPFEATURE.ordinal()) { // make sure docs are reduced before tokens
+            if (b2[ss2 + 4] == b) {
                return compareBytes(b1, ss1 + 7, l1 - 7, b2, ss2 + 7, l2 - 7);
             } else {
                return -1;
             }
          } else {
-            if (b2[ss2 + 4] != Type.PRELOAD.ordinal()) {
+            if (b2[ss2 + 4] == b) {
                return compareBytes(b1, ss1 + 7, 5, b2, ss2 + 7, 5);
             } else {
                return 1;

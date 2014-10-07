@@ -1,8 +1,8 @@
 package io.github.repir.Extractor.Tools;
 
-import io.github.repir.EntityReader.Entity;
-import io.github.repir.EntityReader.Entity.Section;
-import io.github.repir.EntityReader.EntityRemovedException;
+import io.github.repir.Extractor.Entity;
+import io.github.repir.Extractor.Entity.Section;
+import io.github.repir.Extractor.EntityRemovedException;
 import io.github.repir.Extractor.EntityChannel;
 import io.github.repir.Extractor.Extractor;
 import io.github.repir.tools.ByteSearch.ByteSearch;
@@ -17,12 +17,10 @@ import io.github.repir.tools.Lib.ByteTools;
  * @author jer
  */
 public abstract class ExtractorProcessor {
-   public Extractor extractor;
    public String process;
    public static ByteSearch endtag = ByteSearch.create(">").QuoteSafe();
    
    public ExtractorProcessor(Extractor extractor, String process) {
-      this.extractor = extractor;
       this.process = process;
    }
 

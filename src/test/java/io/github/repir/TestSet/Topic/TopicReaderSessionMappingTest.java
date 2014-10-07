@@ -29,7 +29,7 @@ public class TopicReaderSessionMappingTest extends StructuredTextCSV {
    public static void main(String args[]) {
       TopicReaderSessionMappingTest m = new TopicReaderSessionMappingTest();
       m.openRead();
-      while (m.next()) {
+      while (m.nextRecord()) {
          log.info("query %d topic %d", m.sessionid.get(), m.topicid.get());
       }
       m.closeRead();

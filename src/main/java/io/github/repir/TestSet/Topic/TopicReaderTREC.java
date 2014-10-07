@@ -37,7 +37,7 @@ public class TopicReaderTREC extends StructuredTextFile implements TopicReader {
    public HashMap<Integer, TestSetTopic> getTopics() {
       HashMap<Integer, TestSetTopic> topics = new HashMap<Integer, TestSetTopic>();
       this.openRead();
-      while (this.next()) {
+      while (this.nextRecord()) {
          topics.put(this.number.get(),
                  new TestSetTopic(number.get(),
                          (domain.get() == null) ? "" : domain.get(),

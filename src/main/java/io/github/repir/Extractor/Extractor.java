@@ -1,11 +1,8 @@
 package io.github.repir.Extractor;
 
-import io.github.repir.EntityReader.Entity;
-import io.github.repir.EntityReader.Entity.Section;
-import io.github.repir.EntityReader.EntityRemovedException;
+import io.github.repir.Extractor.Entity.Section;
 import io.github.repir.Extractor.Tools.ExtractorProcessor;
 import io.github.repir.Extractor.Tools.SectionMarker;
-import io.github.repir.Repository.Repository;
 import io.github.repir.tools.ByteSearch.ByteRegex;
 import io.github.repir.tools.Lib.ClassTools;
 import io.github.repir.tools.Lib.Log;
@@ -38,6 +35,7 @@ public class Extractor {
 
    public static Log log = new Log(Extractor.class);
    public Configuration conf;
+   private boolean neverused = true;
    protected ArrayList<ExtractorProcessor> preprocess = new ArrayList<ExtractorProcessor>();
    protected HashMap<String, ArrayList<ExtractorProcessor>> processor = new HashMap<String, ArrayList<ExtractorProcessor>>();
    protected HashSet<String> processes = new HashSet<String>();
@@ -47,50 +45,92 @@ public class Extractor {
    protected ArrayList<SectionMarker> markers = new ArrayList<SectionMarker>();
    protected ArrayList<SectionProcess> processors = new ArrayList<SectionProcess>();
    protected ByteRegex sectionstart;
-
-   public Extractor(Repository repository) {
-      this(repository.getConfiguration());
-   }
    
+   /**
+    * Creates an extractor that must be configured with calls to addPreProcessor,
+    * addSectionProcess, addSectionMarker and addProcess. 
+    * Components cannot use the non-existing Configuration, and therefore 
+    * must provide a constructor that allows to set the required parameters.
+    */
+   public Extractor() { }
+   
+   /**
+    * Creates an extractor using the configuration settings.
+    * @param configuration 
+    */
    public Extractor(Configuration configuration) {
       conf = configuration;
-      for (String p : conf.getStrings("extractor.preprocess", new String[0])) {
-         Class clazz = ClassTools.toClass(p, getClass().getPackage().getName() + ".Tools");
-         Constructor c = ClassTools.getAssignableConstructor(clazz, ExtractorProcessor.class, Extractor.class, String.class);
-         this.preprocess.add((ExtractorProcessor) ClassTools.construct(c, this, "preprocess"));
-      }
       init();
-      createPatternMatchers();
    }
 
-   public void init() {
+   void init() {
+      for (String p : conf.getStrings("extractor.preprocess", new String[0])) {
+         Class clazz = ClassTools.toClass(p, getClass().getPackage().getName() + ".Tools");
+         addPreProcessor( clazz );
+      }
       for (String p : conf.getStrings("extractor.sectionprocess", new String[0])) {
          String part[] = p.split(" +");
-         linkSectionToProcess(part[0], part[1], (part.length > 2) ? part[2] : null);
+         addSectionProcess(part[0], part[1], (part.length > 2) ? part[2] : null);
       }
       for (String sectionmarker : conf.getStrings("extractor.sectionmarker", new String[0])) {
          String part[] = sectionmarker.split(" +");
-         createSectionMarker(part[2], part[0], part[1]);
+         addSectionMarker(part[2], part[0], part[1]);
       }
       for (String process : processes) {
          createProcess(process);
       }
    }
+   
+   public void addPreProcessor(Class clazz) {
+         Constructor c = ClassTools.getAssignableConstructor(clazz, ExtractorProcessor.class, Extractor.class, String.class);
+         this.preprocess.add((ExtractorProcessor) ClassTools.construct(c, this, "preprocess"));
+   }
 
-   public void createPatternMatchers() {
+   public void addPreProcessor(ExtractorProcessor processor) {
+         this.preprocess.add(processor);
+   }
+
+   private void createPatternMatchers() {
       for (String section : sections) {
          patternmatchers.add(new ExtractorPatternMatcher(this, section, sectionmarkers.get(section)));
       }
    }
 
-   public void linkSectionToProcess(String section, String processname, String attributename) {
-      processors.add(new SectionProcess(section, processname, attributename));
+   /**
+    * Add a process (in name) that is executed on a section, and of which the result
+    * is stored as an attribute. The process then needs to be defined 
+    * @param section either "all" for the whole raw content of the entity, or the name of a section created by a section marker.
+    * @param processname name of a process that must be defined 
+    * @param attribute 
+    */
+   public void addSectionProcess(String section, String processname, String attribute) {
+      processors.add(new SectionProcess(section, processname, attribute));
       processes.add(processname);
    }
 
-   public void createSectionMarker(String sectionmarkername, String inputsection, String outputsection) {
+   /**
+    * Add a process that is executed on a section, that has no resulting attribute.
+    */
+   public void addSectionProcess(String section, String processname) {
+      addSectionProcess(section, processname, null);
+   }
+
+   private void addSectionMarker(String sectionmarkername, String inputsection, String outputsection) {
       Class clazz = ClassTools.toClass(sectionmarkername, getClass().getPackage().getName() + ".Tools");
-      Constructor c = ClassTools.getAssignableConstructor(clazz, SectionMarker.class, Extractor.class, String.class, String.class);
+      addSectionMarker(clazz, inputsection, outputsection);
+   }
+
+   /**
+    * Add a SectionMarker, which will produce an outputsection based on
+    * match areas in the inputsection. E.g. MarkMeta will mark <meta ... > tags
+    * in the source section.
+    * mark the 
+    * @param sectionmarker
+    * @param inputsection
+    * @param outputsection 
+    */
+   public void addSectionMarker(Class sectionmarker, String inputsection, String outputsection) {
+      Constructor c = ClassTools.getAssignableConstructor(sectionmarker, SectionMarker.class, Extractor.class, String.class, String.class);
       SectionMarker marker = (SectionMarker) ClassTools.construct(c, this, inputsection, outputsection);
       ArrayList<SectionMarker> list = sectionmarkers.get(inputsection);
       if (list == null) {
@@ -123,15 +163,39 @@ public class Extractor {
       return conf.getFloat("extractor." + process + "." + identifier, defaultfloat);
    }
 
-   public void createProcess(String process) {
-      ArrayList<ExtractorProcessor> list = new ArrayList<ExtractorProcessor>();
-      this.processor.put(process, list);
+   void createProcess(String process) {
       for (String processor : conf.getStrings("extractor." + process, new String[]{process})) {
          Class clazz = ClassTools.toClass(processor, getClass().getPackage().getName() + ".Tools");
-         Constructor c = ClassTools.getAssignableConstructor(clazz, ExtractorProcessor.class, Extractor.class, String.class);
-         list.add((ExtractorProcessor) ClassTools.construct(c, this, process));
+         addProcess(process, clazz);
          //log.info("createProcess %s %s", process, processor);
       }
+   }
+   
+   /**
+    * Creates an ExtractorProcessor from the given class, and adds that to the
+    * process pipeline of the named process.
+    * @param process
+    * @param processor 
+    */
+   public void addProcess(String process, Class processor) {
+       Constructor c = ClassTools.getAssignableConstructor(processor, ExtractorProcessor.class, Extractor.class, String.class);
+       addProcess(process, (ExtractorProcessor) ClassTools.construct(c, this, process));
+   }
+
+   /**
+    * Adds an ExtractorProcessor from the given class, and adds that to the
+    * process pipeline of the named process. The processors are executed in the
+    * same order the were added to the process pipeline.
+    * @param process
+    * @param processor 
+    */
+   public void addProcess(String process, ExtractorProcessor processor) {
+       ArrayList<ExtractorProcessor> list = this.processor.get(process);
+       if (list == null) {
+           list = new ArrayList();
+           this.processor.put(process, list);
+       }
+       list.add(processor);
    }
 
    public ExtractorProcessor findProcessor(String process, Class clazz) {
@@ -158,6 +222,10 @@ public class Extractor {
     * @param entity
     */
    public void process(Entity entity) {
+      if (neverused) {
+          neverused = false;
+          createPatternMatchers();
+      }
       //ShowContent showcontent = new ShowContent(this, "tokenize");
       int bufferpos = 0;
       int bufferend = entity.content.length;

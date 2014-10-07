@@ -3,8 +3,8 @@ package io.github.repir.Retriever.MapReduce;
 import io.github.repir.Repository.Repository;
 import io.github.repir.Retriever.Query;
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.tools.MapReduce.MRInputFormat;
-import io.github.repir.tools.MapReduce.MRInputSplit;
+import io.github.repir.MapReduceTools.MRInputFormat;
+import io.github.repir.MapReduceTools.MRInputSplit;
 
 /**
  * A custom implementation of Hadoop's InputFormat, that holds the InputSplits

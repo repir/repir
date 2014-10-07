@@ -1,5 +1,6 @@
 package io.github.repir.Repository;
 
+import io.github.repir.EntityReader.MapReduce.TermEntityKey;
 import io.github.repir.tools.Content.Datafile;
 import io.github.repir.tools.Structure.StructuredFile;
 import io.github.repir.tools.Lib.Log;
@@ -32,12 +33,14 @@ public abstract class StoredFeature<F> extends Feature {
    public abstract void openRead();
 
    public abstract void closeRead();
-
-   public abstract void setBufferSize(int size);
    
    public void writeCache() {}
    
    public abstract void reuse();
+   
+   protected String getFeatureFolder() {
+       return "repository";
+   }
    
    public Datafile getStoredFeatureFile() {
       Datafile datafile;
@@ -47,7 +50,7 @@ public abstract class StoredFeature<F> extends Feature {
       if (path != null && path.length() > 0)
          datafile = new Datafile( repository.fs, path);
       else
-         datafile = repository.basedir.getFile(PrintTools.sprintf("repository/%s.%s", repository.getPrefix(), getFileNameSuffix()));
+         datafile = repository.basedir.getFile(PrintTools.sprintf("%s/%s.%s", getFeatureFolder(), repository.getPrefix(), getFileNameSuffix()));
       return datafile;
    }
 
@@ -61,8 +64,15 @@ public abstract class StoredFeature<F> extends Feature {
       if (path != null && path.length() > 0)
          datafile = new Datafile( repository.fs, PrintTools.sprintf("%s.%04d", path, segment));
       else
-         datafile = repository.basedir.getFile(PrintTools.sprintf("repository/%s.%s.%04d", repository.getPrefix(), getFileNameSuffix(), segment));
+         datafile = repository.basedir.getFile(PrintTools.sprintf("%s/%s.%s.%04d", getFeatureFolder(), repository.getPrefix(), getFileNameSuffix(), segment));
       return datafile;
    }
+   
+   public static void storeFeature(Repository repository, String label, StoredFeature sf) {
+       repository.storeFeature(label, sf);
+   }
 
+   public static StoredFeature getStoredFeature(Repository repository, String label) {
+       return repository.getStoredFeature(label);
+   }
 }

@@ -1,8 +1,8 @@
 package io.github.repir.Extractor;
 
-import io.github.repir.EntityReader.Entity;
 import io.github.repir.Repository.Repository;
 import io.github.repir.tools.Lib.Log;
+import org.apache.hadoop.conf.Configuration;
 
 /**
  * Implements an extractor for RepIR {@link Query} strings. The extraction
@@ -18,14 +18,14 @@ public class ExtractorQuery extends Extractor {
 
    public static Log log = new Log(ExtractorQuery.class);
 
-   public ExtractorQuery(Repository repository) {
-      super(repository);
+   public ExtractorQuery(Configuration conf) {
+      super(conf);
    }
 
    @Override
-   public void init() {
+   void init() {
       createProcess("rrquery");
-      linkSectionToProcess("rrquery", "rrquery", "rrquery");
+      addSectionProcess("rrquery", "rrquery", "rrquery");
    }
 
    @Override

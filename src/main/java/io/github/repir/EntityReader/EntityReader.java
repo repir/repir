@@ -4,6 +4,7 @@ import io.github.repir.EntityReader.MapReduce.EntityWritable;
 import io.github.repir.tools.Content.Datafile;
 import io.github.repir.tools.Lib.Log;
 import java.io.IOException;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -11,7 +12,6 @@ import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
-import io.github.repir.tools.MapReduce.Configuration;
 
 /**
  * A document reader read an input file, identifying document markers to store
@@ -50,13 +50,13 @@ public abstract class EntityReader extends RecordReader<LongWritable, EntityWrit
    @Override
    public void initialize(InputSplit is, TaskAttemptContext tac) {
          context = tac;
-         initialize( is, Configuration.convert(tac.getConfiguration()) );
+         initialize( is, tac.getConfiguration() );
    }
 
    public void initialize(InputSplit is, Configuration conf) {
       //log.info("initialize");
       try {
-         this.conf = Configuration.convert(conf);
+         this.conf = conf;
          filesystem = FileSystem.get(conf);
          FileSplit fileSplit = (FileSplit) is;
          Path file = fileSplit.getPath();

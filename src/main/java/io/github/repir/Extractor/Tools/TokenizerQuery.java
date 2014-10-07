@@ -1,7 +1,7 @@
 package io.github.repir.Extractor.Tools;
 
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.EntityReader.Entity;
+import io.github.repir.Extractor.Entity;
 import io.github.repir.Extractor.Extractor;
 import java.util.ArrayList;
 

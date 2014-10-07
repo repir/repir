@@ -51,7 +51,7 @@ public class PostingIterator {
       this.retrievalmodel = retrievalmodel;
       lastdocid = -1;
       this.partition = partition;
-      for (StoredFeature t : retrievalmodel.requestedfeatures.values()) {
+      for (StoredFeature t : retrievalmodel.requestedfeatures) {
          //log.info("PostingIterator add feature %s", t.getCanonicalName());
          if (t instanceof TermDocumentFeature) {
             ((TermDocumentFeature) t).setPartition(partition);
@@ -106,7 +106,7 @@ public class PostingIterator {
          int memoryleft = (MAXMEMORY - memoryneeded) / (sortedfeatures.size() - i + tdfarray.length);
          int mempart = (memoryleft & mask4096) + 4096;
          for (StoredReportableFeature f : sortedfeatures) {
-            f.setBufferSize(mempart);
+            f.getFile().setBufferSize(mempart);
             f.openRead();
          }
       }
@@ -133,7 +133,7 @@ public class PostingIterator {
          iter = sortedfeatures.iterator();
          while (iter.hasNext()) {
             StoredReportableFeature f = iter.next();
-            f.setBufferSize(mempart);
+            f.getFile().setBufferSize(mempart);
             f.openRead();
             f.next();
          }
@@ -158,13 +158,13 @@ public class PostingIterator {
 
    public EntityStoredFeature[] getDSF(RetrievalModel retrievalmodel) {
       int countdsf = 0;
-      for (StoredFeature t : retrievalmodel.requestedfeatures.values()) {
+      for (StoredFeature t : retrievalmodel.requestedfeatures) {
          if (t instanceof EntityStoredFeature) {
             countdsf++;
          }
       }
       EntityStoredFeature[] dsfarray = new EntityStoredFeature[countdsf];
-      for (StoredFeature t : retrievalmodel.requestedfeatures.values()) {
+      for (StoredFeature t : retrievalmodel.requestedfeatures) {
          if (t instanceof EntityStoredFeature) {
             EntityStoredFeature tt = (EntityStoredFeature) t;
             dsfarray[--countdsf] = tt;
@@ -175,13 +175,13 @@ public class PostingIterator {
 
    public TermDocumentFeature[] getTDF(RetrievalModel retrievalmodel) {
       int counttdf = 0;
-      for (StoredFeature t : retrievalmodel.requestedfeatures.values()) {
+      for (StoredFeature t : retrievalmodel.requestedfeatures) {
          if (t instanceof TermDocumentFeature) {
             counttdf++;
          }
       }
       TermDocumentFeature[] tdfarray = new TermDocumentFeature[counttdf];
-      for (StoredFeature t : retrievalmodel.requestedfeatures.values()) {
+      for (StoredFeature t : retrievalmodel.requestedfeatures) {
          if (t instanceof TermDocumentFeature) {
             TermDocumentFeature tt = (TermDocumentFeature) t;
             tdfarray[--counttdf] = tt;

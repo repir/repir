@@ -2,7 +2,7 @@ package io.github.repir.Repository;
 
 import io.github.repir.tools.Content.Datafile;
 import io.github.repir.tools.Structure.StructuredFileSequential;
-import io.github.repir.EntityReader.Entity;
+import io.github.repir.Extractor.Entity;
 import io.github.repir.EntityReader.MapReduce.TermEntityKey;
 import io.github.repir.EntityReader.MapReduce.TermEntityValue;
 import io.github.repir.Repository.TermInverted.File;
@@ -21,20 +21,46 @@ import java.util.ArrayList;
  * @param <F>
  * @param <C> 
  */
-public class TermInverted extends AutoTermDocumentFeature<File, int[]> implements ReducibleFeature {
+public class TermInverted extends AutoTermDocumentFeature<File, int[]> {
 
    public static Log log = new Log(TermInverted.class);
    static final int ZEROPOS[] = new int[0];
    DocLiteral collectionid;
 
-   protected TermInverted(Repository repository, String field) {
+   private TermInverted(Repository repository, String field) {
       super(repository, field);
       collectionid = repository.getCollectionIDFeature();
    }
 
+   private TermInverted(Repository repository, String field, Term term) {
+      super(repository, (String)field);
+      collectionid = repository.getCollectionIDFeature();
+      this.term = term;
+   }
+
+   public static TermInverted get(Repository repository, String field) {
+       String label = canonicalName(TermInverted.class, field);
+       TermInverted termid = (TermInverted)repository.getStoredFeature(label);
+       if (termid == null) {
+          termid = new TermInverted(repository, field);
+          repository.storeFeature(label, termid);
+       }
+       return termid;
+   }
+   
+   public static TermInverted get(Repository repository, String field, Term term) {
+       String label = canonicalName(TermInverted.class, field, term.getProcessedTerm());
+       TermInverted termid = (TermInverted)repository.getStoredFeature(label);
+       if (termid == null) {
+          termid = new TermInverted(repository, field, term);
+          repository.storeFeature(label, termid);
+       }
+       return termid;
+   }
+   
    @Override
-   public void writeMapOutput(TermEntityValue value, Entity doc, ArrayList<Integer> pos) {
-      value.writer.write0Str(collectionid.extract(doc));
+   public void setMapOutputValue(TermEntityValue value, String docname, ArrayList<Integer> pos) {
+      value.writer.write0Str(docname);
       value.writer.writeIncr(pos);
    }
 
@@ -73,7 +99,7 @@ public class TermInverted extends AutoTermDocumentFeature<File, int[]> implement
    @Override
    protected int readNextID() {
       //log.info("readNextID() reader %s offset %d ceiling %d", file.reader, file.getOffset(), file.getCeiling());
-      if (file.next()) {
+      if (file.nextRecord()) {
          return file.docid.value;
       } else {
          file.data.value = ZEROPOS;

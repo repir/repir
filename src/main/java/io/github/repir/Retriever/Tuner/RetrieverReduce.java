@@ -15,7 +15,7 @@ import io.github.repir.TestSet.Metric.QueryMetricAP;
 import io.github.repir.TestSet.ResultSet;
 import io.github.repir.TestSet.TestSet;
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.tools.MapReduce.Configuration;
+import io.github.repir.MapReduceTools.Configuration;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,7 +51,7 @@ public class RetrieverReduce extends Reducer<CollectorKey, CollectorValue, NullW
       repository = new Repository(context.getConfiguration());
       conf = repository.getConfiguration();
       conf.set("rr.dir", "");
-      modelparameters = (ModelParameters) repository.getFeature(ModelParameters.class, repository.configurationName());
+      modelparameters = ModelParameters.get(repository, repository.configurationName());
       storedparameters = repository.getStoredFreeParameters();
       retriever = new Retriever(repository, context);
       metric = QueryMetric.create(conf.get("tuner.metric", "QueryMetricAP"));

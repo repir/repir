@@ -1,4 +1,4 @@
-package io.github.repir.EntityReader;
+package io.github.repir.Extractor;
 
 import io.github.repir.Extractor.EntityChannel;
 import io.github.repir.tools.Content.EOCException;

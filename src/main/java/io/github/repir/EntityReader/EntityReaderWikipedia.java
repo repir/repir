@@ -1,5 +1,6 @@
 package io.github.repir.EntityReader;
 
+import io.github.repir.Extractor.Entity;
 import io.github.repir.EntityReader.MapReduce.EntityWritable;
 import io.github.repir.tools.Content.EOCException;
 import io.github.repir.tools.Content.HDFSIn;
@@ -35,9 +36,6 @@ public class EntityReaderWikipedia extends EntityReader {
       startTag = conf.get("entityreader.entitystart", "<page>").getBytes();
       endTag = conf.get("entityreader.entityend", "</page>").getBytes();
       Path file = fileSplit.getPath();
-      if (end < HDFSIn.getLengthNoExc(filesystem, file)) { // only works for uncompressed files
-         fsin.setCeiling(end);
-      }
    }
 
    @Override

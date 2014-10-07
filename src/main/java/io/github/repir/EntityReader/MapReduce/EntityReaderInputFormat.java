@@ -3,7 +3,7 @@ package io.github.repir.EntityReader.MapReduce;
 import io.github.repir.EntityReader.EntityReader;
 import io.github.repir.EntityReader.EntityReaderTrec;
 import io.github.repir.tools.Content.HDFSDir;
-import io.github.repir.tools.MapReduce.Configuration;
+import io.github.repir.MapReduceTools.Configuration;
 import static io.github.repir.tools.Lib.ClassTools.*;
 import io.github.repir.tools.Lib.Log;
 import io.github.repir.tools.hadoop.Job;
@@ -143,8 +143,6 @@ public class EntityReaderInputFormat extends FileInputFormat<LongWritable, Entit
 
    @Override
    protected boolean isSplitable(JobContext context, Path file) {
-      CompressionCodec codec =
-              new CompressionCodecFactory(context.getConfiguration()).getCodec(file);
-      return codec == null;
+      return context.getConfiguration().getBoolean("repository.splitablesource", false);
    }
 }

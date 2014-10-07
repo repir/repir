@@ -144,7 +144,7 @@ public class RetrievalModelMBF extends RetrievalModel {
       public FBModel(RetrievalModel rm, Retriever retriever, int fb, boolean fbstopwords) {
          Repository repository = retriever.repository;
          ReportedFeature forward = rm.getReportedFeature(DocForward.class, "all");
-         TermCF termcf = (TermCF) repository.getFeature(TermCF.class);
+         TermCF termcf = TermCF.get(repository);
          termcf.loadMem();
          for (Operator f : rm.root.containednodes) {
             if (f instanceof QTerm) {
@@ -157,7 +157,7 @@ public class RetrievalModelMBF extends RetrievalModel {
          }
          int doccount = 0;
          int showterm = 0;
-         TermString termstring = (TermString) repository.getFeature(TermString.class);
+         TermString termstring = TermString.get(repository);
          termstring.openRead();
          for (Document d : ((CollectorDocument) rm.collectors.get(0)).getRetrievedDocs()) {
             if (doccount++ >= fb) {

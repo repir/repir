@@ -1,4 +1,4 @@
-package io.github.repir.tools.MapReduce;
+package io.github.repir.MapReduceTools;
 
 import io.github.repir.Repository.Repository;
 import io.github.repir.tools.Lib.Log;

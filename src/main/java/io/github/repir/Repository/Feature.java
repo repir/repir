@@ -6,6 +6,7 @@ import io.github.repir.tools.Buffer.BufferReaderWriter;
 import io.github.repir.tools.Content.Datafile;
 import io.github.repir.tools.Lib.Log;
 import io.github.repir.tools.Lib.PrintTools;
+import java.util.HashMap;
 
 /**
  * A Feature can be anything useful for retrieval or analysis of items stored in
@@ -42,6 +43,13 @@ public abstract class Feature {
          return canonicalName( getClass(), field );
    }
    
+   protected String getFileName() {
+       if (field.length() > 0)
+          return className(getClass()) + "." + field;
+       else
+          return className(getClass());
+   }
+   
    public String getField() {
       return field;
    }
@@ -51,16 +59,20 @@ public abstract class Feature {
    }
    
    public static String canonicalName(Class c, String ... parameter) {
-      if (!Feature.class.isAssignableFrom(c))
-         log.fatal("No valid feature: %s", c.getCanonicalName());
       StringBuilder sb = new StringBuilder();
-      String clazz = c.getCanonicalName();
-      clazz = io.github.repir.tools.Lib.StrTools.removeOptionalStart(clazz, Repository.class.getPackage().getName() + ".");
-      clazz = io.github.repir.tools.Lib.StrTools.removeOptionalStart(clazz, Strategy.class.getPackage().getName() + ".");
-      sb.append(clazz);
+      sb.append(className(c));
       for (String s : parameter) 
          sb.append(":").append(s);
       return sb.toString();
+   }
+   
+   protected static String className(Class c) {
+       if (!Feature.class.isAssignableFrom(c))
+         log.fatal("No valid feature: %s", c.getCanonicalName());
+      String clazz = c.getCanonicalName();
+      clazz = io.github.repir.tools.Lib.StrTools.removeOptionalStart(clazz, Repository.class.getPackage().getName() + ".");
+      clazz = io.github.repir.tools.Lib.StrTools.removeOptionalStart(clazz, Strategy.class.getPackage().getName() + ".");
+      return clazz;
    }
 
    public String getLabel() {
@@ -79,12 +91,10 @@ public abstract class Feature {
     * @return 
     */
    public String getFileNameSuffix() {
-      String name = getCanonicalName();
-      name = name.substring( name.indexOf('.')+1);
-      name = name.replaceFirst(":", ".");
+      String name = getFileName();
       String suffix = repository.configuredString(name.toLowerCase() + ".suffix");
       if (suffix != null && suffix.length() > 0)
          name += "." + suffix;
-      return io.github.repir.tools.Lib.StrTools.getToString(name + ":", ":");
+      return name;
    }
 }

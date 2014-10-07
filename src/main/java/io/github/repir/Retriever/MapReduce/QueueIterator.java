@@ -99,7 +99,7 @@ public class QueueIterator implements Iterable<QueryVariantIterator>, Iterator<Q
       return results;
    }
    
-   class QueryVariantIterator implements Iterator<QueryIterator>, Iterable<QueryIterator> {
+   public class QueryVariantIterator implements Iterator<QueryIterator>, Iterable<QueryIterator> {
       Iterator<Query> queue;
       Query currentquery;
       QueryIterator next, current;

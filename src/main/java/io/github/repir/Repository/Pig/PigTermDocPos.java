@@ -1,9 +1,11 @@
 package io.github.repir.Repository.Pig;
 
 import io.github.repir.Repository.EntityStoredFeature;
+import static io.github.repir.Repository.Feature.canonicalName;
 import io.github.repir.Repository.Pig.PigTermDocPos.File;
 import io.github.repir.Repository.Pig.PigTermDocPos.Tuple;
 import io.github.repir.Repository.Repository;
+import io.github.repir.Repository.StoredFeature;
 import io.github.repir.tools.Content.Datafile;
 import io.github.repir.tools.Structure.StructuredTextFile;
 import io.github.repir.tools.Structure.StructuredTextFile.NodeValue;
@@ -22,10 +24,20 @@ public class PigTermDocPos extends PigFeatureField<File, Tuple>  {
 
    public static Log log = new Log(PigTermDocPos.class);
 
-   protected PigTermDocPos(Repository repository, String field) {
+   private PigTermDocPos(Repository repository, String field) {
       super(repository, field);
    }
 
+   public static PigTermDocPos get(Repository repository, String field) {
+       String label = canonicalName(PigTermDocPos.class, field);
+       PigTermDocPos pigtermdoc = (PigTermDocPos) StoredFeature.getStoredFeature(repository, label);
+       if (pigtermdoc == null) {
+          pigtermdoc = new PigTermDocPos(repository, field);
+          StoredFeature.storeFeature(repository, label, pigtermdoc);
+       }
+       return pigtermdoc;
+   }
+   
    @Override
    public File createFile(Datafile datafile) {
       return new File(datafile);
@@ -33,7 +45,7 @@ public class PigTermDocPos extends PigFeatureField<File, Tuple>  {
 
    @Override
    public Tuple getValue() {
-      if (getFile().next()) {
+      if (getFile().nextRecord()) {
          return new Tuple(file);
       } else {
          return null;  

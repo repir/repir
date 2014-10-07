@@ -6,7 +6,7 @@ import io.github.repir.tools.Structure.StructuredFile;
 import io.github.repir.tools.Structure.StructuredFileIntID;
 import io.github.repir.EntityReader.MapReduce.TermEntityKey;
 import io.github.repir.EntityReader.MapReduce.TermEntityValue;
-import io.github.repir.EntityReader.Entity;
+import io.github.repir.Extractor.Entity;
 import io.github.repir.tools.Lib.Log;
 import io.github.repir.Repository.DocTF.File;
 import io.github.repir.tools.Buffer.BufferReaderWriter;
@@ -19,21 +19,31 @@ import io.github.repir.tools.Content.EOCException;
  */
 public class DocTF 
    extends EntityStoredFeature<File, Integer> 
-   implements ReducibleFeature, ReportableFeature<Integer>, ResidentFeature  {
+   implements ReduciblePartitionedFeature, ReportableFeature<Integer>, ResidentFeature  {
 
    public static Log log = new Log(DocTF.class);
 
-   protected DocTF(Repository repository, String field) {
+   private DocTF(Repository repository, String field) {
       super(repository, field);
    }
 
+   public static DocTF get(Repository repository, String field) {
+       String label = canonicalName(DocTF.class, field);
+       DocTF termid = (DocTF)repository.getStoredFeature(label);
+       if (termid == null) {
+          termid = new DocTF(repository, field);
+          repository.storeFeature(label, termid);
+       }
+       return termid;
+   }
+   
    @Override
-   public void mapOutput(TermEntityValue value, Entity doc) {
+   public void setMapOutputValue(TermEntityValue value, Entity doc) {
       value.writer.write(doc.get(entityAttribute()).size());
    }
 
    @Override
-   public void reduceInput(TermEntityKey key, Iterable<TermEntityValue> values) {
+   public void writeReduce(TermEntityKey key, Iterable<TermEntityValue> values) {
       try {
          file.dtf.write(values.iterator().next().reader.readInt());
       } catch (EOCException ex) {
@@ -141,8 +151,8 @@ public class DocTF
          return isresident;  
       }
 
-      public void reset() {
-         reader.reset();
+      public void reuseBuffer() {
+         reader.reuseBuffer();
       }
    }
 }

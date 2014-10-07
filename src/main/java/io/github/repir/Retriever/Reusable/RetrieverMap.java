@@ -63,9 +63,4 @@ public class RetrieverMap extends Mapper<IntWritable, QueryWritable, CollectorKe
    }
    
    public void changeCollectorKey( CollectorKey key ) {}
-
-   @Override
-   protected void cleanup(Context context) throws IOException, InterruptedException {
-      Log.reportProfile();
-   }
 }

@@ -26,10 +26,20 @@ public class SynStats extends StoredDynamicFeature<File, Record> {
 
    public static Log log = new Log(SynStats.class);
 
-   protected SynStats(Repository repository) {
+   private SynStats(Repository repository) {
       super(repository);
    }
 
+   public static SynStats get(Repository repository) {
+       String label = canonicalName(SynStats.class);
+       SynStats termid = (SynStats)repository.getStoredFeature(label);
+       if (termid == null) {
+          termid = new SynStats(repository);
+          repository.storeFeature(label, termid);
+       }
+       return termid;
+   }
+   
    @Override
    public File createFile(Datafile df) {
       return new File(df);

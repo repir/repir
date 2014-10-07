@@ -5,7 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import io.github.repir.tools.Lib.Log;
 import io.github.repir.Extractor.EntityChannel;
-import io.github.repir.EntityReader.Entity;
+import io.github.repir.Extractor.Entity;
 import io.github.repir.Extractor.Extractor;
 
 /**

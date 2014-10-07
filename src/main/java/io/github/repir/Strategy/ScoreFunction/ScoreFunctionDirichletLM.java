@@ -29,7 +29,8 @@ public class ScoreFunctionDirichletLM extends ScoreFunction<ScoreFunctionDirichl
    public void prepareRetrieve() {
       mu = repository.configuredInt("dlm.mu", 2500);
       //log.info("mu=%d", mu);
-      doctf = (DocTF) retrievalmodel.requestFeature(DocTF.class, "all");
+      doctf = DocTF.get(repository, "all");
+      retrievalmodel.requestFeature(doctf);
    }
 
    @Override

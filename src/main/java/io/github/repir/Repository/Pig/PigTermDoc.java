@@ -4,11 +4,12 @@ import io.github.repir.Repository.EntityStoredFeature;
 import io.github.repir.Repository.Pig.PigTermDoc.File;
 import io.github.repir.Repository.Pig.PigTermDoc.Tuple;
 import io.github.repir.Repository.Repository;
+import io.github.repir.Repository.StoredFeature;
 import io.github.repir.tools.Content.Datafile;
+import io.github.repir.tools.Lib.Log;
 import io.github.repir.tools.Structure.StructuredTextFile;
 import io.github.repir.tools.Structure.StructuredTextPig;
 import io.github.repir.tools.Structure.StructuredTextPigTuple;
-import io.github.repir.tools.Lib.Log;
 
 /**
  * Can store one literal String per Document, e.g. collection ID, title, url.
@@ -19,10 +20,20 @@ public class PigTermDoc extends PigFeatureField<File, Tuple>  {
 
    public static Log log = new Log(PigTermDoc.class);
 
-   protected PigTermDoc(Repository repository, String field) {
+   private PigTermDoc(Repository repository, String field) {
       super(repository, field);
    }
 
+   public static PigTermDoc get(Repository repository, String field) {
+       String label = canonicalName(PigTermDoc.class, field);
+       PigTermDoc pigtermdoc = (PigTermDoc) StoredFeature.getStoredFeature(repository, label);
+       if (pigtermdoc == null) {
+          pigtermdoc = new PigTermDoc(repository, field);
+          StoredFeature.storeFeature(repository, label, pigtermdoc);
+       }
+       return pigtermdoc;
+   }
+   
    @Override
    public File createFile(Datafile datafile) {
       return new File(datafile);
@@ -30,7 +41,7 @@ public class PigTermDoc extends PigFeatureField<File, Tuple>  {
 
    @Override
    public Tuple getValue() {
-      if (getFile().next()) {
+      if (getFile().nextRecord()) {
          return new Tuple(file);
       } else {
          return null;  

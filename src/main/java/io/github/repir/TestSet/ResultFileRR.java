@@ -58,7 +58,7 @@ public class ResultFileRR extends StructuredTextCSV implements ResultFile {
       //   currentrm = RetrievalModel.create(retriever, q);
       //   results.put(q.id, currentrm);
       //}
-      while (next()) {
+      while (nextRecord()) {
          if (ts.topics.containsKey(topic.get())) {
                 if (current == null ||topic.get() != current.getID()) {
                     current = results.get(topic.get());

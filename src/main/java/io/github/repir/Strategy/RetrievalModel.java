@@ -62,7 +62,7 @@ import io.github.repir.tools.Lib.ClassTools;
 public class RetrievalModel extends Strategy {
 
    public static Log log = new Log(RetrievalModel.class);
-   public HashMap<String, StoredFeature> requestedfeatures = new HashMap<String, StoredFeature>();
+   public ArrayList<StoredFeature> requestedfeatures = new ArrayList();
    public GraphRoot root;
    private Class documentcollectorclass = CollectorDocument.class;
    // requested features
@@ -99,22 +99,16 @@ public class RetrievalModel extends Strategy {
     * channel.
     * @return The {@link StoredFeature} that was requested.
     */
-   public StoredFeature requestFeature(Class clazz, String... parameter) {
-      StoredFeature sf = (StoredFeature) repository.getFeature(clazz, parameter);
-      String name = sf.getCanonicalName();
-      StoredFeature exists = requestedfeatures.get(name);
-      if (exists != null) {
-         return exists;
-      }
-      requestedfeatures.put(name, sf);
-      return sf;
+   public void requestFeature(StoredFeature feature) {
+      if (!requestedfeatures.contains(feature))
+         requestedfeatures.add(feature);
    }
 
    /**
     * @return list of all {@link StoredFeature}s requested using {@link #requestFeature(java.lang.Class, java.lang.String[]) } 
     */
    public Collection<StoredFeature> getUsedFeatures() {
-      return requestedfeatures.values();
+      return requestedfeatures;
    }
 
    /**

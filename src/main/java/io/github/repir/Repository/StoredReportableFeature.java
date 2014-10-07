@@ -101,21 +101,16 @@ public abstract class StoredReportableFeature<F extends StructuredFileIntID, C> 
    }
 
    public boolean next() {
-      return file.next();
+      return file.nextRecord();
    }
 
    @Override
    public void reuse() {
-      getFile().reset();
-   }
-   
-   @Override
-   public void setBufferSize(int size) {
-      getFile().setBufferSize(size);
+      getFile().reuseBuffer();
    }
 
    public void skip() {
-      file.skip();
+      file.skipRecord();
    }
 
    public void openWrite() {

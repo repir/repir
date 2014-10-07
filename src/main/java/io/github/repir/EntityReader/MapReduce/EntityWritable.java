@@ -3,7 +3,8 @@ package io.github.repir.EntityReader.MapReduce;
 import io.github.repir.tools.Buffer.BufferDelayedWriter;
 import io.github.repir.tools.Buffer.BufferReaderWriter;
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.EntityReader.Entity;
+import io.github.repir.Extractor.Entity;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -17,23 +18,24 @@ import org.apache.hadoop.io.Writable;
 public class EntityWritable implements Writable {
 
    public static Log log = new Log(EntityWritable.class);
-   private BufferDelayedWriter bdw = new BufferDelayedWriter();
+   private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
    public Entity entity;
 
    public void writeByte(int b) {
-      bdw.writeUB(b);
+      buffer.write(b);
    }
 
    public void writeBytes(byte b[], int pos, int length) {
-      bdw.write(b, pos, length);
+      buffer.write(b, pos, length);
    }
 
    public void storeContent() {
-      entity.content = bdw.getBytes();
+      entity.content = buffer.toByteArray();
    }
 
    @Override
    public void write(DataOutput out) throws IOException {
+      BufferDelayedWriter bdw = new BufferDelayedWriter();
       entity.write(bdw);
       out.write(bdw.getAsByteBlock());
    }

@@ -52,6 +52,5 @@ public class RetrieverMMap extends Mapper<IntWritable, QueryWritable, NullWritab
 
    @Override
    protected void cleanup(Context context) throws IOException, InterruptedException {
-      Log.reportProfile();
    }
 }

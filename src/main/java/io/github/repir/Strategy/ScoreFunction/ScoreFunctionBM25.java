@@ -29,7 +29,8 @@ public class ScoreFunctionBM25 extends ScoreFunction<Scorable> {
       b = repository.configuredDouble("bm25.b", 0.75);
       k = repository.configuredDouble("bm25.k", 1.2);
       documentpriorweight = 0;
-      doctf = (DocTF) retrievalmodel.requestFeature(DocTF.class, "all");
+      doctf = DocTF.get(repository, "all");
+      retrievalmodel.requestFeature(doctf);
       avgdoclength = repository.getCF() / (double) repository.getDocumentCount();
    }
 

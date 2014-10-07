@@ -149,7 +149,7 @@ public class CollectorProximity extends CollectorCachable<Record> {
    }
 
    public ProximityStats getStoredDynamicFeature() {
-      ProximityStats proximitystats = (ProximityStats) this.getRepository().getFeature(ProximityStats.class);
+      ProximityStats proximitystats = ProximityStats.get(this.getRepository());
       return proximitystats;
    }
 

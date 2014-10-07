@@ -1,6 +1,5 @@
 package io.github.repir.Extractor;
 
-import io.github.repir.EntityReader.Entity;
 import io.github.repir.tools.ByteSearch.ByteRegex;
 import io.github.repir.tools.ByteSearch.ByteSearchPosition;
 import io.github.repir.Extractor.Tools.SectionMarker;

@@ -32,10 +32,11 @@ public abstract class TermDocumentFeature<F extends StructuredFileIntID, C>
       super(repository, field);
    }
 
-   public void setTerm(Term term) {
+   public TermDocumentFeature(Repository repository, String field, Term term) {
+      super(repository, field);
       this.term = term;
    }
-
+   
    @Override
    public void openRead() {
       super.openRead();
@@ -43,6 +44,14 @@ public abstract class TermDocumentFeature<F extends StructuredFileIntID, C>
          find(term.getID());
          docid = -1;
       }
+   }
+   
+   @Override
+   public String getCanonicalName() {
+      if (term == null)
+         return canonicalName( getClass() );
+      else
+         return canonicalName( getClass(), getField(), term.getProcessedTerm() );
    }
    
    /**

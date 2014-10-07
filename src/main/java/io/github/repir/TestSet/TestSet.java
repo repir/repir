@@ -1,6 +1,6 @@
 package io.github.repir.TestSet;
 
-import io.github.repir.EntityReader.Entity;
+import io.github.repir.Extractor.Entity;
 import io.github.repir.Extractor.Extractor;
 import io.github.repir.Extractor.ExtractorTestSet;
 import io.github.repir.Repository.DocLiteral;
@@ -18,7 +18,7 @@ import io.github.repir.tools.Content.Datafile;
 import io.github.repir.tools.Content.FSFile;
 import io.github.repir.tools.Lib.ClassTools;
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.tools.MapReduce.Configuration;
+import io.github.repir.MapReduceTools.Configuration;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -228,7 +228,7 @@ public class TestSet {
 
    public String filterString(String query) {
       if (extractor == null) {
-         extractor = new ExtractorTestSet(repository);
+         extractor = new ExtractorTestSet(repository.getConfiguration());
       }
       Entity entity = new Entity();
       entity.setContent(query.getBytes());

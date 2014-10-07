@@ -2,8 +2,8 @@ package io.github.repir.Extractor.Tools;
 
 import io.github.repir.tools.Lib.Log;
 import static io.github.repir.tools.Lib.ByteTools.*;
-import io.github.repir.tools.DataTypes.Tuple2Comparable;
-import io.github.repir.EntityReader.Entity;
+import io.github.repir.tools.Type.Tuple2Comparable;
+import io.github.repir.Extractor.Entity;
 import io.github.repir.Extractor.Extractor;
 import io.github.repir.tools.ByteSearch.ByteSearch;
 import io.github.repir.tools.ByteSearch.ByteSearchPosition;

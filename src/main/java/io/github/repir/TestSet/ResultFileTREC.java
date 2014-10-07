@@ -47,7 +47,7 @@ public class ResultFileTREC extends StructuredTextCSV implements ResultFile {
         Query current = null;
         this.openRead();
 
-        while (next()) {
+        while (nextRecord()) {
             if (ts.topics.containsKey(topic.get())) {
                 if (current == null || topic.get() != current.getID()) {
                     current = results.get(topic.get());

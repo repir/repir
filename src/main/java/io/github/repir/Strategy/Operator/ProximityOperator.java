@@ -112,7 +112,7 @@ public abstract class ProximityOperator extends CachableOperator {
 
    public ProximityStats getCache() {
       if (proximitystats == null) {
-         proximitystats = (ProximityStats) repository.getFeature(ProximityStats.class);
+         proximitystats = ProximityStats.get(repository);
          proximitystats.openRead();
       }
       return proximitystats;

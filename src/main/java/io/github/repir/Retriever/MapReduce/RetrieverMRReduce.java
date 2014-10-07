@@ -2,7 +2,7 @@
 
 import java.io.IOException;
 import java.util.HashSet;
-import io.github.repir.tools.MapReduce.Configuration;
+import io.github.repir.MapReduceTools.Configuration;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Reducer;
 import io.github.repir.Strategy.Collector.Collector;
@@ -94,6 +94,5 @@ public class RetrieverMRReduce extends Reducer<CollectorKey, CollectorValue, Nul
    protected void cleanup(Context context) throws IOException, InterruptedException {
       if (collector != null)
          collector.finishAppend();
-      Log.reportProfile();
    }
 }

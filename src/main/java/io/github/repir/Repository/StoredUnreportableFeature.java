@@ -29,20 +29,27 @@ public abstract class StoredUnreportableFeature<F extends StructuredFile> extend
       super( repository );
    }
    
+   public StoredUnreportableFeature(Repository repository, String field) {
+      super( repository, field );
+   }
+   
    public long getFilesize() {
       return (file == null)?0:file.getLength();
    }
    
+   @Override
    public F getFile() {
       if (file == null)
          file = createFile(getStoredFeatureFile());
       return file;
    }
 
+   @Override
    public void openRead() {
       getFile().openRead();
    }
 
+   @Override
    public void closeRead() {
       getFile().closeRead();
       file = null;
@@ -58,11 +65,6 @@ public abstract class StoredUnreportableFeature<F extends StructuredFile> extend
    public void closeWrite() {
       getFile().closeWrite();
       file = null;
-   }
-
-   @Override
-   public void setBufferSize(int size) {
-      getFile().setBufferSize(size);
    }
 
    @Override

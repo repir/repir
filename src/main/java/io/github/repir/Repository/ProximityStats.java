@@ -29,10 +29,20 @@ public class ProximityStats extends StoredDynamicFeature<File, Record> {
 
    public static Log log = new Log(ProximityStats.class);
 
-   protected ProximityStats(Repository repository) {
+   private ProximityStats(Repository repository) {
       super(repository);
    }
 
+   public static ProximityStats get(Repository repository) {
+       String label = canonicalName(ProximityStats.class);
+       ProximityStats proximitystats = (ProximityStats)repository.getStoredFeature(label);
+       if (proximitystats == null) {
+          proximitystats = new ProximityStats(repository);
+          repository.storeFeature(label, proximitystats);
+       }
+       return proximitystats;
+   }
+   
    @Override
    public File createFile(Datafile df) {
       return new File(df);

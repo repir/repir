@@ -30,11 +30,21 @@ public class TermID extends VocabularyToID<File> {
    public static Log log = new Log(TermID.class);
    public HashMap<String, Integer> cache = new HashMap<String,Integer>();
 
-   protected TermID(Repository repository) {
+   private TermID(Repository repository) {
       super(repository);
       readCache();
    }
 
+   public static TermID get(Repository repository) {
+       String label = canonicalName(TermID.class);
+       TermID termid = (TermID)repository.getStoredFeature(label);
+       if (termid == null) {
+          termid = new TermID(repository);
+          repository.storeFeature(label, termid);
+       }
+       return termid;
+   }
+   
    public void readCache() {
       ArrayList<Integer> termids = repository.configuredIntList("repository.cachedtermids");
       if (termids.size() > 0) {
@@ -131,11 +141,6 @@ public class TermID extends VocabularyToID<File> {
    @Override
    public void finishReduce() {
       closeWrite();
-   }
-
-   @Override
-   public void setBufferSize(int size) {
-      getFile().setBufferSize(size);
    }
 
    public class File extends StructuredFileSortHash {

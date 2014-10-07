@@ -25,6 +25,16 @@ public class TermString extends VocabularyToString<File> {
       super(repository);
    }
 
+   public static TermString get(Repository repository) {
+       String label = canonicalName(TermString.class);
+       TermString termid = (TermString)repository.getStoredFeature(label);
+       if (termid == null) {
+          termid = new TermString(repository);
+          repository.storeFeature(label, termid);
+       }
+       return termid;
+   }
+   
    public String readValue(int id) {
       if (id < cache.length) {
          return cache[id];

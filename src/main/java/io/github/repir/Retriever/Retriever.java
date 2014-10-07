@@ -1,12 +1,9 @@
 package io.github.repir.Retriever;
 
-import io.github.repir.EntityReader.Entity;
+import io.github.repir.Extractor.Entity;
 import io.github.repir.Extractor.EntityChannel;
 import io.github.repir.Extractor.Extractor;
 import io.github.repir.Extractor.ExtractorQuery;
-import io.github.repir.Extractor.Tools.ConvertToLowercase;
-import io.github.repir.Extractor.Tools.ConvertToLowercaseQuery;
-import io.github.repir.Extractor.Tools.StemTokensQuery;
 import io.github.repir.Repository.Repository;
 import io.github.repir.Repository.ResidentFeature;
 import io.github.repir.Repository.StoredReportableFeature;
@@ -14,8 +11,8 @@ import io.github.repir.Strategy.Collector.Collector;
 import io.github.repir.Strategy.Collector.CollectorCachable;
 import io.github.repir.Strategy.RetrievalModel;
 import io.github.repir.Strategy.Strategy;
-import io.github.repir.tools.DataTypes.TreeMapComparable;
-import io.github.repir.tools.DataTypes.TreeMapComparable.TYPE;
+import io.github.repir.tools.Collection.ArrayMap;
+import io.github.repir.tools.Collection.ArrayMap.Entry;
 import io.github.repir.tools.Lib.Log;
 import io.github.repir.tools.Stemmer.englishStemmer;
 import java.util.ArrayList;
@@ -81,7 +78,6 @@ public class Retriever {
     * @param containedfeatures
     */
    public void readReportedStoredFeatures(Collection<Document> docs, Collection<ReportedFeature<StoredReportableFeature>> features, int partition) {
-      log.s("readReportedStoredFeatures");
       int MAXMEMORY = 100000000;
       TreeSet<Document> docids = new TreeSet<Document>(new Comparator<Document>() {
          public int compare(Document a, Document b) {
@@ -91,18 +87,18 @@ public class Retriever {
       docids.addAll(docs);
 
       int memoryleft = MAXMEMORY;
-      TreeMapComparable<Long, StoredReportableFeature> sizes = new TreeMapComparable<Long, StoredReportableFeature>(TYPE.DUPLICATESASCENDING);
+      ArrayMap<Long, StoredReportableFeature> sizes = new ArrayMap();
       for (ReportedFeature<StoredReportableFeature> f : features) {
          if (f.feature.partition != partition) {
             f.feature.setPartition(partition);
             if (f.feature instanceof ResidentFeature && !((ResidentFeature)f.feature).isReadResident())
-               sizes.put(f.feature.getLength(), f.feature);
+               sizes.add(f.feature.getLength(), f.feature);
          } else {
             memoryleft -= f.feature.getLength();
          }
       }
       int featuresleft = features.size();
-      for (Map.Entry<Long, StoredReportableFeature> entry : sizes.entrySet()) {
+      for (Map.Entry<Long, StoredReportableFeature> entry : sizes.descending()) {
          if (entry.getValue() instanceof ResidentFeature)
          if (entry.getKey() < memoryleft) {
             ((ResidentFeature)entry.getValue()).readResident();
@@ -114,7 +110,7 @@ public class Retriever {
       }
       for (ReportedFeature<StoredReportableFeature> f : features) {
          if (!(f.feature instanceof ResidentFeature) || !((ResidentFeature)f.feature).isReadResident()) {
-            f.feature.setBufferSize((int)Math.min(50000000, f.feature.getLength()));
+            f.feature.getFile().setBufferSize((int)Math.min(50000000, f.feature.getLength()));
             f.feature.openRead();
          } else {
             f.feature.reuse();
@@ -127,8 +123,6 @@ public class Retriever {
             f.feature.closeRead();
          }
       }
-      
-      log.e("readReportedStoredFeatures");
    }
 
    /**
@@ -268,7 +262,7 @@ public class Retriever {
 
    public Extractor getExtractor() {
       if (extractor == null) {
-         extractor = new ExtractorQuery(repository);
+         extractor = new ExtractorQuery(repository.getConfiguration());
       }
       return extractor;
    }

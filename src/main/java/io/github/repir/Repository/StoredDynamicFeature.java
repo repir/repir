@@ -73,11 +73,6 @@ public abstract class StoredDynamicFeature<F extends StructuredFileKeyInterface<
       getFile().setKeyBufferSize(size);
    }
    
-   @Override
-   public void setBufferSize(int size) {
-      throw new RuntimeException("Use setKeyBufferSize() or setDataBufferSize() instead.");
-   }
-   
    public void setDataBufferSize(int size) {
       getFile().setDataBufferSize(size);
    }

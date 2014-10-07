@@ -11,13 +11,40 @@ import java.util.HashMap;
  * need to extract the collection id into a literal "collectionid" field.
  * @see EntityStoredFeature
  * @author jer
- */
+ */ 
 public class CollectionID extends DocLiteral  {
 
    public static Log log = new Log(CollectionID.class);
+   private String entityAttribute;
 
    protected CollectionID(Repository repository) {
       super(repository, "");
+      entityAttribute = "collectionid";
+   }
+   
+   protected CollectionID(Repository repository, String field) {
+      super(repository, "");
+      entityAttribute = field;
+   }
+   
+   public static CollectionID get(Repository repository) {
+       String label = canonicalName(CollectionID.class);
+       CollectionID collectionid = (CollectionID)repository.getStoredFeature(label);
+       if (collectionid == null) {
+          collectionid = new CollectionID(repository);
+          repository.storeFeature(label, collectionid);
+       }
+       return collectionid;
+   }
+   
+   public static CollectionID get(Repository repository, String field) {
+       String label = canonicalName(CollectionID.class, field);
+       CollectionID collectionid = (CollectionID)repository.getStoredFeature(label); 
+       if (collectionid == null) {
+          collectionid = new CollectionID(repository, field);
+          repository.storeFeature(label, collectionid);
+       }
+       return collectionid;
    }
    
    @Override
@@ -26,15 +53,19 @@ public class CollectionID extends DocLiteral  {
    }
    
    @Override
+   protected String getFileName() {
+       return className(getClass());
+   }
+   
    public String entityAttribute() {
-      return "collectionid";
+      return entityAttribute;
    }
    
    public HashMap<String, Integer> getCollectionIDs(int partition) {
       HashMap<String, Integer> list = new HashMap<String, Integer>();
       this.setPartition(partition);
       file.openRead();
-      while (file.next()) {
+      while (file.nextRecord()) {
          list.put(file.literal.value, list.size());
       }
       file.closeRead();

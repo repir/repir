@@ -30,7 +30,7 @@ public class TopicReaderSessionMapping extends StructuredTextCSV {
    public static void assignTopics(Repository repository, HashMap<Integer, TestSetTopic> topics) {
       TopicReaderSessionMapping m = new TopicReaderSessionMapping(repository);
       m.openRead();
-      while (m.next()) {
+      while (m.nextRecord()) {
          TestSetTopic get = topics.get(m.sessionid.get());
          get.qrelid = m.topicid.get();
       }

@@ -20,11 +20,21 @@ public class TermCF extends StoredUnreportableFeature<File> implements Dictionar
    public static Log log = new Log(TermCF.class);
    public HashMap<Integer, Long> cache = new HashMap<Integer, Long>();
 
-   protected TermCF(Repository repository) {
+   private TermCF(Repository repository) {
       super(repository);
       readCache();
    }
 
+   public static TermCF get(Repository repository) {
+       String label = canonicalName(TermCF.class);
+       TermCF termcf = (TermCF)repository.getStoredFeature(label);
+       if (termcf == null) {
+          termcf = new TermCF(repository);
+          repository.storeFeature(label, termcf);
+       }
+       return termcf;
+   }
+   
    public void readCache() {
       ArrayList<Integer> termids = repository.configuredIntList("repository.cachedtermids");
       if (termids.size() > 0) {

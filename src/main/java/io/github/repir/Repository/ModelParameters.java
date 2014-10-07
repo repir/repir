@@ -20,10 +20,20 @@ public class ModelParameters extends StoredDynamicFeature<File, Record> {
 
    public static Log log = new Log(ModelParameters.class);
    
-   protected ModelParameters(Repository repository, String model) {
+   private ModelParameters(Repository repository, String model) {
       super(repository, model);
    }
 
+   public static ModelParameters get(Repository repository, String model) {
+       String label = canonicalName(ModelParameters.class, model);
+       ModelParameters termid = (ModelParameters)repository.getStoredFeature(label);
+       if (termid == null) {
+          termid = new ModelParameters(repository, model);
+          repository.storeFeature(label, termid);
+       }
+       return termid;
+   }
+   
    @Override
    public File createFile(Datafile df) {
       return new File(df);

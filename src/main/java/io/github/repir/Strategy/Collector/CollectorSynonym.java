@@ -154,7 +154,7 @@ public class CollectorSynonym extends CollectorCachable<Record> {
 //   }
 
    public SynStats getStoredDynamicFeature() {
-      SynStats synstats = (SynStats) this.getRepository().getFeature(SynStats.class);
+      SynStats synstats = SynStats.get(this.getRepository());
       return synstats;
    }
 

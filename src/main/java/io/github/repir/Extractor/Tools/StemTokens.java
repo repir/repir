@@ -1,13 +1,11 @@
 package io.github.repir.Extractor.Tools;
 
-import java.util.ArrayList;
 import io.github.repir.tools.Lib.Log;
 import io.github.repir.tools.Stemmer.englishStemmer;
-import io.github.repir.EntityReader.Entity;
+import io.github.repir.Extractor.Entity;
 import io.github.repir.Extractor.EntityChannel;
 import io.github.repir.Extractor.Extractor;
 import java.util.HashMap;
-import io.github.repir.tools.DataTypes.ByteArrayPos;
 
 /**
  * Processes all tokens in the supplied EntityChannel though the snowball

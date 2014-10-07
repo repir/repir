@@ -35,7 +35,8 @@ public class ScoreFunctionKLD extends ScoreFunction<Scorable> {
       for (Scorable scorable : scorables) {
          documentpriorweight += scorable.feature.getDocumentPrior();
       }
-      doctf = (DocTF) retrievalmodel.requestFeature(DocTF.class, "all");
+      doctf = DocTF.get(repository, "all");
+      retrievalmodel.requestFeature(doctf);
    }
 
    public double ptc(Operator feature) {

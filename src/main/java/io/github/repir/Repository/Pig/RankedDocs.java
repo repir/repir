@@ -1,9 +1,11 @@
 package io.github.repir.Repository.Pig;
 
 import io.github.repir.Repository.EntityStoredFeature;
+import static io.github.repir.Repository.Feature.canonicalName;
 import io.github.repir.Repository.Pig.RankedDocs.File;
 import io.github.repir.Repository.Pig.RankedDocs.Tuple;
 import io.github.repir.Repository.Repository;
+import io.github.repir.Repository.StoredFeature;
 import io.github.repir.tools.Content.Datafile;
 import io.github.repir.tools.Structure.StructuredTextFile;
 import io.github.repir.tools.Structure.StructuredTextPig;
@@ -19,10 +21,20 @@ public class RankedDocs extends PigFeature<File, Tuple>  {
 
    public static Log log = new Log(RankedDocs.class);
 
-   protected RankedDocs(Repository repository) {
+   private RankedDocs(Repository repository) {
       super(repository);
    }
 
+   public static RankedDocs get(Repository repository) {
+       String label = canonicalName(RankedDocs.class);
+       RankedDocs pigtermdoc = (RankedDocs) StoredFeature.getStoredFeature(repository, label);
+       if (pigtermdoc == null) {
+          pigtermdoc = new RankedDocs(repository);
+          StoredFeature.storeFeature(repository, label, pigtermdoc);
+       }
+       return pigtermdoc;
+   }
+   
    @Override
    public File createFile(Datafile datafile) {
       return new File(datafile);
@@ -30,7 +42,7 @@ public class RankedDocs extends PigFeature<File, Tuple>  {
 
    @Override
    public Tuple getValue() {
-      if (getFile().next()) {
+      if (getFile().nextRecord()) {
          return new Tuple(file);
       } else {
          return null;  

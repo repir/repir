@@ -2,7 +2,7 @@ package io.github.repir.Extractor.Tools;
 
 import io.github.repir.tools.ByteSearch.ByteRegex;
 import io.github.repir.tools.ByteSearch.ByteSearchPosition;
-import io.github.repir.EntityReader.Entity;
+import io.github.repir.Extractor.Entity;
 import io.github.repir.Extractor.Extractor;
 import io.github.repir.tools.ByteSearch.ByteSearch;
 import io.github.repir.tools.Lib.BoolTools;
@@ -21,7 +21,7 @@ public class RemoveURL extends ExtractorProcessor {
    public ByteSearch url = ByteSearch.create("://[\\w/%:@#\\(\\)_\\-\\+=;\\.,\\?\\[\\]\\{\\}\\|~]+");
    public ByteSearch domain = ByteSearch.create("\\.\\c[\\w_\\-]*(\\.\\c[\\w_\\-]*)+");
    public boolean letter[] = BoolTools.letter();
-   public boolean name0[] = BoolTools.name0();
+   public boolean name0[] = BoolTools.word0();
 
    private RemoveURL(Extractor extractor, String process) {
       super(extractor, process);

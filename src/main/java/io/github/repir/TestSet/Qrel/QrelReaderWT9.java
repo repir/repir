@@ -23,7 +23,7 @@ public class QrelReaderWT9 extends StructuredTextCSV implements QrelReader {
       HashMap<Integer, QRel> list = new HashMap();
       QRel currenttopic = null;
       this.openRead();
-      while (this.next()) {
+      while (this.nextRecord()) {
          if (currenttopic == null || topic.get() != currenttopic.id) {
             currenttopic = new QRel(topic.get());
             list.put(currenttopic.id, currenttopic);

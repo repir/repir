@@ -1,6 +1,6 @@
 package io.github.repir.Extractor.Tools;
 
-import io.github.repir.EntityReader.Entity;
+import io.github.repir.Extractor.Entity;
 import io.github.repir.Extractor.EntityChannel;
 import io.github.repir.Extractor.Extractor;
 import static io.github.repir.tools.Lib.ByteTools.*;

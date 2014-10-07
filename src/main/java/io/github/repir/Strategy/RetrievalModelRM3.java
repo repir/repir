@@ -61,7 +61,7 @@ public class RetrievalModelRM3 extends RetrievalModel {
 
    @Override
    public Query finishReduceTask() {
-      TermString termstring = (TermString) repository.getFeature(TermString.class);
+      TermString termstring = TermString.get(repository);
       termstring.openRead();
 
       Document documents[] = ((CollectorDocument) collectors.get(0)).getRetrievedDocs();
@@ -118,7 +118,7 @@ public class RetrievalModelRM3 extends RetrievalModel {
    public TreeSet<ExpansionTerm> getExpansionTerms(HashMap<Document, Double> documentposteriors,
            HashMap<Integer, ExpansionTerm> termDocFrequencies) {
       TreeSet<ExpansionTerm> terms = new TreeSet<ExpansionTerm>();
-      DocTF doctf = (DocTF)repository.getFeature(DocTF.class, "all");
+      DocTF doctf = DocTF.get(repository, "all");
       for (int termid : termDocFrequencies.keySet()) {
          ExpansionTerm term = termDocFrequencies.get(termid);
          term.weight = 0;
@@ -146,7 +146,7 @@ public class RetrievalModelRM3 extends RetrievalModel {
 
    public HashMap<Integer, ExpansionTerm> getTermDocFrequencies(Document documents[]) {
       HashMap<Integer, ExpansionTerm> doctermfrequencies = new HashMap<Integer, ExpansionTerm>();
-      DocForward forward = (DocForward)repository.getFeature(DocForward.class, "all");
+      DocForward forward = DocForward.get(repository, "all");
       for (Document d : documents) {
          for (int termid : d.getIntArray(forward)) {
             ExpansionTerm t = doctermfrequencies.get(termid);

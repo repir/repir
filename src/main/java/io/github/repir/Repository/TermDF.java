@@ -19,9 +19,19 @@ public class TermDF extends StoredUnreportableFeature<File> implements Dictionar
    int keyid = 0;
    public HashMap<Integer, Long> cache = new HashMap<Integer,Long>();
 
-   protected TermDF(Repository repository) {
+   private TermDF(Repository repository) {
       super(repository);
       readCache();
+   }
+   
+   public static TermDF get(Repository repository) {
+       String label = canonicalName(TermDF.class);
+       TermDF termdf = (TermDF)repository.getStoredFeature(label);
+       if (termdf == null) {
+          termdf = new TermDF(repository);
+          repository.storeFeature(label, termdf);
+       }
+       return termdf;
    }
    
    public void readCache() {

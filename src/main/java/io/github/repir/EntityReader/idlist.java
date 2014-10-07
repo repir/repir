@@ -26,5 +26,4 @@ public class idlist {
       int bit = id % 64;
       return (spam[pos] & (1l << bit)) != 0;
    }
-
 }

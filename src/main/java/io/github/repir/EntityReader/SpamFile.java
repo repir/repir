@@ -5,10 +5,8 @@ import io.github.repir.tools.Structure.StructuredFile;
 import io.github.repir.tools.Lib.Log;
 
 /**
- * File structure to store the key and pointer part of an inverted index. The
- * idea is that the key-part is small enough to be kept in memory, and the
- * offsets can be used to retrieve the posting lists from disk. The offsets
- * point directly to the posting list in the accompanying datafile.
+ * A file containing the document ID's and Waterloo Fusion Spam index, to allow
+ * selective indexing of documents above a certain threshold.
  */
 public class SpamFile extends StructuredFile {
 
@@ -30,7 +28,7 @@ public class SpamFile extends StructuredFile {
       SpamFile sf = new SpamFile(df);
       sf.setBufferSize(10000000);
       sf.openRead();
-      while (sf.next()) {
+      while (sf.nextRecord()) {
          if (sf.spamindex.value >= spamthreshold) {
             sl.set(sf.cluewebid.value);
          }

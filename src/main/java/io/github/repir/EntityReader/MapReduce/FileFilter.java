@@ -1,7 +1,7 @@
 package io.github.repir.EntityReader.MapReduce;
 
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.tools.MapReduce.Configuration;
+import io.github.repir.MapReduceTools.Configuration;
 import org.apache.hadoop.fs.Path;
 
 /**

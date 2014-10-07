@@ -29,7 +29,7 @@ public class TopicReaderWebTrack extends StructuredTextCSV implements TopicReade
    public HashMap<Integer, TestSetTopic> getTopics() {
       HashMap<Integer, TestSetTopic> topics = new HashMap<Integer, TestSetTopic>();
       this.openRead();
-      while (this.next()) {
+      while (this.nextRecord()) {
          topics.put(this.number.get(), new TestSetTopic( number.get(), null, title.get()));
       }
       return topics;

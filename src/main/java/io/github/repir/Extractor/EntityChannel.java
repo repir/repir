@@ -1,6 +1,5 @@
 package io.github.repir.Extractor;
 
-import io.github.repir.EntityReader.Entity;
 import io.github.repir.tools.Content.EOCException;
 import io.github.repir.tools.Structure.StructureReader;
 import io.github.repir.tools.Structure.StructureWriter;

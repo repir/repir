@@ -33,6 +33,17 @@ public class VocMem3 extends VocabularyToIDRAM<File> {
       super(repository);
    }
    
+   public static VocMem3 get(Repository repository) {
+       String label = canonicalName(VocMem3.class);
+       VocMem3 vocmem = (VocMem3)repository.getStoredFeature(label);
+       if (vocmem == null) {
+          vocmem = new VocMem3(repository);
+          repository.storeFeature(label, vocmem);
+       }
+       return vocmem;
+   }
+   
+   @Override
    public void openRead() {
       super.openRead();
       //only need termid if the memvoc does not contain all terms
@@ -86,20 +97,15 @@ public class VocMem3 extends VocabularyToIDRAM<File> {
       closeWrite();
    }
 
-   @Override
-   public void setBufferSize(int size) {
-      throw new UnsupportedOperationException("VocMem is intended to be read into memory");
-   }
-
    public static void build(Repository repository) throws EOCException {
-      VocMem3 vocmem3 = (VocMem3) repository.getFeature(VocMem3.class);
+      VocMem3 vocmem3 = VocMem3.get(repository);
       vocmem3.startReduce(0, 0);
-      TermCF termtf = (TermCF)repository.getFeature(TermCF.class);
+      TermCF termtf = TermCF.get(repository);
       termtf.openRead();
-      termtf.setBufferSize(10000000);
-      TermString termstring = (TermString)repository.getFeature(TermString.class);
+      termtf.getFile().setBufferSize(10000000);
+      TermString termstring = TermString.get(repository);
       termstring.getFile().openRead();
-      termstring.setBufferSize(10000000);
+      termstring.getFile().setBufferSize(10000000);
       for (int id = 0; id < repository.getVocabularySize(); id++) {
          long cf = termtf.file.cf.read();
          String term = termstring.file.term.read();

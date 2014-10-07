@@ -2,8 +2,8 @@ package io.github.repir.Extractor.Tools;
 
 import io.github.repir.tools.ByteSearch.ByteSearchPosition;
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.EntityReader.Entity;
-import io.github.repir.EntityReader.Entity.Section;
+import io.github.repir.Extractor.Entity;
+import io.github.repir.Extractor.Entity.Section;
 import io.github.repir.Extractor.Extractor;
 import io.github.repir.tools.ByteSearch.ByteSearch;
 import java.util.ArrayList;

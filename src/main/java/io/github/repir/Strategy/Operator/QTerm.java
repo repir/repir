@@ -51,8 +51,8 @@ public class QTerm extends Operator {
    @Override
    public void readStatistics() {
       if (willbescored) {
-         this.cf = ((TermCF) repository.getFeature(TermCF.class)).readValue(term.getID());
-         this.df = ((TermDF) repository.getFeature(TermDF.class)).readValue(term.getID());
+         this.cf = TermCF.get(repository).readValue(term.getID());
+         this.df = TermDF.get(repository).readValue(term.getID());
          this.documentprior = (channel.equals("all")) ? queryweight : 0;
       }
    }
@@ -73,9 +73,8 @@ public class QTerm extends Operator {
 
    @Override
    public void prepareRetrieval() {
-      storefeature = (TermInverted) root.retrievalmodel.requestFeature(TermInverted.class,
-              channel, term.getProcessedTerm());
-      storefeature.setTerm(term);
+      storefeature = TermInverted.get(repository, channel, term);
+      retrievalmodel.requestFeature(storefeature);
    }
 
    /**

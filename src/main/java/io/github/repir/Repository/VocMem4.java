@@ -32,6 +32,16 @@ public class VocMem4 extends VocabularyToIDRAM<File> {
       super(repository);
    }
 
+   public static VocMem4 get(Repository repository) {
+       String label = canonicalName(VocMem4.class);
+       VocMem4 termid = (VocMem4)repository.getStoredFeature(label);
+       if (termid == null) {
+          termid = new VocMem4(repository);
+          repository.storeFeature(label, termid);
+       }
+       return termid;
+   }
+   
    public void openRead() {
       super.openRead();
    }
@@ -87,14 +97,14 @@ public class VocMem4 extends VocabularyToIDRAM<File> {
    }
    
    public static void build(Repository repository) throws EOCException {
-      VocMem4 vocmem4 = (VocMem4) repository.getFeature(VocMem4.class);
+      VocMem4 vocmem4 = VocMem4.get(repository);
       vocmem4.startReduce(0, 0);
-      TermCF termtf = (TermCF)repository.getFeature(TermCF.class);
+      TermCF termtf = TermCF.get(repository);
       termtf.openRead();
-      termtf.setBufferSize(10000000);
-      TermString termstring = (TermString)repository.getFeature(TermString.class);
+      termtf.getFile().setBufferSize(10000000);
+      TermString termstring = TermString.get(repository);
       termstring.getFile().openRead();
-      termstring.setBufferSize(10000000);
+      termstring.getFile().setBufferSize(10000000);
       for (int id = 0; id < repository.getVocabularySize(); id++) {
          long cf = termtf.file.cf.read();
          String term = termstring.file.term.read();
@@ -107,11 +117,6 @@ public class VocMem4 extends VocabularyToIDRAM<File> {
    public static void main(String[] args) throws EOCException {
       Repository repository = new Repository( args );
       build( repository );
-   }
-   
-   @Override
-   public void setBufferSize(int size) {
-      throw new UnsupportedOperationException("Not supported yet.");
    }
 
    /**

@@ -86,11 +86,9 @@ public class MasterCollector extends ArrayList<Collector> {
      * before the collected results are pulled.
      */
     public void postLoadFeatures(int partition) {
-        log.s("postLoadFeatures");
         for (Collector s : this) {
             s.postLoadFeatures(partition);
         }
-        log.e("postLoadFeatures");
     }
 
     public void reuse() {

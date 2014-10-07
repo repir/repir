@@ -132,7 +132,7 @@ public class Retriever extends io.github.repir.Retriever.Reusable.Retriever {
    private ArrayList<String> removeKnownSettings(Repository repository, ArrayList<String> settings) {
       String[] storedparameters = repository.getStoredFreeParameters();
       repository.getConfiguration().setInt("fold", 0); // for if n-fold is used
-      ModelParameters modelparameters = (ModelParameters) repository.getFeature(ModelParameters.class, repository.configurationName());
+      ModelParameters modelparameters = ModelParameters.get(repository, repository.configurationName());
       modelparameters.setDataBufferSize(1000000);
       modelparameters.openRead();
       Iterator<String> iter = settings.iterator();
@@ -154,7 +154,7 @@ public class Retriever extends io.github.repir.Retriever.Reusable.Retriever {
     */
    public ArrayList<String> removeKnownSettingsFold(Repository repository, ArrayList<String> settings) {
       String[] storedparameters = repository.getStoredFreeParameters();
-      ModelParameters modelparameters = (ModelParameters) repository.getFeature(ModelParameters.class, repository.configurationName());
+      ModelParameters modelparameters = ModelParameters.get(repository, repository.configurationName());
       modelparameters.setDataBufferSize(1000000);
       modelparameters.openRead();
       Iterator<String> iter = settings.iterator();

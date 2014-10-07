@@ -26,10 +26,20 @@ public class PartitionLocation extends StoredUnreportableFeature<File> {
    public static Log log = new Log(PartitionLocation.class);
    String location[][];
 
-   protected PartitionLocation(Repository repository) {
+   private PartitionLocation(Repository repository) {
       super(repository);
    }
 
+   public static PartitionLocation get(Repository repository) {
+       String label = canonicalName(PartitionLocation.class);
+       PartitionLocation partitionlocation = (PartitionLocation)repository.getStoredFeature(label);
+       if (partitionlocation == null) {
+          partitionlocation = new PartitionLocation(repository);
+          repository.storeFeature(label, partitionlocation);
+       }
+       return partitionlocation;
+   }
+   
    public void write(String[] l) {
       file.location.write(l);
    }
@@ -64,11 +74,6 @@ public class PartitionLocation extends StoredUnreportableFeature<File> {
          log.exception(ex, "get( %d )", partition);
       }
       return null;
-   }
-
-   @Override
-   public void setBufferSize(int size) {
-      throw new UnsupportedOperationException("Doesnt make sense to use setBufferSize on PartitionLocation");
    }
 
    public static class File extends StructuredFile {

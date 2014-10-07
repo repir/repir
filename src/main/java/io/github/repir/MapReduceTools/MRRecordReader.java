@@ -1,4 +1,4 @@
-package io.github.repir.tools.MapReduce;
+package io.github.repir.MapReduceTools;
 import java.io.IOException;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Writable;

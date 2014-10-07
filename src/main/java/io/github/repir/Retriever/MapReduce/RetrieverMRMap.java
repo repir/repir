@@ -48,9 +48,4 @@ public class RetrieverMRMap extends Mapper<IntWritable, QueryWritable, Collector
          context.write(c.getCollectorKey(), c.getCollectorValue());
       }
    }
-
-   @Override
-   protected void cleanup(Context context) throws IOException, InterruptedException {
-      Log.reportProfile();
-   }
 }
