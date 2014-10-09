@@ -34,7 +34,7 @@ public class RetrieverJob extends Job {
       this.retriever = retriever;
       inputformat = new QueryInputFormat(retriever.repository);
       path = conf.get("retriever.tempdir", "") + UUID.randomUUID().toString();
-      conf.setBoolean("mapred.reduce.tasks.speculative.execution", false);
+      conf.setBoolean("mapreduce.reduce.speculative", false);
       setJob();
    }
    

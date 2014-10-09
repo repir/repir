@@ -49,7 +49,7 @@ public abstract class TermDocumentFeature<F extends StructuredFileIntID, C>
    @Override
    public String getCanonicalName() {
       if (term == null)
-         return canonicalName( getClass() );
+         return canonicalName( getClass(), getField() );
       else
          return canonicalName( getClass(), getField(), term.getProcessedTerm() );
    }

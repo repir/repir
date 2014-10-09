@@ -22,6 +22,7 @@ public class ShowContent extends ExtractorProcessor {
 
    @Override
    public void process(Entity entity, Section section, String attribute) {
+       if (entity.get("collectionid").getContentStr().equals("736")) {
          log.info("\n\n--- %s", attribute);
          int lastpos = section.open;
          for (ByteSearchPosition pos : ByteSearch.WHITESPACE.findAllPos(entity.content, section.open, section.close)) {
@@ -32,5 +33,6 @@ public class ShowContent extends ExtractorProcessor {
          }
          if (lastpos < section.close)
             log.printf("%s", new String(entity.content, lastpos, section.close - lastpos));
+       }
    }
 }

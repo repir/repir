@@ -37,14 +37,18 @@ public class EntityReaderTrec extends EntityReader {
       }
    }
 
+   ByteSearch einstein = ByteSearch.create("Einstein");
+   
    @Override
    public boolean nextKeyValue() {
       if (fsin.hasMore()) {
          if (readUntilStart() && fsin.getOffset() - startTag.length < fsin.getCeiling()) {
             key.set(fsin.getOffset());
             if (readEntity()) {
+               //if (einstein.exists(entitywritable.entity.content, 0, entitywritable.entity.content.length)) {
                entitywritable.entity.addSectionPos("all", 0, 0, entitywritable.entity.content.length, entitywritable.entity.content.length);
                return true;
+               //}
             }
          }
       }

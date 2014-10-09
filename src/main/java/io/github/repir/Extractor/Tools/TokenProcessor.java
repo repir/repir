@@ -8,6 +8,7 @@ import io.github.repir.Extractor.Extractor;
 import io.github.repir.tools.ByteSearch.ByteSearch;
 import io.github.repir.tools.ByteSearch.ByteSearchString;
 import io.github.repir.tools.Lib.ByteTools;
+import java.util.ArrayList;
 
 
 /**
@@ -16,21 +17,21 @@ import io.github.repir.tools.Lib.ByteTools;
  * modifying an {@link EntityChannel}.
  * @author jer
  */
-public abstract class ExtractorProcessor {
-   public String process;
-   public static ByteSearch endtag = ByteSearch.create(">").QuoteSafe();
+public abstract class TokenProcessor {
+   TokenizerRegex tokenizer;
+   String name;
+    
+   public TokenProcessor(TokenizerRegex tokenizer, String name) {
+      this.tokenizer = tokenizer;
+      this.name = name;
+   }
    
-   public ExtractorProcessor(Extractor extractor, String process) {
-      this.process = process;
-   }
-
-   public abstract void process(Entity entity, Section section, String entityattribute) throws RemovedException ;
-
-   public int findQuoteSafeTagEnd(Entity entity, int pos, int end) {
-      int p = endtag.find(entity.content, ++pos, end);
-      if ((p < 0) || (p - pos > 50)) {
-         p = endtag.findNoQuoteSafe(entity.content, pos, end);
-      }
-      return p;
-   }
+   public abstract boolean[] acceptedFirstChars();
+   
+   /**
+    * @param entity
+    * @param pos
+    * @return end position of a valid token, or pos if not valid 
+    */
+   public abstract int process(byte [] buffer, int pos, int endpos) ;
 }

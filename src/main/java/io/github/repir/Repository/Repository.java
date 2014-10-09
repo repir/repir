@@ -83,7 +83,7 @@ public class Repository {
     public Repository(HDFSDir basedirname, String prefix) {
         setDirPrefix(basedirname, prefix);
     }
-    
+
     private void setDirPrefix(HDFSDir basedirname, String prefix) {
         basedir = basedirname;
         this.prefix = prefix;
@@ -91,14 +91,15 @@ public class Repository {
             log.fatal("Directory %s does not exists, please create", basedir.toString());
         }
     }
-    
+
     private void setDirPrefix(Configuration conf) {
         setDirPrefix(new HDFSDir(conf, conf.get("repository.dir", "")), conf.get("repository.prefix", ""));
     }
 
     /**
-     * Constructor to open an Repository with a fully read Configuration. Typically,
-     * this is used in MR classes, that get a Configuration object passed.
+     * Constructor to open an Repository with a fully read Configuration.
+     * Typically, this is used in MR classes, that get a Configuration object
+     * passed.
      * <p/>
      * @param conf
      */
@@ -110,11 +111,12 @@ public class Repository {
 
     /**
      * Constructor to open a Repository using command line arguments. Typically
-     * this is done in non-MR classes. The environment should contain the necessary
-     * rr variables, and the first real argument should be the name of the 
-     * configuration script that is read from rr.confdir.
+     * this is done in non-MR classes. The environment should contain the
+     * necessary rr variables, and the first real argument should be the name of
+     * the configuration script that is read from rr.confdir.
+     *
      * @param args
-     * @param template 
+     * @param template
      */
     public Repository(String args[], String template) {
         Configuration conf = new Configuration(args, template);
@@ -122,6 +124,10 @@ public class Repository {
         useConfiguration(conf);
         readConfiguration();
         readSettings();
+    }
+
+    public Repository(String args[]) {
+        this(args, "");
     }
 
     public Repository(org.apache.hadoop.conf.Configuration conf) {
@@ -156,11 +162,7 @@ public class Repository {
     }
 
     public Repository(String conffile) {
-        this(new Configuration(conffile));
-    }
-
-    public Repository(String args[]) {
-        this(new Configuration(args, ""));
+        this(new String[]{ conffile });
     }
 
     protected void useConfiguration(Configuration conf) {
@@ -172,6 +174,7 @@ public class Repository {
     protected void readSettings() {
         partitions = configuredInt("repository.partitions", 1);
         setVocabularySize(configuredInt("repository.vocabularysize", 0));
+        log.info("vocsize %d", configuredInt("repository.vocabularysize", 0));
         setCF(configuredLong("repository.corpustf", 0));
         documentcount = configuredInt("repository.documentcount", 0);
         hashtablecapacity = configuredInt("repository.hashtablecapacity", 0);
@@ -321,6 +324,11 @@ public class Repository {
         return storedfeaturesmap.values();
     }
 
+    public HashMap<String, StoredFeature> getConfiguredFeaturesMap() {
+        getStoredFeatures(configuredStrings("repository.feature"));
+        return storedfeaturesmap;
+    }
+
     public void featuresWriteCache() {
         for (StoredFeature f : getConfiguredFeatures()) {
             f.writeCache();
@@ -353,14 +361,15 @@ public class Repository {
      * @return a Feature instance identified by the canonicalname
      */
     public Feature getFeature(String canonicalname) {
+        //log.info("getFeature( %s )", canonicalname);
         Feature f = storedfeaturesmap.get(canonicalname);
         if (f == null) {
-            
-        String parts[] = canonicalname.split(":");
-        for (int i = 0; i < parts.length; i++) {
-            parts[i] = parts[i].trim();
-        }
-        String classname = stripPackageNames(parts[0], getClass().getPackage().getName(), Strategy.class.getPackage().getName());
+
+            String parts[] = canonicalname.split(":");
+            for (int i = 0; i < parts.length; i++) {
+                parts[i] = parts[i].trim();
+            }
+            String classname = stripPackageNames(parts[0], getClass().getPackage().getName(), Strategy.class.getPackage().getName());
             switch (parts.length) {
                 case 1:
                     f = createFeature(classname);
@@ -397,7 +406,7 @@ public class Repository {
 //      return null;
 //   }
     protected void storeFeature(String label, StoredFeature feature) {
-        //log.info("storeFeature %s", label);
+        //log.info("storeFeature %s %s", label, feature.getCanonicalName());
         storedfeaturesmap.put(label, feature);
     }
 
@@ -411,7 +420,7 @@ public class Repository {
         Method cons;
         Class clazz = tryToClass(classname, getClass().getPackage().getName(), Strategy.class.getPackage().getName());
         if (clazz != null) {
-            log.info("createFeature %s %s", clazz.getSimpleName(), StrTools.concat(' ', field));
+            //log.info("createFeature %s %s", clazz.getSimpleName(), StrTools.concat(' ', field));
             switch (field.length) {
                 case 0:
                     cons = tryGetMethod(clazz, "get", Repository.class);

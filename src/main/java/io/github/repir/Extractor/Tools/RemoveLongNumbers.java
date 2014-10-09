@@ -23,7 +23,7 @@ public class RemoveLongNumbers extends ExtractorProcessor {
    public RemoveLongNumbers(Extractor extractor, String process) {
       super(extractor, process);
       maxlength = extractor.conf.getInt("extractor." + process + ".removelongnumbers", 5);
-      number = BoolTools.createASCIIAcceptRange('0', '9');
+      number = BoolTools.digit();
    }
 
    @Override

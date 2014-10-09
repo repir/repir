@@ -3,7 +3,7 @@ package io.github.repir.Extractor.Tools;
 import io.github.repir.tools.ByteSearch.ByteRegex;
 import io.github.repir.tools.ByteSearch.ByteSearchPosition;
 import io.github.repir.Extractor.Entity;
-import io.github.repir.Extractor.EntityRemovedException;
+import io.github.repir.Extractor.RemovedException;
 import io.github.repir.Extractor.Extractor;
 import io.github.repir.tools.Lib.Log;
 
@@ -22,8 +22,8 @@ public class RemoveRedirect extends ExtractorProcessor {
    }
 
    @Override
-   public void process(Entity entity, Entity.Section section, String attribute) throws EntityRemovedException {
+   public void process(Entity entity, Entity.Section section, String attribute) throws RemovedException {
       if (start.match(entity.content, section.open, section.close))
-         throw new EntityRemovedException();
+         throw new RemovedException();
    }
 }

@@ -57,11 +57,13 @@ public class EntityReaderWikipedia extends EntityReader {
                            if (ns.trim().equals("0")) {
                               String id = ByteTools.extract(entitywritable.entity.content, idStart, idEnd, 0, starttext, false, false);
                               String title = ByteTools.extract(entitywritable.entity.content, titleStart, titleEnd, 0, starttext, false, false);
+                              if (id.equals("736")) {
                               //log.info("id %s title %s ns %s", id, title, ns); 
                               entitywritable.entity.addSectionPos("all", starttext + 1, starttext + 1, endtext, endtext);
                               entitywritable.entity.get("literaltitle").add(title);
                               entitywritable.entity.get("collectionid").add(id);
                               return true;
+                              }
                            }
                         }
                      }

@@ -51,6 +51,7 @@ public abstract class AutoTermDocumentFeature<F extends StructuredFileIntID, C> 
       HashMap<Integer, ArrayList<Integer>> list = new HashMap<Integer, ArrayList<Integer>>();
       ArrayList<Integer> l;
       int pos = 0;
+      
       EntityChannel attr = doc.get(entityAttribute());
       if (attr.tokenized == null) {
          attr.tokenized = repository.tokenize(attr);
@@ -69,7 +70,7 @@ public abstract class AutoTermDocumentFeature<F extends StructuredFileIntID, C> 
    @Override
    public void openRead() {
       super.openRead();
-      log.info("openRead termid %d", term.getID());
+      //log.info("openRead termid %d", term.getID());
       if (term.exists()) {
          find(term.getID());
          docid = -1;
