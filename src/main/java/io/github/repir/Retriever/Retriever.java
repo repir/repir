@@ -1,9 +1,9 @@
 package io.github.repir.Retriever;
 
-import io.github.repir.Extractor.Entity;
-import io.github.repir.Extractor.EntityChannel;
-import io.github.repir.Extractor.Extractor;
-import io.github.repir.Extractor.ExtractorQuery;
+import io.github.repir.tools.Extractor.Entity;
+import io.github.repir.tools.Extractor.EntityChannel;
+import io.github.repir.tools.Extractor.Extractor;
+import io.github.repir.tools.Extractor.ExtractorQuery;
 import io.github.repir.Repository.Repository;
 import io.github.repir.Repository.ResidentFeature;
 import io.github.repir.Repository.StoredReportableFeature;

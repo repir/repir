@@ -6,7 +6,7 @@ import io.github.repir.tools.Structure.StructuredFile;
 import io.github.repir.tools.Structure.StructuredFileIntID;
 import io.github.repir.EntityReader.MapReduce.TermEntityKey;
 import io.github.repir.EntityReader.MapReduce.TermEntityValue;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.tools.Extractor.Entity;
 import io.github.repir.tools.Lib.Log;
 import io.github.repir.Repository.DocTF.File;
 import io.github.repir.tools.Buffer.BufferReaderWriter;

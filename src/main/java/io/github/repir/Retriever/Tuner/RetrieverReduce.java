@@ -15,7 +15,7 @@ import io.github.repir.TestSet.Metric.QueryMetricAP;
 import io.github.repir.TestSet.ResultSet;
 import io.github.repir.TestSet.TestSet;
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.MapReduceTools.Configuration;
+import io.github.repir.MapReduceTools.RRConfiguration;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,7 +36,7 @@ public class RetrieverReduce extends Reducer<CollectorKey, CollectorValue, NullW
    HashMap<Integer, Strategy> strategies = new HashMap<Integer, Strategy>();
    ArrayList<Record> newRecord = new ArrayList<Record>();
    Strategy strategy;
-   Configuration conf;
+   RRConfiguration conf;
    Repository repository;
    Retriever retriever;
    TestSet testset;

@@ -2,7 +2,7 @@
 
 import java.io.IOException;
 import java.util.HashSet;
-import io.github.repir.MapReduceTools.Configuration;
+import io.github.repir.MapReduceTools.RRConfiguration;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Reducer;
 import io.github.repir.Strategy.Collector.Collector;
@@ -25,7 +25,7 @@ import io.github.repir.tools.Lib.Log;
 public class RetrieverMRReduce extends Reducer<CollectorKey, CollectorValue, NullWritable, NullWritable> {
 
    public static Log log = new Log(RetrieverMRReduce.class);
-   Configuration conf;
+   RRConfiguration conf;
    CollectorCachable collector;
    Repository repository;
    Retriever retriever;

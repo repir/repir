@@ -24,19 +24,19 @@ import org.apache.hadoop.util.GenericOptionsParser;
  * the Configuration set for a repository to a file.
  * @author Jeroen Vuurens
  */
-public class Configuration extends io.github.repir.tools.hadoop.Configuration {
+public class RRConfiguration extends io.github.repir.tools.hadoop.Configuration {
 
-   public static Log log = new Log(Configuration.class);
+   public static Log log = new Log(RRConfiguration.class);
 
-   public Configuration() {
+   public RRConfiguration() {
        super();
    }
    
-    protected Configuration(org.apache.hadoop.conf.Configuration other) {
+    protected RRConfiguration(org.apache.hadoop.conf.Configuration other) {
         super(other);
     }
    
-   public Configuration(String args[], String template) {
+   public RRConfiguration(String args[], String template) {
        super();
        this.setEnv();
        this.parseArgsConfFile(args, template);
@@ -72,7 +72,7 @@ public class Configuration extends io.github.repir.tools.hadoop.Configuration {
       }
    }
 
-   public Configuration(String filename) {
+   public RRConfiguration(String filename) {
       super();
       setEnv();
       processConfigFile(configfile(filename));
@@ -93,17 +93,17 @@ public class Configuration extends io.github.repir.tools.hadoop.Configuration {
    }
 
    // creates a Configuration based on a file with settings in a JAR
-   public static Configuration createFromResource(String resource) {
+   public static RRConfiguration createFromResource(String resource) {
       InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
       FSFileInBuffer fi = new FSFileInBuffer(input);
       byte[] readBytes = fi.readBytes();
-      Configuration conf = new Configuration();
+      RRConfiguration conf = new RRConfiguration();
       conf.setEnv();
       conf.processScript(new String(readBytes, 0, readBytes.length));
       return conf;
    }
 
-   public static Datafile configfile(Configuration conf) {
+   public static Datafile configfile(RRConfiguration conf) {
       Datafile in = new Datafile(conf.get("rr.configdir") + conf.get("rr.conf"));
       return in;
    }
@@ -182,11 +182,11 @@ public class Configuration extends io.github.repir.tools.hadoop.Configuration {
       df.closeWrite();
    }
    
-   public static Configuration convert(org.apache.hadoop.conf.Configuration conf) {
-        if (conf instanceof Configuration) {
-            return (Configuration) conf;
+   public static RRConfiguration convert(org.apache.hadoop.conf.Configuration conf) {
+        if (conf instanceof RRConfiguration) {
+            return (RRConfiguration) conf;
         }
-        return new Configuration(conf);
+        return new RRConfiguration(conf);
     }
 
 

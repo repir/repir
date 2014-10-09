@@ -1,8 +1,8 @@
 package io.github.repir.TestSet;
 
-import io.github.repir.Extractor.Entity;
-import io.github.repir.Extractor.Extractor;
-import io.github.repir.Extractor.ExtractorTestSet;
+import io.github.repir.tools.Extractor.Entity;
+import io.github.repir.tools.Extractor.Extractor;
+import io.github.repir.tools.Extractor.ExtractorTestSet;
 import io.github.repir.Repository.DocLiteral;
 import io.github.repir.Repository.Repository;
 import io.github.repir.Retriever.Document;
@@ -18,7 +18,7 @@ import io.github.repir.tools.Content.Datafile;
 import io.github.repir.tools.Content.FSFile;
 import io.github.repir.tools.Lib.ClassTools;
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.MapReduceTools.Configuration;
+import io.github.repir.MapReduceTools.RRConfiguration;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,7 +62,7 @@ public class TestSet {
       HashMap<Integer, String> parameters = new HashMap<Integer, String>();
       String parameterfile = repository.getParameterFile();
       if (parameterfile.length() > 0 && FSFile.exists(parameterfile)) {
-         Configuration queryparameters = new Configuration(parameterfile);
+         RRConfiguration queryparameters = new RRConfiguration(parameterfile);
          for (int i : topics.keySet()) {
             String p = queryparameters.get("query." + i, null);
             if (p != null) {

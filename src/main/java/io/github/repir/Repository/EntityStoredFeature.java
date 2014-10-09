@@ -2,7 +2,7 @@ package io.github.repir.Repository;
 
 import java.util.HashMap;
 import io.github.repir.tools.Structure.StructuredFileIntID;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.tools.Extractor.Entity;
 import io.github.repir.EntityReader.MapReduce.TermEntityKey;
 import io.github.repir.EntityReader.MapReduce.TermEntityValue;
 import io.github.repir.Retriever.Document;

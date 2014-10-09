@@ -2,7 +2,6 @@ package io.github.repir.EntityReader.MapReduce;
 
 import io.github.repir.tools.Buffer.BufferDelayedWriter;
 import io.github.repir.tools.Buffer.BufferReaderWriter;
-import io.github.repir.Repository.ReduciblePartitionedFeature;
 import io.github.repir.tools.Content.EOCException;
 import io.github.repir.tools.Lib.Log;
 import java.io.DataInput;

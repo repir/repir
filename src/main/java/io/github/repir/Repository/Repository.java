@@ -1,6 +1,6 @@
 package io.github.repir.Repository;
 
-import io.github.repir.Extractor.EntityChannel;
+import io.github.repir.tools.Extractor.EntityChannel;
 import io.github.repir.Repository.Stopwords.StopWords;
 import io.github.repir.Repository.Stopwords.StopwordsCache;
 import io.github.repir.Strategy.Strategy;
@@ -13,7 +13,7 @@ import io.github.repir.tools.Lib.Log;
 import io.github.repir.tools.Lib.MathTools;
 import io.github.repir.tools.Lib.PrintTools;
 import io.github.repir.tools.Lib.StrTools;
-import io.github.repir.MapReduceTools.Configuration;
+import io.github.repir.MapReduceTools.RRConfiguration;
 import io.github.repir.tools.Stemmer.englishStemmer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -70,7 +70,7 @@ public class Repository {
     protected PartitionLocation partitionlocation; // gives fast access to the man location of each patition
     public HashMap<String, StoredFeature> storedfeaturesmap = new HashMap<String, StoredFeature>();
     private CollectionID collectionid;
-    protected Configuration configuration = new Configuration();
+    protected RRConfiguration configuration = new RRConfiguration();
 
     /**
      * Constructor for the creation of a new Repository with
@@ -92,7 +92,7 @@ public class Repository {
         }
     }
 
-    private void setDirPrefix(Configuration conf) {
+    private void setDirPrefix(RRConfiguration conf) {
         setDirPrefix(new HDFSDir(conf, conf.get("repository.dir", "")), conf.get("repository.prefix", ""));
     }
 
@@ -103,7 +103,7 @@ public class Repository {
      * <p/>
      * @param conf
      */
-    public Repository(Configuration conf) {
+    public Repository(RRConfiguration conf) {
         setDirPrefix(conf);
         useConfiguration(conf);
         readSettings();
@@ -119,7 +119,7 @@ public class Repository {
      * @param template
      */
     public Repository(String args[], String template) {
-        Configuration conf = new Configuration(args, template);
+        RRConfiguration conf = new RRConfiguration(args, template);
         setDirPrefix(conf);
         useConfiguration(conf);
         readConfiguration();
@@ -131,7 +131,7 @@ public class Repository {
     }
 
     public Repository(org.apache.hadoop.conf.Configuration conf) {
-        this(Configuration.convert(conf));
+        this(RRConfiguration.convert(conf));
     }
 
     public void changeName(String newIndex) {
@@ -165,7 +165,7 @@ public class Repository {
         this(new String[]{ conffile });
     }
 
-    protected void useConfiguration(Configuration conf) {
+    protected void useConfiguration(RRConfiguration conf) {
         this.configuration = conf;
         conf.setBoolean("fs.hdfs.impl.disable.cache", false);
         setFileSystem(conf.FS());
@@ -500,7 +500,7 @@ public class Repository {
      * @return the Hadoop Configuration container that is used to maintain and
      * communicate all settings for the repository
      */
-    public Configuration getConfiguration() {
+    public RRConfiguration getConfiguration() {
         return this.configuration;
     }
 

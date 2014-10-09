@@ -3,7 +3,7 @@ package io.github.repir.Retriever.MultiThread;
 import java.util.ArrayList;
 import java.util.Collection;
 import io.github.repir.Repository.Repository;
-import io.github.repir.MapReduceTools.Configuration;
+import io.github.repir.MapReduceTools.RRConfiguration;
 import io.github.repir.Retriever.Query;
 import io.github.repir.Retriever.MapReduce.QueryInputFormat;
 import io.github.repir.TestSet.TestSet;
@@ -14,7 +14,7 @@ import io.github.repir.TestSet.TestSet;
  * @author jeroen
  */
 public abstract class JobProcess implements JobThreadCallback {
-   protected Configuration configuration;
+   protected RRConfiguration configuration;
    protected Repository repository;
    protected Retriever retriever;
    protected TestSet testset;
@@ -28,7 +28,7 @@ public abstract class JobProcess implements JobThreadCallback {
       retriever.retrieveThreadedQueries(queries, this);
    }
    
-   public JobProcess( Configuration conf, ArrayList<Query> queries ) {
+   public JobProcess( RRConfiguration conf, ArrayList<Query> queries ) {
       this(new Retriever(new Repository(conf)), queries);
    }
    
@@ -40,7 +40,7 @@ public abstract class JobProcess implements JobThreadCallback {
       this( retriever, new TestSet(retriever.repository).getQueries(retriever));
    }
    
-   public JobProcess( Configuration conf ) {
+   public JobProcess( RRConfiguration conf ) {
       this( new Repository(conf));
    }
    

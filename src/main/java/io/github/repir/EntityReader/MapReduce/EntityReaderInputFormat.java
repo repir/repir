@@ -3,7 +3,6 @@ package io.github.repir.EntityReader.MapReduce;
 import io.github.repir.EntityReader.EntityReader;
 import io.github.repir.EntityReader.EntityReaderTrec;
 import io.github.repir.tools.Content.HDFSDir;
-import io.github.repir.MapReduceTools.Configuration;
 import static io.github.repir.tools.Lib.ClassTools.*;
 import io.github.repir.tools.Lib.Log;
 import io.github.repir.tools.hadoop.Job;
@@ -13,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -66,7 +66,7 @@ public class EntityReaderInputFormat extends FileInputFormat<LongWritable, Entit
    }
 
    public EntityReaderInputFormat(Job job) {
-      configuration = Configuration.convert(job.getConfiguration());
+      configuration = job.getConfiguration();
       String inputdirs[] = configuration.get("repository.inputdir").split(",");
       filefilter = new FileFilter(configuration);
       loadEntityReaderSettings(configuration);
@@ -78,7 +78,7 @@ public class EntityReaderInputFormat extends FileInputFormat<LongWritable, Entit
    }
 
    public void addDirs(Job job, String dir) {
-      FileSystem fs = configuration.getFS();
+      FileSystem fs = HDFSDir.getFS(configuration);
       ArrayList<HDFSDir> paths = new ArrayList<HDFSDir>();
       ArrayList<Path> files = new ArrayList<Path>();
       if (dir.length() > 0) {
@@ -136,7 +136,7 @@ public class EntityReaderInputFormat extends FileInputFormat<LongWritable, Entit
    @Override
    public RecordReader<LongWritable, EntityWritable> createRecordReader(InputSplit is, TaskAttemptContext tac) {
       //log.info("documentreader %s", getDocumentReader(tac.getConfiguration()));
-      Class clazz = toClass(getEntityReaderName(is, Configuration.convert(tac.getConfiguration())), EntityReader.class.getPackage().getName());
+      Class clazz = toClass(getEntityReaderName(is, tac.getConfiguration()), EntityReader.class.getPackage().getName());
       Constructor c = getAssignableConstructor(clazz, EntityReader.class);
       return (RecordReader<LongWritable, EntityWritable>) construct(c);
    }

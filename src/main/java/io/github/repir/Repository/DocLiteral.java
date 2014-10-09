@@ -7,7 +7,7 @@ import io.github.repir.tools.Structure.StructuredDataStream;
 import io.github.repir.EntityReader.MapReduce.TermEntityKey;
 import io.github.repir.EntityReader.MapReduce.TermEntityValue;
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.tools.Extractor.Entity;
 import io.github.repir.Repository.DocLiteral.File;
 import io.github.repir.tools.Content.EOCException;
 

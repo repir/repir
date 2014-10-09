@@ -1,12 +1,12 @@
 package io.github.repir.EntityReader; 
 
 import io.github.repir.EntityReader.MapReduce.EntityWritable;
-import io.github.repir.Extractor.EntityChannel;
-import io.github.repir.Extractor.Extractor;
+import io.github.repir.tools.Extractor.EntityChannel;
+import io.github.repir.tools.Extractor.Extractor;
 import io.github.repir.tools.Content.HDFSDir;
 import io.github.repir.tools.Content.HDFSIn;
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.MapReduceTools.Configuration;
+import io.github.repir.MapReduceTools.RRConfiguration;
 import java.io.IOException;
 import java.util.Map;
 import org.apache.hadoop.fs.Path;
@@ -20,7 +20,7 @@ public class EntityReaderTest {
   public static Log log = new Log( EntityReaderTest.class ); 
 
    public static void main(String[] args) throws IOException, InterruptedException {
-      Configuration conf = new Configuration(args, "source");
+      RRConfiguration conf = new RRConfiguration(args, "source");
       Path p = new Path(conf.get("source"));
       long length = HDFSIn.getLength(HDFSDir.getFS(conf), p);
       String[] locations = HDFSDir.getLocations(HDFSDir.getFS(conf), conf.get("source"), 0);

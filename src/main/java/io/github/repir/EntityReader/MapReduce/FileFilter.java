@@ -1,7 +1,7 @@
 package io.github.repir.EntityReader.MapReduce;
 
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.MapReduceTools.Configuration;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 
 /**
@@ -27,10 +27,6 @@ public class FileFilter {
       validFilenameEnd = conf.getStrings("entityreader.validfilenameend");
       invalidFilenameStart = conf.getStrings("entityreader.invalidfilenamestart");
       invalidFilenameEnd = conf.getStrings("entityreader.invalidfilenameend");
-   }
-
-   public FileFilter(org.apache.hadoop.conf.Configuration conf) {
-      this(Configuration.convert(conf));
    }
 
    public boolean acceptFile(Path path) {

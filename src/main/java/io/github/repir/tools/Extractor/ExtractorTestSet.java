@@ -1,6 +1,5 @@
-package io.github.repir.Extractor;
+package io.github.repir.tools.Extractor;
 
-import io.github.repir.Repository.Repository;
 import io.github.repir.tools.Lib.Log;
 import org.apache.hadoop.conf.Configuration;
 

@@ -3,7 +3,7 @@ package io.github.repir.EntityReader.MapReduce;
 import io.github.repir.tools.Buffer.BufferDelayedWriter;
 import io.github.repir.tools.Buffer.BufferReaderWriter;
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.Extractor.Entity;
+import io.github.repir.tools.Extractor.Entity;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataOutput;

@@ -1,6 +1,6 @@
 package io.github.repir.EntityReader;
 
-import io.github.repir.Extractor.Entity;
+import io.github.repir.tools.Extractor.Entity;
 import io.github.repir.EntityReader.MapReduce.EntityWritable;
 import io.github.repir.tools.Content.EOCException;
 import io.github.repir.tools.Content.HDFSIn;

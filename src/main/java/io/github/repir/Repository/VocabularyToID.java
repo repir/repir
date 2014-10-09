@@ -1,6 +1,6 @@
 package io.github.repir.Repository;
 
-import io.github.repir.Extractor.EntityChannel;
+import io.github.repir.tools.Extractor.EntityChannel;
 import io.github.repir.tools.Structure.StructuredFile;
 import io.github.repir.tools.Lib.Log;
 import java.util.ArrayList;
