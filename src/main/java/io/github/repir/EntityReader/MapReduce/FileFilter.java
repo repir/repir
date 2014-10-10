@@ -17,16 +17,17 @@ import org.apache.hadoop.fs.Path;
 public class FileFilter {
 
    public static Log log = new Log(FileFilter.class);
+   public static final String[] empty = new String[0];
    String[] validFilenameStart;
    String[] validFilenameEnd;
    String[] invalidFilenameStart;
    String[] invalidFilenameEnd;
 
    public FileFilter(Configuration conf) {
-      validFilenameStart = conf.getStrings("entityreader.validfilenamestart");
-      validFilenameEnd = conf.getStrings("entityreader.validfilenameend");
-      invalidFilenameStart = conf.getStrings("entityreader.invalidfilenamestart");
-      invalidFilenameEnd = conf.getStrings("entityreader.invalidfilenameend");
+      validFilenameStart = conf.getStrings("entityreader.validfilenamestart", empty);
+      validFilenameEnd = conf.getStrings("entityreader.validfilenameend", empty);
+      invalidFilenameStart = conf.getStrings("entityreader.invalidfilenamestart", empty);
+      invalidFilenameEnd = conf.getStrings("entityreader.invalidfilenameend", empty);
    }
 
    public boolean acceptFile(Path path) {

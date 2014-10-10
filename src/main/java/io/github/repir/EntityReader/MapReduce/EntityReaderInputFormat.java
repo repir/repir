@@ -16,8 +16,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.compress.CompressionCodec;
-import org.apache.hadoop.io.compress.CompressionCodecFactory;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.RecordReader;
@@ -98,9 +96,9 @@ public class EntityReaderInputFormat extends FileInputFormat<LongWritable, Entit
 
    public void addFile(Job job, Path path) {
       try {
-         if (filefilter.acceptFile(path)) {
+          if (filefilter.acceptFile(path)) {
             addInputPath(job, path);
-         }
+          }
       } catch (IOException ex) {
          log.exception(ex, "add( %s, %s )", job, path);
       }
