@@ -16,7 +16,7 @@ import io.github.repir.tools.Lib.ClassTools;
 import io.github.repir.tools.Lib.Log;
 import io.github.repir.tools.Lib.PrintTools;
 import io.github.repir.tools.Lib.StrTools;
-import io.github.repir.tools.Stemmer.englishStemmer;
+import io.github.repir.tools.Words.englishStemmer;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;

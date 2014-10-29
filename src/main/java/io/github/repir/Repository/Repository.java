@@ -14,7 +14,7 @@ import io.github.repir.tools.Lib.MathTools;
 import io.github.repir.tools.Lib.PrintTools;
 import io.github.repir.tools.Lib.StrTools;
 import io.github.repir.MapReduceTools.RRConfiguration;
-import io.github.repir.tools.Stemmer.englishStemmer;
+import io.github.repir.tools.Words.englishStemmer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;

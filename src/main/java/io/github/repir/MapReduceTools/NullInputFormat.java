@@ -1,21 +1,8 @@
 package io.github.repir.MapReduceTools;
 
 import io.github.repir.Repository.Repository;
-import io.github.repir.Retriever.Query;
 import io.github.repir.tools.Lib.Log;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TreeSet;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.InputFormat;
-import org.apache.hadoop.mapreduce.InputSplit;
-import org.apache.hadoop.mapreduce.JobContext;
-import org.apache.hadoop.mapreduce.RecordReader;
-import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 /**
  * A custom implementation of Hadoop's InputFormat, that holds the InputSplits

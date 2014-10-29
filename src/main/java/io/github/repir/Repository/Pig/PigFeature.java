@@ -65,10 +65,10 @@ public abstract class PigFeature<F extends StructuredTextPig, C extends Structur
    
    public String loadScript() {
       StringBuilder sb = new StringBuilder();
-      String filename = getFile().datafile.getFilename();
+      String filename = getFile().getDatafile().getFilename();
       ByteSearchPosition pos = dot.findLastPos(filename);
       sb.append("LOAD '");
-      sb.append( getFile().datafile.getFullPath() ).append("' AS ");
+      sb.append( getFile().getDatafile().getFullPath() ).append("' AS ");
       sb.append(loadFolder( file.getRoot()));
       sb.append(";\n");
       return sb.toString();
@@ -76,10 +76,10 @@ public abstract class PigFeature<F extends StructuredTextPig, C extends Structur
    
    public String loadLocalScript() {
       StringBuilder sb = new StringBuilder();
-      String filename = getFile().datafile.getFilename();
+      String filename = getFile().getDatafile().getFilename();
       ByteSearchPosition pos = dot.findLastPos(filename);
       sb.append("LOAD '");
-      sb.append("data/").append( getFile().datafile.getFilename() ).append("' AS ");
+      sb.append("data/").append( getFile().getDatafile().getFilename() ).append("' AS ");
       sb.append(loadFolder( file.getRoot()));
       sb.append(";\n");
       return sb.toString();
@@ -134,14 +134,14 @@ public abstract class PigFeature<F extends StructuredTextPig, C extends Structur
       if (getFile().lock())
          getFile().openAppend();
       else 
-         log.fatal("Could not lock file %s", getFile().datafile.getFullPath());
+         log.fatal("Could not lock file %s", getFile().getDatafile().getFullPath());
    }
    
    public void openWrite() {
       if (getFile().lock())
          getFile().openWrite();
       else 
-         log.fatal("Could not lock file %s", getFile().datafile.getFullPath());
+         log.fatal("Could not lock file %s", getFile().getDatafile().getFullPath());
    }
    
    public void closeWrite() {
@@ -155,7 +155,7 @@ public abstract class PigFeature<F extends StructuredTextPig, C extends Structur
    
    
    public void setBufferSize(int size) {
-      getFile().datafile.setBufferSize(size);
+      getFile().getDatafile().setBufferSize(size);
    }
    
    public void reuse() {}

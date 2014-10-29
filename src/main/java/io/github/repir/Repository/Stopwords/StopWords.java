@@ -1,9 +1,11 @@
 package io.github.repir.Repository.Stopwords;
 
+import io.github.repir.tools.Words.StopWordsSmart;
+import io.github.repir.tools.Words.StopWordsLetter;
 import io.github.repir.tools.Lib.Log;
 import java.util.HashSet;
 import io.github.repir.Repository.Repository;
-import io.github.repir.tools.Stemmer.englishStemmer;
+import io.github.repir.tools.Words.englishStemmer;
 
 /**
  * List of stop words, which is not stored as a feature, but rather configured.

@@ -14,7 +14,7 @@ import io.github.repir.Strategy.Strategy;
 import io.github.repir.tools.Collection.ArrayMap;
 import io.github.repir.tools.Collection.ArrayMap.Entry;
 import io.github.repir.tools.Lib.Log;
-import io.github.repir.tools.Stemmer.englishStemmer;
+import io.github.repir.tools.Words.englishStemmer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
