@@ -12,10 +12,10 @@ import io.github.repir.Strategy.Collector.MasterCollector;
 import io.github.repir.Strategy.Operator.Operator;
 import io.github.repir.Strategy.Operator.ProximityOperator;
 import io.github.repir.Strategy.Operator.QTerm;
-import io.github.repir.tools.Lib.ClassTools;
-import io.github.repir.tools.Lib.Log;
-import io.github.repir.tools.Lib.PrintTools;
-import io.github.repir.tools.Lib.StrTools;
+import io.github.repir.tools.lib.ClassTools;
+import io.github.repir.tools.lib.Log;
+import io.github.repir.tools.lib.PrintTools;
+import io.github.repir.tools.lib.StrTools;
 import io.github.repir.tools.Words.englishStemmer;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
@@ -219,10 +221,15 @@ public class GraphRoot extends GraphComponent {
     * @return the new Operator
     */
    public Operator construct(String featureclassname, ArrayList<Operator> terms) {
-      Class featureclass = ClassTools.toClass(featureclassname, Operator.class.getPackage().getName());
-      Constructor cons = ClassTools.getAssignableConstructor(featureclass, Operator.class, GraphRoot.class, ArrayList.class);
-      Operator f = (Operator) ClassTools.construct(cons, this, terms);
-      return f;
+        try {
+            Class featureclass = ClassTools.toClass(featureclassname, Operator.class.getPackage().getName());
+            Constructor cons = ClassTools.getAssignableConstructor(featureclass, Operator.class, GraphRoot.class, ArrayList.class);
+            Operator f = (Operator) ClassTools.construct(cons, this, terms);
+            return f;
+        } catch (ClassNotFoundException ex) {
+            log.fatalexception(ex, "construct() invalid feature class %s", featureclassname);
+        }
+        return null;
    }
 
    /**

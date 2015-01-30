@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import io.github.repir.Repository.Stopwords.StopwordsCache.File;
 import io.github.repir.Repository.StoredFeature;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.EOCException;
-import io.github.repir.tools.Structure.StructuredFile;
-import io.github.repir.tools.Lib.Log; 
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.EOCException;
+import io.github.repir.tools.io.struct.StructuredFile;
+import io.github.repir.tools.lib.Log; 
 
 /**
  * This feature caches the configured list of stop words as a list of TermID
@@ -44,7 +44,7 @@ public class StopwordsCache extends StoredFeature<File> {
    public void openRead() {
       getFile().openRead();
       stopwords = new HashSet<Integer>();
-      if (file.datafile.exists() && file.hasNext()) {
+      if (file.getDatafile().exists() && file.hasNext()) {
          try {
             stopwords = new HashSet<Integer>( file.stopwords.readArrayList() );
          } catch (EOCException ex) {

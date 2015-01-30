@@ -1,23 +1,22 @@
 package io.github.repir.Strategy.Collector;
 
+import io.github.repir.Repository.Repository;
+import io.github.repir.Retriever.Document;
+import io.github.repir.Retriever.MapReduce.CollectorKey;
+import io.github.repir.Retriever.MapReduce.CollectorValue;
+import io.github.repir.Retriever.Retriever;
+import io.github.repir.Strategy.Operator.Operator;
+import io.github.repir.Strategy.Strategy;
+import io.github.repir.tools.io.EOCException;
+import io.github.repir.tools.lib.ClassTools;
+import io.github.repir.tools.lib.Log;
+import io.github.repir.tools.io.struct.StructureReader;
+import io.github.repir.tools.io.struct.StructureWriter;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
-import io.github.repir.Retriever.Document;
-import io.github.repir.Retriever.Retriever;
-import io.github.repir.Repository.Repository;
-import io.github.repir.Repository.StoredFeature;
-import io.github.repir.Strategy.Operator.Operator;
-import io.github.repir.Strategy.GraphRoot;
-import io.github.repir.Strategy.Strategy;
-import io.github.repir.Retriever.Query;
-import io.github.repir.Retriever.MapReduce.CollectorKey;
-import io.github.repir.Retriever.MapReduce.CollectorValue;
-import io.github.repir.tools.Content.EOCException;
-import io.github.repir.tools.Structure.StructureReader;
-import io.github.repir.tools.Structure.StructureWriter;
-import io.github.repir.tools.Lib.ClassTools;
-import io.github.repir.tools.Lib.Log;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A Collector collects data during a retrieval pass. The {@link Collector} is
@@ -108,14 +107,19 @@ public abstract class Collector {
 
    public String getCanonicalName() {
       String clazz = getClass().getCanonicalName();
-      clazz = io.github.repir.tools.Lib.StrTools.removeOptionalStart(clazz, Collector.class.getPackage().getName() + ".");
+      clazz = io.github.repir.tools.lib.StrTools.removeOptionalStart(clazz, Collector.class.getPackage().getName() + ".");
       return clazz;
    }
 
    public static Collector create(String canonicalname) {
-      Class clazz = ClassTools.toClass(canonicalname, Collector.class.getPackage().getName());
-      Constructor c = ClassTools.getAssignableConstructor(clazz, Collector.class);
-      return (Collector) ClassTools.construct(c);
+        try {
+            Class clazz = ClassTools.toClass(canonicalname, Collector.class.getPackage().getName());
+            Constructor c = ClassTools.getAssignableConstructor(clazz, Collector.class);
+            return (Collector) ClassTools.construct(c);
+        } catch (ClassNotFoundException ex) {
+            log.fatalexception(ex, "create() could not construct %s", canonicalname);
+        }
+        return null;
    }
 
    @Override

@@ -1,9 +1,9 @@
 package io.github.repir.Retriever;
 
-import io.github.repir.tools.Extractor.Entity;
-import io.github.repir.tools.Extractor.EntityChannel;
-import io.github.repir.tools.Extractor.Extractor;
-import io.github.repir.tools.Extractor.ExtractorQuery;
+import io.github.repir.tools.extract.Content;
+import io.github.repir.tools.extract.ExtractChannel;
+import io.github.repir.tools.extract.ExtractorConf;
+import io.github.repir.tools.extract.ExtractorQuery;
 import io.github.repir.Repository.Repository;
 import io.github.repir.Repository.ResidentFeature;
 import io.github.repir.Repository.StoredReportableFeature;
@@ -11,9 +11,9 @@ import io.github.repir.Strategy.Collector.Collector;
 import io.github.repir.Strategy.Collector.CollectorCachable;
 import io.github.repir.Strategy.RetrievalModel;
 import io.github.repir.Strategy.Strategy;
-import io.github.repir.tools.Collection.ArrayMap;
-import io.github.repir.tools.Collection.ArrayMap.Entry;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.collection.ArrayMap;
+import io.github.repir.tools.collection.ArrayMap.Entry;
+import io.github.repir.tools.lib.Log;
 import io.github.repir.tools.Words.englishStemmer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -260,9 +260,9 @@ public class Retriever {
       return retrieveQueries(queue);
    }
 
-   public Extractor getExtractor() {
+   public ExtractorConf getExtractor() {
       if (extractor == null) {
-         extractor = new ExtractorQuery(repository.getConfiguration());
+         extractor = new ExtractorQuery(repository.getConf());
       }
       return extractor;
    }
@@ -279,12 +279,12 @@ public class Retriever {
     */
    public String tokenizeString(String q) {
       getExtractor();
-      Entity entity = new Entity();
+      Content entity = new Content();
       entity.content = q.getBytes();
       extractor.process(entity);
       StringBuilder sb = new StringBuilder();
       ArrayList<String> finalterms = new ArrayList<String>();
-      EntityChannel channel = entity.get("rrquery");
+      ExtractChannel channel = entity.get("rrquery");
       for (String chunk : channel) {
          char last = sb.length() == 0 ? 0 : sb.charAt(sb.length() - 1);
          char first = chunk.length() == 0 ? 0 : chunk.charAt(0);

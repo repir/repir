@@ -9,9 +9,9 @@ import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.mapreduce.Partitioner;
 import io.github.repir.Strategy.Collector.Collector;
 import io.github.repir.Retriever.Query;
-import io.github.repir.tools.Buffer.BufferDelayedWriter;
-import io.github.repir.tools.Buffer.BufferReaderWriter;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.io.buffer.BufferDelayedWriter;
+import io.github.repir.tools.io.buffer.BufferReaderWriter;
+import io.github.repir.tools.lib.Log;
 
 /**
  * All results that are communicated from Map to Reduce and from Reduce to

@@ -2,7 +2,7 @@ package io.github.repir.TestSet.Metric;
 
 import io.github.repir.Retriever.Document;
 import io.github.repir.Retriever.Query;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
 import java.util.HashMap;
 
 /**

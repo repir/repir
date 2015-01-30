@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.github.repir</groupId>
         <artifactId>RepIRProx</artifactId>
-        <version>0.25-SNAPSHOT</version>
+        <version>0.25</version>
         <relativePath>../RepIRProx/pom.xml</relativePath>
     </parent>
     <artifactId>RepIR</artifactId>
@@ -35,7 +35,7 @@
                 <version>1.7</version>
                 <configuration>
                     <target>  
-                        <scp todir="${to-dir}" 
+                        <scp todir="${repirdir}" 
                              keyfile="${keyfile}"
                              trust="true" failonerror="false"
                              file="${project.build.directory}\${project.build.finalName}.jar">
@@ -74,6 +74,4 @@
             <classifier>complete-sources</classifier>
         </dependency>
     </dependencies>
-
-
 </project>

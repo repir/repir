@@ -1,6 +1,6 @@
 package io.github.repir.Retriever.Tuner;
 import java.math.BigDecimal; 
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
 
 /**
  * Parameter that is tuned using grid search. Initialize with a parameter name

@@ -18,7 +18,7 @@ import io.github.repir.Strategy.Operator.Operator;
 import io.github.repir.Strategy.Operator.QTerm;
 import io.github.repir.Strategy.RetrievalModel;
 import io.github.repir.Strategy.ScoreFunction.ScoreFunctionKLD;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,11 +39,11 @@ public class RetrievalModelMBF extends RetrievalModel {
 
    public RetrievalModelMBF(Retriever retriever) {
       super(retriever);
-      lambda = repository.getConfiguration().getFloat("mbf.lambda", 0.95f);
-      alpha = repository.getConfiguration().getFloat("mbf.alpha", 0.5f);
-      fbmaxdocs = repository.getConfiguration().getInt("mbf.fbdocs", 10);
-      fbstopwords = repository.getConfiguration().getBoolean("mbf.fbstopwords", false);
-      fbterms = repository.getConfiguration().getInt("mbf.fbterms", 1000);
+      lambda = repository.getConf().getFloat("mbf.lambda", 0.95f);
+      alpha = repository.getConf().getFloat("mbf.alpha", 0.5f);
+      fbmaxdocs = repository.getConf().getInt("mbf.fbdocs", 10);
+      fbstopwords = repository.getConf().getBoolean("mbf.fbstopwords", false);
+      fbterms = repository.getConf().getInt("mbf.fbterms", 1000);
    }
    
    @Override

@@ -1,7 +1,7 @@
 package io.github.repir.Strategy;
 import io.github.repir.Retriever.Query;
 import io.github.repir.Retriever.Retriever;
-import io.github.repir.tools.Lib.Log; 
+import io.github.repir.tools.lib.Log; 
 
 /**
  * A RetrievalModel that reformulates it query by implementing {@link #getQueryToRetrieve() }

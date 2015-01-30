@@ -6,10 +6,10 @@ import io.github.repir.Repository.Pig.PigRepo.File;
 import io.github.repir.Repository.Pig.PigRepo.Tuple;
 import io.github.repir.Repository.Repository;
 import io.github.repir.Repository.StoredFeature;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Structure.StructuredTextPig;
-import io.github.repir.tools.Structure.StructuredTextPigTuple;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.struct.StructuredTextPig;
+import io.github.repir.tools.io.struct.StructuredTextPigTuple;
+import io.github.repir.tools.lib.Log;
 
 /**
  * Can store one literal String per Document, e.g. collection ID, title, url.

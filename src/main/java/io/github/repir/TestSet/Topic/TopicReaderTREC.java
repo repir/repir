@@ -1,9 +1,9 @@
 package io.github.repir.TestSet.Topic;
 
 import io.github.repir.Repository.Repository;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Structure.StructuredTextFile;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.struct.StructuredTextFile;
+import io.github.repir.tools.lib.Log;
 import java.util.HashMap;
 
 /**

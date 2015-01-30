@@ -1,13 +1,12 @@
 package io.github.repir.EntityReader;
 
-import io.github.repir.tools.Extractor.Entity;
-import io.github.repir.EntityReader.MapReduce.EntityWritable;
-import io.github.repir.tools.Content.EOCException;
-import io.github.repir.tools.Content.HDFSIn;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.extract.Content;
+import io.github.repir.tools.io.EOCException;
+import io.github.repir.tools.lib.Log;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
-import io.github.repir.tools.Lib.ByteTools;
+import io.github.repir.tools.lib.ByteTools;
+import java.io.ByteArrayOutputStream;
 
 /**
  * An implementation of EntityReader that scans the input for Wikipedia XML
@@ -44,24 +43,25 @@ public class EntityReaderWikipedia extends EntityReader {
          if (readUntilStart() && fsin.getOffset() - startTag.length < fsin.getCeiling()) {
             key.set(fsin.getOffset());
             if (readEntity()) {
-               int starttext = ByteTools.find(entitywritable.entity.content, bodyStart, 0, entitywritable.entity.content.length, false, false);
+               int starttext = ByteTools.find(entitywritable.content, bodyStart, 0, entitywritable.content.length, false, false);
                if (starttext > 0) {
-                  starttext = ByteTools.find(entitywritable.entity.content, bodyStartEnd, starttext + bodyStart.length, entitywritable.entity.content.length, false, false);
+                  starttext = ByteTools.find(entitywritable.content, bodyStartEnd, starttext + bodyStart.length, entitywritable.content.length, false, false);
                   if (starttext > 0) {
                      // check for redirect page
-                     int endtext = ByteTools.find(entitywritable.entity.content, bodyEnd, starttext + bodyStartEnd.length, entitywritable.entity.content.length, false, false);
+                     int endtext = ByteTools.find(entitywritable.content, bodyEnd, starttext + bodyStartEnd.length, entitywritable.content.length, false, false);
                      if (endtext > starttext) {
-                        int redirectpos = ByteTools.find(entitywritable.entity.content, redirect, 0, starttext, false, false);
+                        int redirectpos = ByteTools.find(entitywritable.content, redirect, 0, starttext, false, false);
                         if (redirectpos < 0) {
-                           String ns = ByteTools.extract(entitywritable.entity.content, nsStart, nsEnd, 0, entitywritable.entity.content.length, false, false);
+                           String ns = ByteTools.extract(entitywritable.content, nsStart, nsEnd, 0, entitywritable.content.length, false, false);
                            if (ns.trim().equals("0")) {
-                              String id = ByteTools.extract(entitywritable.entity.content, idStart, idEnd, 0, starttext, false, false);
-                              String title = ByteTools.extract(entitywritable.entity.content, titleStart, titleEnd, 0, starttext, false, false);
+                              String id = ByteTools.extract(entitywritable.content, idStart, idEnd, 0, starttext, false, false);
+                              String title = ByteTools.extract(entitywritable.content, titleStart, titleEnd, 0, starttext, false, false);
                               if (id.equals("736")) {
                               //log.info("id %s title %s ns %s", id, title, ns); 
-                              entitywritable.entity.addSectionPos("all", starttext + 1, starttext + 1, endtext, endtext);
-                              entitywritable.entity.get("literaltitle").add(title);
-                              entitywritable.entity.get("collectionid").add(id);
+                              entitywritable.addSectionPos("all", 
+                                entitywritable.content, starttext + 1, starttext + 1, endtext, endtext);
+                              entitywritable.get("literaltitle").add(title);
+                              entitywritable.get("collectionid").add(id);
                               return true;
                               }
                            }
@@ -76,26 +76,26 @@ public class EntityReaderWikipedia extends EntityReader {
    }
 
    private boolean readEntity() {
-      entitywritable = new EntityWritable();
-      entitywritable.entity = new Entity();
+      ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+      entitywritable = new Content();
       int needleposition = 0;
       while (true) {
          try {
             int b = fsin.readByte();
             if (b != endTag[needleposition]) { // check if we match needle
                if (needleposition > 0) {
-                  entitywritable.writeBytes(endTag, 0, needleposition);
+                  buffer.write(endTag, 0, needleposition);
                   needleposition = 0;
                }
             }
             if (b == endTag[needleposition]) {
                needleposition++;
                if (needleposition >= endTag.length) {
-                  entitywritable.storeContent();
+                  entitywritable.content = buffer.toByteArray();
                   return true;
                }
             } else {
-               entitywritable.writeByte(b);
+               buffer.write(b);
             }
          } catch (EOCException ex) {
             return false;

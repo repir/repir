@@ -6,11 +6,11 @@ import io.github.repir.Repository.SynStats;
 import io.github.repir.Repository.SynStats.Record;
 import io.github.repir.Strategy.Operator.SynonymOperator;
 import io.github.repir.Retriever.Document;
-import io.github.repir.tools.Content.EOCException;
-import io.github.repir.tools.Structure.StructureReader;
-import io.github.repir.tools.Structure.StructureWriter;
-import io.github.repir.tools.Lib.Log;
-import io.github.repir.tools.Lib.MathTools;
+import io.github.repir.tools.io.EOCException;
+import io.github.repir.tools.io.struct.StructureReader;
+import io.github.repir.tools.io.struct.StructureWriter;
+import io.github.repir.tools.lib.Log;
+import io.github.repir.tools.lib.MathTools;
 
 /**
  * Collects the collection and document frequency of {@link SynonymOperator}s. 
@@ -46,7 +46,7 @@ public class CollectorSynonym extends CollectorCachable<Record> {
    
    @Override
    public int hashCode() {
-      return MathTools.finishHash(MathTools.hash(synid.hashCode()));
+      return MathTools.finishHash(MathTools.hashCode(synid.hashCode()));
    }
 
    @Override

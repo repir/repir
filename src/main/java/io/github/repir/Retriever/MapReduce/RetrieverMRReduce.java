@@ -10,7 +10,7 @@ import io.github.repir.Strategy.Collector.CollectorCachable;
 import io.github.repir.Repository.Repository;
 import io.github.repir.Strategy.Strategy;
 import io.github.repir.Retriever.Query;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
 
 /**
  * The reducer is generic, using the passed query with the name of the retrieval
@@ -35,7 +35,7 @@ public class RetrieverMRReduce extends Reducer<CollectorKey, CollectorValue, Nul
    @Override
    protected void setup(Context context) throws IOException, InterruptedException {
       repository = new Repository(context.getConfiguration());
-      conf = repository.getConfiguration();
+      conf = repository.getConf();
       retriever = new Retriever(repository, context);
       reducers = conf.getStrings("retriever.reducers");
 

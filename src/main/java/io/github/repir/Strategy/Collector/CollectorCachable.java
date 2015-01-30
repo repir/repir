@@ -3,11 +3,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import io.github.repir.Repository.StoredDynamicFeature;
 import io.github.repir.Strategy.Strategy;
-import io.github.repir.tools.Content.EOCException;
-import io.github.repir.tools.Structure.StructuredFileKeyValueRecord;
-import io.github.repir.tools.Structure.StructureReader;
-import io.github.repir.tools.Structure.StructureWriter;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.io.EOCException;
+import io.github.repir.tools.io.struct.StructuredFileKeyValueRecord;
+import io.github.repir.tools.io.struct.StructureReader;
+import io.github.repir.tools.io.struct.StructureWriter;
+import io.github.repir.tools.lib.Log;
 
 /**
  * An abstract for a {@link Collector}s that stores its results in a {@link StoredDynamicFeature}.

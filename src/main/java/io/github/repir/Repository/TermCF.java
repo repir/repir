@@ -3,12 +3,12 @@ package io.github.repir.Repository;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Structure.StructuredFileByteJumpTable;
-import io.github.repir.tools.Structure.StructuredDataStream;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.struct.StructuredFileByteJumpTable;
+import io.github.repir.tools.io.struct.StructuredDataStream;
 import io.github.repir.Repository.TermCF.File;
-import io.github.repir.tools.Lib.Const;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Const;
+import io.github.repir.tools.lib.Log;
 
 /**
  * Stores the collection frequency of terms, which can be accessed
@@ -61,8 +61,8 @@ public class TermCF extends StoredUnreportableFeature<File> implements Dictionar
                v = Const.NULLLONG;
             cf.add(v);
          }
-         repository.getConfiguration().setIntList("repository.cachedtermids", termids);
-         repository.getConfiguration().setLongList("repository.cachedtermtfs", cf);
+         repository.getConf().setIntList("repository.cachedtermids", termids);
+         repository.getConf().setLongList("repository.cachedtermtfs", cf);
       }
    }
    

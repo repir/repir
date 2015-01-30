@@ -1,13 +1,13 @@
 package io.github.repir.EntityReader;
 
-import io.github.repir.tools.Extractor.Entity;
-import io.github.repir.EntityReader.MapReduce.EntityWritable;
-import io.github.repir.tools.ByteSearch.ByteSearch;
-import io.github.repir.tools.ByteSearch.ByteSearchPosition;
-import io.github.repir.tools.ByteSearch.ByteSearchSection;
-import io.github.repir.tools.ByteSearch.ByteSection;
-import io.github.repir.tools.Content.EOCException;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.extract.Content;
+import io.github.repir.tools.search.ByteSearch;
+import io.github.repir.tools.search.ByteSearchPosition;
+import io.github.repir.tools.search.ByteSearchSection;
+import io.github.repir.tools.search.ByteSection;
+import io.github.repir.tools.io.EOCException;
+import io.github.repir.tools.lib.Log;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
@@ -35,18 +35,22 @@ public class EntityReaderCC extends EntityReader {
    public boolean nextKeyValue() {
       while (fsin.hasMore()) {
          readEntity();
-         ArrayList<ByteSearchPosition> sectionbreaks = newSection.findPos(entitywritable.entity.content, 0, entitywritable.entity.content.length, 2);
+         ArrayList<ByteSearchPosition> sectionbreaks = newSection.findPos(entitywritable.content, 0, entitywritable.content.length, 2);
          if (sectionbreaks.size() == 2) {
-            ByteSearchSection typesection = warcType.findPos(entitywritable.entity.content, sectionbreaks.get(0).end, entitywritable.entity.content.length);
-            if (sectionbreaks.get(1).end < entitywritable.entity.content.length) {
+            ByteSearchSection typesection = warcType.findPos(entitywritable.content, sectionbreaks.get(0).end, entitywritable.content.length);
+            if (sectionbreaks.get(1).end < entitywritable.content.length) {
                if (typesection.found() && typesection.toString().startsWith("text")) {
-                  ByteSearchSection domainsection = domainregex.findPos(entitywritable.entity.content, 0, entitywritable.entity.content.length);
+                  ByteSearchSection domainsection = domainregex.findPos(entitywritable.content, 0, entitywritable.content.length);
                   if (domainsection.found()) {
                      String domain = domainsection.toString();
                      if (domain.contains(".")) {
                         log.info("domain %s", domain);
-                        entitywritable.entity.get("domain").add(domain);
-                        entitywritable.entity.addSectionPos("all", 0, sectionbreaks.get(1).end, entitywritable.entity.content.length, entitywritable.entity.content.length);
+                        entitywritable.get("domain").add(domain);
+                        entitywritable.addSectionPos("all", 
+                                entitywritable.content, 0, 
+                                sectionbreaks.get(1).end, 
+                                entitywritable.content.length, 
+                                entitywritable.content.length);
                         return true;
                      }
                   }
@@ -58,15 +62,15 @@ public class EntityReaderCC extends EntityReader {
    }
 
    private void readEntity() {
-      entitywritable = new EntityWritable();
-      entitywritable.entity = new Entity();
+      ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+      entitywritable = new Content();
       key.set(fsin.getOffset());
       int match = 0;
       while (true) {
          try {
             int b = fsin.readByte();
             if (match > 0 && b != warcTag[match]) { // output falsely cached chars
-               entitywritable.writeBytes(warcTag, 0, match);
+               buffer.write(warcTag, 0, match);
                match = 0;
             }
             if (b == warcTag[match]) { // check if we're matching needle
@@ -75,13 +79,13 @@ public class EntityReaderCC extends EntityReader {
                   break;
                }
             } else {
-               entitywritable.writeByte(b);
+               buffer.write(b);
             }
          } catch (EOCException ex) {
-            entitywritable.writeBytes(warcTag, 0, match);
+            buffer.write(warcTag, 0, match);
             break;
          }
       }
-      entitywritable.storeContent();
+      entitywritable.content = buffer.toByteArray();
    }
 }

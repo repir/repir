@@ -2,12 +2,12 @@ package io.github.repir.Repository;
 
 import io.github.repir.Repository.TermString.File;
 import io.github.repir.Retriever.Document;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.Datafile.Status;
-import io.github.repir.tools.Content.EOCException;
-import io.github.repir.tools.Structure.StructuredFileByteJumpTable;
-import io.github.repir.tools.Structure.StructuredDataStream;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.Datafile.STATUS;
+import io.github.repir.tools.io.EOCException;
+import io.github.repir.tools.io.struct.StructuredFileByteJumpTable;
+import io.github.repir.tools.io.struct.StructuredDataStream;
+import io.github.repir.tools.lib.Log;
 
 /**
  * Stores the stemmed string of terms in the Vocabulary, which can be accessed
@@ -39,7 +39,7 @@ public class TermString extends VocabularyToString<File> {
       if (id < cache.length) {
          return cache[id];
       }
-      if (file == null || file.getDatafile().status != Status.READ) {
+      if (file == null || file.getDatafile().status != STATUS.READ) {
          openRead();
       }
       file.read(id);

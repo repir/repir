@@ -7,7 +7,7 @@ import io.github.repir.Repository.*;
 import io.github.repir.Retriever.*;
 import io.github.repir.Strategy.*;
 import io.github.repir.Strategy.Operator.*;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
 
 /** 
  * !!!Do not edit this code!!! 

@@ -7,7 +7,7 @@ import io.github.repir.Strategy.Collector.Collector;
 import io.github.repir.Repository.Repository;
 import io.github.repir.Strategy.Strategy;
 import io.github.repir.Retriever.Query;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
 import org.apache.hadoop.io.IntWritable;
 
 /**

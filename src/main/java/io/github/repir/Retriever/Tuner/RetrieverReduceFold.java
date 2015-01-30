@@ -8,7 +8,7 @@ import io.github.repir.Retriever.Query;
 import io.github.repir.TestSet.Metric.QueryMetricAP;
 import io.github.repir.TestSet.ResultSet;
 import io.github.repir.TestSet.TestSet;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
 
 /**
  * Stores the tuned parameters into 10 separate folds, enabling parameter tuning
@@ -23,7 +23,7 @@ public class RetrieverReduceFold extends RetrieverReduce {
    int foldsize = 5;
 
    @Override
-   protected void score( Collection<Query> queries ) {
+   protected void score( Collection<Query> queries ) throws IOException {
       if (testset == null) {
          testset = new TestSet(repository);
          resultstat = new ResultSet( metric, testset, this.queries.values());

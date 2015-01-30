@@ -2,9 +2,9 @@
 //
 //import io.github.repir.Extractor.Entity;
 //import io.github.repir.EntityReader.MapReduce.EntityWritable;
-//import io.github.repir.tools.ByteSearch.ByteSearch;
-//import io.github.repir.tools.ByteSearch.ByteSearchSection;
-//import io.github.repir.tools.ByteSearch.ByteSection;
+//import io.github.repir.tools.search.ByteSearch;
+//import io.github.repir.tools.search.ByteSearchSection;
+//import io.github.repir.tools.search.ByteSection;
 //import io.github.repir.tools.Content.EOCException;
 //import io.github.repir.tools.Content.HDFSIn;
 //import io.github.repir.tools.Lib.Log;

@@ -1,6 +1,6 @@
 package io.github.repir.Strategy.Tools;
 import java.util.TreeSet; 
-import io.github.repir.tools.Lib.Log; 
+import io.github.repir.tools.lib.Log; 
 import java.util.Comparator;
 
 /**

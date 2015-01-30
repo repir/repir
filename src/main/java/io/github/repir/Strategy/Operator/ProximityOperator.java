@@ -6,9 +6,9 @@ import io.github.repir.Repository.ProximityStats;
 import io.github.repir.Repository.ProximityStats.Record;
 import io.github.repir.Repository.TermDocumentFeature;
 import io.github.repir.Strategy.GraphRoot;
-import io.github.repir.tools.Lib.ArrayTools;
-import io.github.repir.tools.Lib.Log;
-import io.github.repir.tools.Lib.PrintTools;
+import io.github.repir.tools.lib.ArrayTools;
+import io.github.repir.tools.lib.Log;
+import io.github.repir.tools.lib.PrintTools;
 
 /**
  * The {@link ProximityOperator} counts co-occurrence of the contained

@@ -1,14 +1,14 @@
 package io.github.repir.Repository;
 
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Structure.StructuredFileSequential;
-import io.github.repir.tools.Extractor.Entity;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.struct.StructuredFileSequential;
+import io.github.repir.tools.extract.Content;
 import io.github.repir.EntityReader.MapReduce.TermEntityKey;
 import io.github.repir.EntityReader.MapReduce.TermEntityValue;
 import io.github.repir.Repository.TermInverted.File;
 import io.github.repir.Retriever.Document;
-import io.github.repir.tools.Content.EOCException;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.io.EOCException;
+import io.github.repir.tools.lib.Log;
 import java.util.ArrayList;
 
 /**
@@ -60,7 +60,7 @@ public class TermInverted extends AutoTermDocumentFeature<File, int[]> {
    
    @Override
    public void setMapOutputValue(TermEntityValue value, String docname, ArrayList<Integer> pos) {
-      value.writer.write0Str(docname);
+      value.writer.write0(docname);
       value.writer.writeIncr(pos);
    }
 

@@ -1,6 +1,6 @@
 package io.github.repir.Repository;
 
-import io.github.repir.tools.Extractor.Entity;
+import io.github.repir.tools.extract.Content;
 import io.github.repir.EntityReader.MapReduce.TermEntityKey;
 import io.github.repir.EntityReader.MapReduce.TermEntityValue;
 import java.io.IOException;
@@ -12,7 +12,7 @@ import org.apache.hadoop.mapreduce.Mapper.Context;
  */
 public interface ReducibleFeature {
     
-   public void writeMap(Context context, int feature, String docname, Entity entity) throws IOException, InterruptedException;
+   public void writeMap(Context context, int feature, String docname, Content entity) throws IOException, InterruptedException;
     
    public void writeReduce(TermEntityKey key, Iterable<TermEntityValue> values);
 
@@ -22,5 +22,5 @@ public interface ReducibleFeature {
    
    public String entityAttribute();
    
-   public TermEntityKey createMapOutputKey(int feature, String docname, Entity entity);
+   public TermEntityKey createMapOutputKey(int feature, String docname, Content entity);
 }

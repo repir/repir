@@ -1,13 +1,13 @@
 package io.github.repir.Retriever;
 
-import io.github.repir.tools.Buffer.BufferDelayedWriter;
-import io.github.repir.tools.Structure.StructureReader;
-import io.github.repir.tools.Structure.StructureWriter;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.io.buffer.BufferDelayedWriter;
+import io.github.repir.tools.io.struct.StructureReader;
+import io.github.repir.tools.io.struct.StructureWriter;
+import io.github.repir.tools.lib.Log;
 import io.github.repir.Repository.ReportableFeature;
 import io.github.repir.Strategy.RetrievalModel;
-import io.github.repir.tools.Buffer.BufferSerializable;
-import io.github.repir.tools.Content.EOCException;
+import io.github.repir.tools.io.buffer.BufferSerializable;
+import io.github.repir.tools.io.EOCException;
 
 /**
  * Data class to contain values of retrieved documents. A Repository is assumed
@@ -137,7 +137,7 @@ public class Document implements BufferSerializable {
          c.feature.encode(this, c.reportID);
       }
       for (int i = 0; i < reportdata.length; i++) {
-         writer.writeByteBlock((byte[]) reportdata[ i]);
+         writer.write((byte[]) reportdata[ i]);
       }
       writer.write(report);
    }
@@ -151,7 +151,7 @@ public class Document implements BufferSerializable {
          int featurescount = reader.readInt();
          reportdata = new Object[featurescount];
          for (int i = 0; i < featurescount; i++) {
-            reportdata[i] = reader.readByteBlock();
+            reportdata[i] = reader.readByteArray();
          }
          report = reader.readStringBuilder();
       } catch (EOCException ex) {
@@ -171,6 +171,6 @@ public class Document implements BufferSerializable {
       if (report == null) {
          report = new StringBuilder();
       }
-      report.append(io.github.repir.tools.Lib.PrintTools.sprintf(s, o));
+      report.append(io.github.repir.tools.lib.PrintTools.sprintf(s, o));
    }
 }

@@ -3,8 +3,9 @@ package io.github.repir.TestSet;
 import io.github.repir.Retriever.Document;
 import io.github.repir.Retriever.Query;
 import io.github.repir.TestSet.Metric.QueryMetric;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.lib.Log;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,24 +28,24 @@ public class ResultSet {
     private double mean = -1;
     public HashSet<Integer> validqueries;
 
-    public ResultSet(QueryMetric metric, TestSet ts, String file) {
+    public ResultSet(QueryMetric metric, TestSet ts, String file) throws IOException {
         this(metric, ts, new ResultFileRR(ts, file).getResults());
         this.system = file;
     }
 
-    public ResultSet(QueryMetric metric, TestSet ts, Collection<Query> queries) {
+    public ResultSet(QueryMetric metric, TestSet ts, Collection<Query> queries) throws IOException {
         this.testset = ts;
         this.querymetric = metric;
         setQueries(queries);
     }
 
-    public ResultSet(QueryMetric metric, TestSet ts, Query query) {
+    public ResultSet(QueryMetric metric, TestSet ts, Query query) throws IOException {
         this.testset = ts;
         this.querymetric = metric;
         setQuery(query);
     }
 
-    public void setQueries(Collection<Query> queries) {
+    public void setQueries(Collection<Query> queries) throws IOException {
         this.queries = new ArrayList<Query>(queries);
         Collections.sort(this.queries);
         queryresult = new double[queries.size()];
@@ -52,11 +53,11 @@ public class ResultSet {
         calculateMeasure();
     }
 
-    public void setQuery(final Query q) {
+    public void setQuery(final Query q) throws IOException {
         setQueries( new ArrayList<Query>() {{ add(q); }} );
     }
 
-    private void calculateMeasure() {
+    private void calculateMeasure() throws IOException {
         validqueries = testset.possibleQueries();
         for (int q = 0; q < queries.size(); q++) {
             if (queryresult[q] == 0) {
@@ -80,7 +81,7 @@ public class ResultSet {
 
     public double getMean() {
         if (mean == -1 && validqueries.size() > 0) {
-            mean = io.github.repir.tools.Lib.MathTools.sum(queryresult) / validqueries.size();
+            mean = io.github.repir.tools.lib.DoubleTools.sum(queryresult) / validqueries.size();
         }
         return mean;
     }

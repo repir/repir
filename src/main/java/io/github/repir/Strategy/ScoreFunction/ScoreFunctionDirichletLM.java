@@ -4,7 +4,7 @@ import io.github.repir.Repository.DocTF;
 import io.github.repir.Repository.Repository;
 import io.github.repir.Retriever.Document;
 import io.github.repir.Strategy.Operator.Operator;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
 
 /**
  * Implementation of Dirichlet smoothed Language Model estimate, as described by

@@ -1,30 +1,30 @@
 package io.github.repir.MapReduceTools;
 
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.FSFileInBuffer;
-import io.github.repir.tools.Lib.ArgsParser;
-import io.github.repir.tools.Lib.ArrayTools;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.FSFileInBuffer;
+import io.github.repir.tools.lib.ArgsParser;
+import io.github.repir.tools.lib.ArrayTools;
+import io.github.repir.tools.lib.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import org.apache.hadoop.util.GenericOptionsParser;
 
 /**
- * Extension of RepIRTools.Configuration, which is an extension to
- * Hadoop's Configuration, that is also used by {@link Repository}
+ * Extension of RepIRTools.Conf, which is an extension to
+ Hadoop's Conf, that is also used by {@link Repository}
  * to store its configuration. This extension reads the location
- * of RepIR resources from the environment, and sets these in the
- * Configuration for further use. If instantiated 
- * with an array of arguments, the first argument should be the name
- * of a file with configuration settings that is added to the 
- * Configuration. 
- * <p/>
- * For internal use, this extension contains methods to read and write
- * the Configuration set for a repository to a file.
+ of RepIR resources from the environment, and sets these in the
+ Conf for further use. If instantiated 
+ with an array of arguments, the first argument should be the name
+ of a file with configuration settings that is added to the 
+ Conf. 
+ <p/>
+ For internal use, this extension contains methods to read and write
+ the Conf set for a repository to a file.
  * @author Jeroen Vuurens
  */
-public class RRConfiguration extends io.github.repir.tools.hadoop.Configuration {
+public class RRConfiguration extends io.github.repir.tools.hadoop.Conf {
 
    public static Log log = new Log(RRConfiguration.class);
 
@@ -59,19 +59,10 @@ public class RRConfiguration extends io.github.repir.tools.hadoop.Configuration 
       set("rr.conf", df.getFilename());
       String libs = get("rr.lib");
       if (libs != null && libs.length() > 0) {
-         StringBuilder sb = new StringBuilder();
-         for (String lib : libs.split(",")) {
-            sb.append(",").append(get("rr.libdir")).append(lib);
-         }
-         String args[] = new String[]{"-libjars", sb.deleteCharAt(0).toString()};
-          try {
-              GenericOptionsParser p = new GenericOptionsParser(this, args);
-          } catch (IOException ex) {
-              log.exception(ex, "Failed to include rr.lib jars: %s", libs);
-          }
+         addLibraries(get("rr.libdir"), get("rr.lib").split(","));
       }
    }
-
+   
    public RRConfiguration(String filename) {
       super();
       setEnv();
@@ -92,7 +83,7 @@ public class RRConfiguration extends io.github.repir.tools.hadoop.Configuration 
       return configfile(filename);
    }
 
-   // creates a Configuration based on a file with settings in a JAR
+   // creates a Conf based on a file with settings in a JAR
    public static RRConfiguration createFromResource(String resource) {
       InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
       FSFileInBuffer fi = new FSFileInBuffer(input);

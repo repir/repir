@@ -5,8 +5,8 @@ import io.github.repir.Retriever.PostingIteratorReusable;
 import java.io.IOException;
 import io.github.repir.Repository.Repository;
 import io.github.repir.Retriever.Query;
-import io.github.repir.tools.Lib.ArrayTools;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.ArrayTools;
+import io.github.repir.tools.lib.Log;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -126,12 +126,12 @@ public class Retriever extends io.github.repir.Retriever.Reusable.Retriever {
          String pstr = p.parameter + "=" + p.getPoints().get(settings[p.index]).toString();
          list.add(pstr);
       }
-      return ArrayTools.concatStr(list, ",");
+      return ArrayTools.toString(list, ",");
    }
 
    private ArrayList<String> removeKnownSettings(Repository repository, ArrayList<String> settings) {
       String[] storedparameters = repository.getStoredFreeParameters();
-      repository.getConfiguration().setInt("fold", 0); // for if n-fold is used
+      repository.getConf().setInt("fold", 0); // for if n-fold is used
       ModelParameters modelparameters = ModelParameters.get(repository, repository.configurationName());
       modelparameters.setDataBufferSize(1000000);
       modelparameters.openRead();
@@ -163,7 +163,7 @@ public class Retriever extends io.github.repir.Retriever.Reusable.Retriever {
          repository.addConfiguration(s);
          boolean allthere = true;
          for (int i = 0; i < 10; i++) {
-            repository.getConfiguration().setInt("fold", i);
+            repository.getConf().setInt("fold", i);
             ModelParameters.Record newRecord = modelparameters.newRecord(storedparameters);
             ModelParameters.Record found = modelparameters.read(newRecord);
             if (found == newRecord) {

@@ -1,10 +1,10 @@
 package io.github.repir.Retriever;
 
-import io.github.repir.tools.Structure.StructureReader;
-import io.github.repir.tools.Structure.StructureWriter;
+import io.github.repir.tools.io.struct.StructureReader;
+import io.github.repir.tools.io.struct.StructureWriter;
 import io.github.repir.Repository.Feature;
 import io.github.repir.Repository.Repository;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
 import io.github.repir.Strategy.Strategy;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -12,10 +12,12 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import io.github.repir.Strategy.RetrievalModel;
-import io.github.repir.tools.Buffer.BufferSerializable;
-import io.github.repir.tools.Content.EOCException;
-import io.github.repir.tools.Lib.ClassTools;
+import io.github.repir.tools.io.buffer.BufferSerializable;
+import io.github.repir.tools.io.EOCException;
+import io.github.repir.tools.lib.ClassTools;
 import java.util.Collections;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A Query object contains the query request, settings such as retrievalmodel,
@@ -95,16 +97,16 @@ public class Query implements BufferSerializable,Comparable<Query> {
 
    public Query(Repository repository, int queryid, String query) {
       addVariant(new Variant(
-              repository.getConfiguration().get("retriever.strategy", "RetrievalModel"),
-              repository.getConfiguration().get("retriever.scorefunction", "ScoreFunctionKLD"), 
+              repository.getConf().get("retriever.strategy", "RetrievalModel"),
+              repository.getConf().get("retriever.scorefunction", "ScoreFunctionKLD"), 
               null));
       this.repository = repository;
       this.id = queryid;
       this.originalquery = query;
-      documentlimit = repository.getConfiguration().getInt("retriever.documentlimit", 10);
-      documentclass = repository.getConfiguration().get("retriever.documentclass", Document.class.getCanonicalName());
-      documentcomparatorclass = repository.getConfiguration().get("retriever.documentcomparatorclass", DocumentComparator.class.getCanonicalName());
-      removeStopwords = repository.getConfiguration().getBoolean("retriever.removestopwords", false);
+      documentlimit = repository.getConf().getInt("retriever.documentlimit", 10);
+      documentclass = repository.getConf().get("retriever.documentclass", Document.class.getCanonicalName());
+      documentcomparatorclass = repository.getConf().get("retriever.documentcomparatorclass", DocumentComparator.class.getCanonicalName());
+      removeStopwords = repository.getConf().getBoolean("retriever.removestopwords", false);
    }
 
    /**
@@ -298,8 +300,12 @@ public class Query implements BufferSerializable,Comparable<Query> {
    
    public Document createDocument() {
         if (documentconstructor == null) {
-           Class dclass = ClassTools.toClass(this.documentclass, Document.class.getPackage().getName());
-           documentconstructor = ClassTools.getAssignableConstructor(dclass, Document.class);
+            try {
+                Class dclass = ClassTools.toClass(this.documentclass, Document.class.getPackage().getName());
+                documentconstructor = ClassTools.getAssignableConstructor(dclass, Document.class);
+            } catch (ClassNotFoundException ex) {
+               log.fatalexception(ex, "createDocument(%s) invalid Document class", documentclass);
+            }
         }
         Document d = (Document)ClassTools.construct(documentconstructor);
         return d;
@@ -307,8 +313,12 @@ public class Query implements BufferSerializable,Comparable<Query> {
    
    public Document createDocument(RetrievalModel retrievalmodel, int id, int partition) {
         if (documentconstructor2 == null) {
-           Class dclass = ClassTools.toClass(this.documentclass, Document.class.getPackage().getName());
-           documentconstructor2 = ClassTools.getAssignableConstructor(dclass, Document.class, RetrievalModel.class, int.class, int.class);
+            try {
+                Class dclass = ClassTools.toClass(this.documentclass, Document.class.getPackage().getName());
+                documentconstructor2 = ClassTools.getAssignableConstructor(dclass, Document.class, RetrievalModel.class, int.class, int.class);
+            } catch (ClassNotFoundException ex) {
+               log.fatalexception(ex, "createDocument(%s) invalid Document class", documentclass);
+            }
         }
         Document d = (Document)ClassTools.construct(documentconstructor2, retrievalmodel, id, partition);
         return d;
@@ -316,9 +326,13 @@ public class Query implements BufferSerializable,Comparable<Query> {
    
    public Comparator<Document> getDocumentComparator() {
       if (documentcomparator == null) {
-         Class clazz = ClassTools.toClass(documentcomparatorclass, DocumentComparator.class.getPackage().getName());
-         Constructor c = ClassTools.getAssignableConstructor(clazz, Comparator.class);
-         documentcomparator = (Comparator<Document>)ClassTools.construct(c);
+            try {
+                Class clazz = ClassTools.toClass(documentcomparatorclass, DocumentComparator.class.getPackage().getName());
+                Constructor c = ClassTools.getAssignableConstructor(clazz, Comparator.class);
+                documentcomparator = (Comparator<Document>)ClassTools.construct(c);
+            } catch (ClassNotFoundException ex) {
+               log.fatalexception(ex, "createDocumentComparator(%s) invalid DocumentComparator class", documentcomparatorclass);
+            }
       }
       return documentcomparator;
    }

@@ -2,12 +2,12 @@ package io.github.repir.Repository;
 
 import io.github.repir.Repository.SynStats.File;
 import io.github.repir.Repository.SynStats.Record;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Structure.StructuredFileKeyValue;
-import io.github.repir.tools.Structure.StructuredFileKeyValueRecord;
-import io.github.repir.tools.Lib.Log;
-import io.github.repir.tools.Lib.MathTools;
-import io.github.repir.tools.Lib.PrintTools;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.struct.StructuredFileKeyValue;
+import io.github.repir.tools.io.struct.StructuredFileKeyValueRecord;
+import io.github.repir.tools.lib.Log;
+import io.github.repir.tools.lib.MathTools;
+import io.github.repir.tools.lib.PrintTools;
 
 /**
  * This feature caches statistics for synonym sets (collection frequency and document 
@@ -80,7 +80,7 @@ public class SynStats extends StoredDynamicFeature<File, Record> {
       
       @Override
       public int hashCode() {
-         return MathTools.finishHash(MathTools.hash(query.hashCode()));
+         return MathTools.finishHash(MathTools.hashCode(query.hashCode()));
       }
 
       @Override

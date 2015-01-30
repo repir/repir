@@ -1,15 +1,15 @@
 package io.github.repir.Repository;
 
 import io.github.repir.Retriever.Document;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Structure.StructuredFileShortJumpTable;
-import io.github.repir.tools.Structure.StructuredDataStream;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.struct.StructuredFileShortJumpTable;
+import io.github.repir.tools.io.struct.StructuredDataStream;
 import io.github.repir.EntityReader.MapReduce.TermEntityKey;
 import io.github.repir.EntityReader.MapReduce.TermEntityValue;
-import io.github.repir.tools.Lib.Log;
-import io.github.repir.tools.Extractor.Entity;
+import io.github.repir.tools.lib.Log;
+import io.github.repir.tools.extract.Content;
 import io.github.repir.Repository.DocLiteral.File;
-import io.github.repir.tools.Content.EOCException;
+import io.github.repir.tools.io.EOCException;
 
 /**
  * Can store one literal String per Document, e.g. collection ID, title, url.
@@ -37,7 +37,7 @@ public class DocLiteral
    }
    
    @Override
-   public void setMapOutputValue(TermEntityValue value, Entity entity) {
+   public void setMapOutputValue(TermEntityValue value, Content entity) {
       value.writer.write(extract(entity));
    }
 

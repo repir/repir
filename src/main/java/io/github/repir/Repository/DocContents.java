@@ -1,19 +1,19 @@
 package io.github.repir.Repository;
 
-import io.github.repir.tools.Extractor.Entity;
+import io.github.repir.tools.extract.Content;
 import io.github.repir.EntityReader.MapReduce.TermEntityKey;
 import io.github.repir.EntityReader.MapReduce.TermEntityValue;
-import io.github.repir.tools.Extractor.EntityChannel;
+import io.github.repir.tools.extract.ExtractChannel;
 import io.github.repir.Repository.DocContents.File;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.Datafile.Status;
-import io.github.repir.tools.Content.EOCException;
-import io.github.repir.tools.Structure.StructuredFileSortHash;
-import io.github.repir.tools.Structure.StructuredFileSortHashRecord;
-import io.github.repir.tools.Structure.StructuredFileSortRecord;
-import io.github.repir.tools.Lib.Log;
-import io.github.repir.tools.Lib.PrintTools;
-import io.github.repir.tools.Lib.StrTools;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.Datafile.STATUS;
+import io.github.repir.tools.io.EOCException;
+import io.github.repir.tools.io.struct.StructuredFileSortHash;
+import io.github.repir.tools.io.struct.StructuredFileSortHashRecord;
+import io.github.repir.tools.io.struct.StructuredFileSortRecord;
+import io.github.repir.tools.lib.Log;
+import io.github.repir.tools.lib.PrintTools;
+import io.github.repir.tools.lib.StrTools;
 
 /**
  * Fetches the internal term id for a term string. To improve lookup speed, the
@@ -46,8 +46,8 @@ public class DocContents extends StringLookupFeature<File, String[]> {
    }
    
    @Override
-   public void setMapOutputValue(TermEntityValue value, Entity doc) {
-      EntityChannel attr = doc.get(entityAttribute());
+   public void setMapOutputValue(TermEntityValue value, Content doc) {
+      ExtractChannel attr = doc.get(entityAttribute());
       //log.info("mapOutput %s %s", entityAttribute(), attr);
       value.writer.writeStr(attr);
    }
@@ -66,7 +66,7 @@ public class DocContents extends StringLookupFeature<File, String[]> {
 
    @Override
    public String[] get(String entityname) {
-      if (getFile().getDatafile().status != Status.READ) {
+      if (getFile().getDatafile().status != STATUS.READ) {
          openRead();
       }
       String contents[] = null;
@@ -77,7 +77,7 @@ public class DocContents extends StringLookupFeature<File, String[]> {
          contents = termfound.contents;
       } else {
          log.info("DocContents not found %s", entityname);
-         log.info("file %s", file.getDatafile().getFullPath());
+         log.info("file %s", file.getDatafile().getCanonicalPath());
          //log.crash();
       }
       return contents;
@@ -99,7 +99,7 @@ public class DocContents extends StringLookupFeature<File, String[]> {
 
    @Override
    public File createFile(Datafile datafile) {
-       log.info("creatFile %s %d", datafile.getFullPath(), repository.getDocumentCount());
+       log.info("creatFile %s %d", datafile.getCanonicalPath(), repository.getDocumentCount());
       return new File(datafile, (int)repository.getDocumentCount());
    }
 
@@ -118,7 +118,7 @@ public class DocContents extends StringLookupFeature<File, String[]> {
     }
 
       public File clone() {
-         return new File( new Datafile(datafile), getTableSize() );
+         return new File( new Datafile(getDatafile()), getTableSize() );
       }
 
       @Override

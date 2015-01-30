@@ -1,10 +1,10 @@
 package io.github.repir.Repository;
 
-import io.github.repir.tools.Extractor.Entity;
+import io.github.repir.tools.extract.Content;
 import io.github.repir.EntityReader.MapReduce.TermEntityKey;
 import io.github.repir.EntityReader.MapReduce.TermEntityValue;
-import io.github.repir.tools.Extractor.EntityChannel;
-import io.github.repir.tools.Structure.StructuredFileIntID;
+import io.github.repir.tools.extract.ExtractChannel;
+import io.github.repir.tools.io.struct.StructuredFileIntID;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +36,7 @@ public abstract class AutoTermDocumentFeature<F extends StructuredFileIntID, C> 
    TermEntityKey outkey;
    TermEntityValue outvalue = new TermEntityValue();
 
-   public void writeMap(Context context, int partition, int feature, String docname, Entity entity) throws IOException, InterruptedException {
+   public void writeMap(Context context, int partition, int feature, String docname, Content entity) throws IOException, InterruptedException {
        HashMap<Integer, ArrayList<Integer>> tokens = getTokens(entity);
        for (Entry<Integer, ArrayList<Integer>> entry : tokens.entrySet()) {
           outkey = TermEntityKey.createTermDocKey(partition, feature, entry.getKey(), docname);
@@ -47,12 +47,12 @@ public abstract class AutoTermDocumentFeature<F extends StructuredFileIntID, C> 
    
    public abstract void reduceInput(TermEntityKey key, Iterable<TermEntityValue> values);
    
-   public HashMap<Integer, ArrayList<Integer>> getTokens(Entity doc) {
+   public HashMap<Integer, ArrayList<Integer>> getTokens(Content doc) {
       HashMap<Integer, ArrayList<Integer>> list = new HashMap<Integer, ArrayList<Integer>>();
       ArrayList<Integer> l;
       int pos = 0;
       
-      EntityChannel attr = doc.get(entityAttribute());
+      ExtractChannel attr = doc.get(entityAttribute());
       if (attr.tokenized == null) {
          attr.tokenized = repository.tokenize(attr);
       }

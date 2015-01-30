@@ -4,7 +4,7 @@ import io.github.repir.Repository.EntityStoredFeature;
 import io.github.repir.Repository.ResidentFeature;
 import io.github.repir.Repository.TermDocumentFeature;
 import io.github.repir.Strategy.RetrievalModel;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
 import java.util.ArrayList;
 
 /**

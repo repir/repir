@@ -1,10 +1,10 @@
 package io.github.repir.Repository;
 
-import io.github.repir.tools.Extractor.EntityChannel;
-import io.github.repir.tools.Structure.StructuredFile;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.extract.ExtractChannel;
+import io.github.repir.tools.io.struct.StructuredFile;
+import io.github.repir.tools.lib.Log;
 import java.util.ArrayList;
-import io.github.repir.tools.Lib.ArrayTools;
+import io.github.repir.tools.lib.ArrayTools;
 
 /**
  * Abstract class for looking up the TermID in a vocabulary based on the stemmed
@@ -25,7 +25,7 @@ public abstract class VocabularyToID<F extends StructuredFile> extends StoredUnr
 
    public abstract int get(String term);
    
-   public int[] getContent(EntityChannel dc) {
+   public int[] getContent(ExtractChannel dc) {
       ArrayList<Integer> r = new ArrayList<Integer>();
       int p = 0;
       if (dc != null) {

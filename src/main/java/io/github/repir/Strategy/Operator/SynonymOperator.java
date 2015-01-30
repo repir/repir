@@ -8,9 +8,9 @@ import io.github.repir.Repository.SynStats.Record;
 import io.github.repir.Repository.TermDocumentFeature;
 import io.github.repir.Retriever.Document;
 import io.github.repir.Strategy.GraphRoot;
-import io.github.repir.tools.Lib.ArrayTools;
-import io.github.repir.tools.Lib.Log;
-import io.github.repir.tools.Lib.PrintTools;
+import io.github.repir.tools.lib.ArrayTools;
+import io.github.repir.tools.lib.Log;
+import io.github.repir.tools.lib.PrintTools;
 
 /**
  * Resolves the contained operators as if they are all occurrences of the same imaginary
@@ -138,10 +138,10 @@ public class SynonymOperator extends CachableOperator {
       StringBuilder sb = new StringBuilder();
       sb.append("[");
       if (getCF() > -1) {
-         sb.append(io.github.repir.tools.Lib.PrintTools.sprintf("cf=%d ", getCF()));
+         sb.append(io.github.repir.tools.lib.PrintTools.sprintf("cf=%d ", getCF()));
       }
       if (getDF() > -1) {
-         sb.append(io.github.repir.tools.Lib.PrintTools.sprintf("df=%d ", getDF()));
+         sb.append(io.github.repir.tools.lib.PrintTools.sprintf("df=%d ", getDF()));
       }
       for (Operator f : containednodes) {
          sb.append(f.postReformUnweighted()).append(" ");
@@ -197,6 +197,6 @@ public class SynonymOperator extends CachableOperator {
 
    @Override
    public String toString() {
-      return io.github.repir.tools.Lib.PrintTools.sprintf("FeatureSynonym[%d] weight %f\n", this.containednodes.size(), this.getQueryWeight());
+      return io.github.repir.tools.lib.PrintTools.sprintf("FeatureSynonym[%d] weight %f\n", this.containednodes.size(), this.getQueryWeight());
    }
 }

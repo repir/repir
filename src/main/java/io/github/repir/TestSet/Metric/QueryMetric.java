@@ -2,7 +2,9 @@ package io.github.repir.TestSet.Metric;
 
 import io.github.repir.Retriever.Query;
 import io.github.repir.TestSet.TestSet;
-import io.github.repir.tools.Lib.ClassTools;
+import io.github.repir.tools.lib.ClassTools;
+import io.github.repir.tools.lib.Log;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 
 /**
@@ -10,7 +12,7 @@ import java.lang.reflect.Constructor;
  * @author jer
  */
 public abstract class QueryMetric {
-
+   public static Log log = new Log(QueryMetric.class);
    int rank;
 
    public QueryMetric() {
@@ -29,11 +31,16 @@ public abstract class QueryMetric {
     * @return The metric for the given {@link Query}, given the relevance judgments
     * in the {@link TestSet}.
     */
-   public abstract double calculate(TestSet testset, Query query);
+   public abstract double calculate(TestSet testset, Query query) throws IOException ;
    
    public static QueryMetric create(String metricclass) {
-       Class clazz = ClassTools.toClass(metricclass, QueryMetric.class.getPackage().getName());
-       Constructor assignableConstructor = ClassTools.getAssignableConstructor(clazz, QueryMetric.class);
-       return (QueryMetric)ClassTools.construct(assignableConstructor);
+        try {
+            Class clazz = ClassTools.toClass(metricclass, QueryMetric.class.getPackage().getName());
+            Constructor assignableConstructor = ClassTools.getAssignableConstructor(clazz, QueryMetric.class);
+            return (QueryMetric)ClassTools.construct(assignableConstructor);
+        } catch (ClassNotFoundException ex) {
+            log.fatalexception(ex, "create() could not construct %s", metricclass);
+        }
+        return null;
    }
 }

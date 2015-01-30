@@ -1,8 +1,8 @@
 package io.github.repir.TestSet;
 
-import io.github.repir.tools.Extractor.Entity;
-import io.github.repir.tools.Extractor.Extractor;
-import io.github.repir.tools.Extractor.ExtractorTestSet;
+import io.github.repir.tools.extract.Content;
+import io.github.repir.tools.extract.ExtractorConf;
+import io.github.repir.tools.extract.ExtractorTestSet;
 import io.github.repir.Repository.DocLiteral;
 import io.github.repir.Repository.Repository;
 import io.github.repir.Retriever.Document;
@@ -14,11 +14,12 @@ import io.github.repir.TestSet.Qrel.QrelReaderTREC;
 import io.github.repir.TestSet.Topic.TestSetTopic;
 import io.github.repir.TestSet.Topic.TopicReader;
 import io.github.repir.TestSet.Topic.TopicReaderTREC;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.FSFile;
-import io.github.repir.tools.Lib.ClassTools;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.FSFile;
+import io.github.repir.tools.lib.ClassTools;
+import io.github.repir.tools.lib.Log;
 import io.github.repir.MapReduceTools.RRConfiguration;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +27,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A TestSet contains a set of {@link Query}s, for a collection, for which relevance
@@ -45,7 +48,7 @@ public class TestSet {
    public HashMap<Integer, TestSetTopic> topics;
    private HashMap<Integer, QRel> qrels;
    public DocLiteral collectionid;
-   public Extractor extractor;
+   public ExtractorConf extractor;
    HashMap<Integer, String> tunedParameters;
    private HashSet<Integer> possibleQueries;
 
@@ -77,14 +80,14 @@ public class TestSet {
       return new ResultFileRR(this, f);
    }
 
-   public HashMap<Integer, QRel> getQrels() {
+   public HashMap<Integer, QRel> getQrels() throws IOException {
       if (qrels == null) {
          qrels = readQrels(repository);
       }
       return qrels;
    }
 
-   public void purgeTopics() {
+   public void purgeTopics() throws IOException {
       getQrels();
       Iterator<Map.Entry<Integer, TestSetTopic>> iter = topics.entrySet().iterator();
       while (iter.hasNext()) {
@@ -147,7 +150,7 @@ public class TestSet {
       return query;
    }
 
-   public HashSet<Integer> possibleQueries() {
+   public HashSet<Integer> possibleQueries() throws IOException {
       if (possibleQueries == null) {
          possibleQueries = new HashSet();
          for (QRel qrel : getQrels().values()) {
@@ -162,7 +165,7 @@ public class TestSet {
       return possibleQueries;
    }
 
-   public int isRelevant(int topic, Document doc) {
+   public int isRelevant(int topic, Document doc) throws IOException {
       String docid = doc.getCollectionID();
       Integer relevant = getQrels().get(topic).relevance.get(docid);
       return (relevant == null) ? 0 : relevant;
@@ -176,17 +179,22 @@ public class TestSet {
     * @return 
     */
    public static HashMap<Integer, TestSetTopic> readTopics(Repository repository) {
-      String topicreaderclass = repository.configuredString("testset.topicreader", TopicReaderTREC.class.getSimpleName());
-      Class clazz = io.github.repir.tools.Lib.ClassTools.toClass(topicreaderclass, TopicReader.class.getPackage().getName());
-      Constructor c = io.github.repir.tools.Lib.ClassTools.getAssignableConstructor(clazz, TopicReader.class, Repository.class);
+        String topicreaderclass = repository.configuredString("testset.topicreader", TopicReaderTREC.class.getSimpleName());
+        try {
+            Class clazz = io.github.repir.tools.lib.ClassTools.toClass(topicreaderclass, TopicReader.class.getPackage().getName());
+            Constructor c = io.github.repir.tools.lib.ClassTools.getAssignableConstructor(clazz, TopicReader.class, Repository.class);
 
-      TopicReader tr = (TopicReader) io.github.repir.tools.Lib.ClassTools.construct(c, repository);
-      HashMap<Integer, TestSetTopic> topics = tr.getTopics();
-      for (String t : repository.configuredStrings("testset.droppedtopics")) {
-        if (t.trim().length() > 0)
-            topics.remove(Integer.parseInt(t.trim()));
-      } 
-      return topics;
+            TopicReader tr = (TopicReader) io.github.repir.tools.lib.ClassTools.construct(c, repository);
+            HashMap<Integer, TestSetTopic> topics = tr.getTopics();
+            for (String t : repository.configuredStrings("testset.droppedtopics")) {
+              if (t.trim().length() > 0)
+                  topics.remove(Integer.parseInt(t.trim()));
+            } 
+            return topics;
+        } catch (ClassNotFoundException ex) {
+            log.fatalexception(ex, "readTopics() could not construct TopicReader %s", topicreaderclass);
+        }
+        return null;
    }
 
    /**
@@ -196,19 +204,24 @@ public class TestSet {
     * @param repository
     * @return 
     */
-   public static HashMap<Integer, QRel> readQrels(Repository repository) {
-      String qrelreadername = repository.configuredString("testset.qrelreader", QrelReaderTREC.class.getSimpleName());
-      Class qrelreaderclass = ClassTools.toClass(qrelreadername, QrelReader.class.getPackage().getName());
-      Constructor constr = ClassTools.getAssignableConstructor(qrelreaderclass, QrelReader.class, Datafile.class);
-      
-      HashMap<Integer, QRel> qrels = new HashMap();
-      for (Datafile df : repository.getQrelFiles()) {
-         QrelReader qr = (QrelReader)ClassTools.construct(constr, df);
-         qrels.putAll(qr.getQrels());
-      }
+   public static HashMap<Integer, QRel> readQrels(Repository repository) throws IOException {
+        String qrelreadername = repository.configuredString("testset.qrelreader", QrelReaderTREC.class.getSimpleName());
+        try {
+            Class qrelreaderclass = ClassTools.toClass(qrelreadername, QrelReader.class.getPackage().getName());
+            Constructor constr = ClassTools.getAssignableConstructor(qrelreaderclass, QrelReader.class, Datafile.class);
+            
+            HashMap<Integer, QRel> qrels = new HashMap();
+            for (Datafile df : repository.getQrelFiles()) {
+               QrelReader qr = (QrelReader)ClassTools.construct(constr, df);
+               qrels.putAll(qr.getQrels());
+            }
 
-      filterQrels(repository, qrels);
-      return qrels;
+            filterQrels(repository, qrels);
+            return qrels;
+        } catch (ClassNotFoundException ex) {
+            log.fatalexception(ex, "readQrels() could not construct QrelReader %s", qrelreadername);
+        }
+        return null;
    }
 
    public static void filterQrels(Repository repository, HashMap<Integer, QRel> qrels) {
@@ -228,11 +241,11 @@ public class TestSet {
 
    public String filterString(String query) {
       if (extractor == null) {
-         extractor = new ExtractorTestSet(repository.getConfiguration());
+         extractor = new ExtractorTestSet(repository.getConf());
       }
-      Entity entity = new Entity();
+      Content entity = new Content();
       entity.setContent(query.getBytes());
       extractor.process(entity);
-      return io.github.repir.tools.Lib.ByteTools.toString(entity.content, 0, entity.content.length);
+      return io.github.repir.tools.lib.ByteTools.toString(entity.content, 0, entity.content.length);
    }
 }

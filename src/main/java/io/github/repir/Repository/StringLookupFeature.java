@@ -1,11 +1,11 @@
 package io.github.repir.Repository;
 
-import io.github.repir.tools.Extractor.Entity;
+import io.github.repir.tools.extract.Content;
 import io.github.repir.EntityReader.MapReduce.TermEntityKey;
 import io.github.repir.EntityReader.MapReduce.TermEntityValue;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Lib.Log;
-import io.github.repir.tools.Structure.StructuredFile;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.lib.Log;
+import io.github.repir.tools.io.struct.StructuredFile;
 import java.io.IOException;
 import org.apache.hadoop.mapreduce.Mapper;
 
@@ -36,12 +36,12 @@ public abstract class StringLookupFeature<F extends StructuredFile, C> extends S
         return canonicalName(getClass(), this.getField(), key);
     }
 
-    public String extract(Entity entity) {
+    public String extract(Content entity) {
         return entity.get(key).getContentStr();
     }
 
     @Override
-    public TermEntityKey createMapOutputKey(int feature, String docname, Entity entity) {
+    public TermEntityKey createMapOutputKey(int feature, String docname, Content entity) {
         String keyname = extract(entity);
         TermEntityKey t = TermEntityKey.createTermDocKey(0, feature, 0, keyname);
         t.type = TermEntityKey.Type.LOOKUPFEATURE;
@@ -52,13 +52,13 @@ public abstract class StringLookupFeature<F extends StructuredFile, C> extends S
     TermEntityValue outvalue = new TermEntityValue();
 
     @Override
-    public void writeMap(Mapper.Context context, int feature, String docname, Entity entity) throws IOException, InterruptedException {
+    public void writeMap(Mapper.Context context, int feature, String docname, Content entity) throws IOException, InterruptedException {
         outkey = createMapOutputKey(feature, docname, entity);
         setMapOutputValue(outvalue, entity);
         context.write(outkey, outvalue);
     }
 
-    abstract public void setMapOutputValue(TermEntityValue writer, Entity doc);
+    abstract public void setMapOutputValue(TermEntityValue writer, Content doc);
 
     public abstract C get(String term);
 

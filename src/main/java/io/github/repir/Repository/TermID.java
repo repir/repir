@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import io.github.repir.Repository.TermID.File;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.Datafile.Status;
-import io.github.repir.tools.Structure.StructuredFileSortHash;
-import io.github.repir.tools.Structure.StructuredFileSortHashRecord;
-import io.github.repir.tools.Structure.StructuredFileSortRecord;
-import io.github.repir.tools.Lib.ArrayTools;
-import io.github.repir.tools.Lib.Log;
-import io.github.repir.tools.Lib.PrintTools;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.Datafile.STATUS;
+import io.github.repir.tools.io.struct.StructuredFileSortHash;
+import io.github.repir.tools.io.struct.StructuredFileSortHashRecord;
+import io.github.repir.tools.io.struct.StructuredFileSortRecord;
+import io.github.repir.tools.lib.ArrayTools;
+import io.github.repir.tools.lib.Log;
+import io.github.repir.tools.lib.PrintTools;
 
 /**
  * Fetches the internal term id for a term string. To improve lookup speed, the
@@ -76,8 +76,8 @@ public class TermID extends VocabularyToID<File> {
             }
             termstrings.add("");
          }
-         repository.getConfiguration().setIntList("repository.cachedtermids", termids);
-         repository.getConfiguration().setStringList("repository.cachedtermstring", termstrings);
+         repository.getConf().setIntList("repository.cachedtermids", termids);
+         repository.getConf().setStringList("repository.cachedtermstring", termstrings);
       }
    }
 
@@ -86,10 +86,10 @@ public class TermID extends VocabularyToID<File> {
       Integer tid = cache.get(term);
       if (tid != null)
          return tid;
-      if (getFile().getDatafile().status != Status.READ) {
+      if (getFile().getDatafile().status != STATUS.READ) {
          openRead();
       }
-      int termid = io.github.repir.tools.Lib.Const.NULLINT;
+      int termid = io.github.repir.tools.lib.Const.NULLINT;
       Record termrecord = new Record(file);
       termrecord.term = term;
       Record termfound = (Record) termrecord.find();
@@ -97,7 +97,7 @@ public class TermID extends VocabularyToID<File> {
          termid = termfound.id;
       } else {
          log.info("Term not found %s repo %s", term, repository.getTestsetName());
-         log.info("TermID file %s", file.getDatafile().getFullPath());
+         log.info("TermID file %s", file.getDatafile().getCanonicalPath());
          //log.crash();
       }
       cache.put(term, termid);
@@ -158,7 +158,7 @@ public class TermID extends VocabularyToID<File> {
     }
 
       public File clone() {
-         return new File( new Datafile(datafile), getTableSize() );
+         return new File( new Datafile(getDatafile()), getTableSize() );
       }
 
       @Override

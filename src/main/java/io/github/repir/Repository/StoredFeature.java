@@ -1,10 +1,10 @@
 package io.github.repir.Repository;
 
 import io.github.repir.EntityReader.MapReduce.TermEntityKey;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Structure.StructuredFile;
-import io.github.repir.tools.Lib.Log;
-import io.github.repir.tools.Lib.PrintTools;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.struct.StructuredFile;
+import io.github.repir.tools.lib.Log;
+import io.github.repir.tools.lib.PrintTools;
 
 /**
  * Generic class for Features that are stored in the repository. Implementations 

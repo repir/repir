@@ -1,7 +1,7 @@
 package io.github.repir.MapReduceTools;
 
 import io.github.repir.Repository.Repository;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -122,7 +122,7 @@ public abstract class MRInputFormat<PWRITABLE extends Writable, P> extends Input
       }
       long count = count();
       TreeSet<MRInputSplit> set = new TreeSet<MRInputSplit>(list.values());
-      int maxnodes = repository.getConfiguration().getInt("cluster.nodes", 1) * 2;
+      int maxnodes = repository.getConf().getInt("cluster.nodes", 1) * 2;
       while (count > set.size() && set.size() < maxnodes) {
          MRInputSplit<PWRITABLE, P> split = set.pollFirst();
          if (split.list.size() == 1) {

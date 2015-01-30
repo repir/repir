@@ -1,10 +1,10 @@
 package io.github.repir.EntityReader.MapReduce;
 
 import io.github.repir.EntityReader.MapReduce.TermEntityKey.Type;
-import io.github.repir.tools.Buffer.BufferDelayedWriter;
-import io.github.repir.tools.Buffer.BufferReaderWriter;
-import io.github.repir.tools.Content.EOCException;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.io.buffer.BufferDelayedWriter;
+import io.github.repir.tools.io.buffer.BufferReaderWriter;
+import io.github.repir.tools.io.EOCException;
+import io.github.repir.tools.lib.Log;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -80,7 +80,7 @@ public class TermEntityKey implements WritableComparable<TermEntityKey> {
       writer.write((short) this.partition);
       writer.writeUB(feature);
       writer.write(termid);
-      writer.write0Str(collectionid);
+      writer.write0(collectionid);
       out.write(writer.getAsByteBlock());
    }
 
@@ -90,7 +90,7 @@ public class TermEntityKey implements WritableComparable<TermEntityKey> {
       writer.write((short) this.partition); // byte 5..6: partition
       writer.writeUB(feature); // byte 7: feature
       writer.write(termid); // byte 8..11 termID
-      writer.write0Str(collectionid); //byte 12.. : collectionID of document
+      writer.write0(collectionid); //byte 12.. : collectionID of document
       return writer.getAsByteBlock();
    }
 

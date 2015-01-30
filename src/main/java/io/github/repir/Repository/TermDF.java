@@ -2,11 +2,11 @@ package io.github.repir.Repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Structure.StructuredFileByteJumpTable;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.struct.StructuredFileByteJumpTable;
 import io.github.repir.Repository.TermDF.File;
-import io.github.repir.tools.Lib.Const;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Const;
+import io.github.repir.tools.lib.Log;
 
 /**
  * Stores the document frequency of terms in the Vocabulary, which can be accessed
@@ -60,8 +60,8 @@ public class TermDF extends StoredUnreportableFeature<File> implements Dictionar
                v = Const.NULLLONG;
             df.add(v);
          }
-         repository.getConfiguration().setIntList("repository.cachedtermids", termids);
-         repository.getConfiguration().setLongList("repository.cachedtermdfs", df);
+         repository.getConf().setIntList("repository.cachedtermids", termids);
+         repository.getConf().setLongList("repository.cachedtermdfs", df);
       }
    }
    

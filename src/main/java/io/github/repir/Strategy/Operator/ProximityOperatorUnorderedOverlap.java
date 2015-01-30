@@ -7,7 +7,7 @@ import io.github.repir.Strategy.GraphRoot;
 import io.github.repir.Strategy.Tools.MatchSetLength;
 import io.github.repir.Strategy.Tools.ProximitySet.ProximityTerm;
 import io.github.repir.Strategy.Tools.ProximityUnorderedSet;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
 import java.util.ArrayList;
 
 /**

@@ -21,7 +21,7 @@ public abstract class JobProcess implements JobThreadCallback {
    protected QueryInputFormat inputformat;
    
    public JobProcess( Retriever retriever, ArrayList<Query> queries ) {
-      this.configuration = retriever.repository.getConfiguration();
+      this.configuration = retriever.repository.getConf();
       inputformat = new QueryInputFormat(repository);
       this.repository = retriever.repository;
       this.retriever = retriever;

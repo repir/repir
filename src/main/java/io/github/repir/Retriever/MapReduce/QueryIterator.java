@@ -1,13 +1,13 @@
 package io.github.repir.Retriever.MapReduce;
 
-import io.github.repir.tools.Content.Datafile;
+import io.github.repir.tools.io.Datafile;
 import io.github.repir.Retriever.Document;
 import io.github.repir.Retriever.Retriever;
 import io.github.repir.Retriever.Query;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
 import java.util.Iterator;
 import io.github.repir.Strategy.RetrievalModel;
-import io.github.repir.tools.Content.EOCException;
+import io.github.repir.tools.io.EOCException;
 
 /**
  * QueryIterator is a helper class for IndexReaderHD, that can be used in cases

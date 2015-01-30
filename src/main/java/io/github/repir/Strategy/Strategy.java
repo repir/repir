@@ -1,19 +1,20 @@
 package io.github.repir.Strategy;
 
-import io.github.repir.Strategy.Operator.Operator;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.Retriever.Retriever;
-import io.github.repir.Retriever.Query;
-import io.github.repir.tools.Lib.ClassTools;
-import io.github.repir.tools.Lib.Log;
 import io.github.repir.Repository.Repository;
+import io.github.repir.Retriever.Query;
+import io.github.repir.Retriever.Retriever;
+import io.github.repir.Strategy.Collector.Collector;
+import io.github.repir.Strategy.Collector.MasterCollector;
+import io.github.repir.Strategy.Operator.Operator;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.lib.ClassTools;
+import io.github.repir.tools.lib.Log;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashSet;
-import io.github.repir.Strategy.Collector.Collector;
-import io.github.repir.Strategy.Collector.MasterCollector;
-import io.github.repir.tools.Lib.ArrayTools;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The Strategy contains the logic for the retrieval/analysis of the task, 
@@ -71,10 +72,12 @@ public abstract class Strategy {
       //log.info("create( %s )", queryrequest.strategyclass);
       Strategy strategy = null;
       try {
-         Class clazz = io.github.repir.tools.Lib.ClassTools.toClass(queryrequest.getStrategyClass(), Strategy.class.getPackage().getName());
+         Class clazz = io.github.repir.tools.lib.ClassTools.toClass(queryrequest.getStrategyClass(), Strategy.class.getPackage().getName());
          Constructor cons = ClassTools.getAssignableConstructor(clazz, assignableClass, Retriever.class);
          strategy = (Strategy) cons.newInstance(retriever);
          strategy.setQuery(queryrequest);
+      } catch (ClassNotFoundException ex) {
+         log.fatalexception(ex, "create() invalid StrategyClass", queryrequest.getStrategyClass());
       } catch (InstantiationException ex) {
          log.fatalexception(ex, "create( %s, %s )", retriever, queryrequest);
       } catch (IllegalAccessException ex) {
@@ -136,7 +139,7 @@ public abstract class Strategy {
    
    public void prepareWriteReduce(Query q) {
       fileout = new Datafile(repository.getFS(), repository.configuredString("topicrun.outfile") + "_" + q.getID() + "_" + q.getVariantID());
-      log.info("outfile %s", fileout.getFullPath());
+      log.info("outfile %s", fileout.getCanonicalPath());
       fileout.openWrite();
    }
    

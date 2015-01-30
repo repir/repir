@@ -1,20 +1,22 @@
 package io.github.repir.Repository;
 
-import io.github.repir.tools.Extractor.EntityChannel;
+import io.github.repir.tools.extract.ExtractChannel;
 import io.github.repir.Repository.Stopwords.StopWords;
 import io.github.repir.Repository.Stopwords.StopwordsCache;
 import io.github.repir.Strategy.Strategy;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.Dir;
-import io.github.repir.tools.Content.HDFSDir;
-import io.github.repir.tools.Lib.ArrayTools;
-import static io.github.repir.tools.Lib.ClassTools.*;
-import io.github.repir.tools.Lib.Log;
-import io.github.repir.tools.Lib.MathTools;
-import io.github.repir.tools.Lib.PrintTools;
-import io.github.repir.tools.Lib.StrTools;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.Path;
+import io.github.repir.tools.io.HDFSPath;
+import io.github.repir.tools.lib.ArrayTools;
+import static io.github.repir.tools.lib.ClassTools.*;
+import io.github.repir.tools.lib.Log;
+import io.github.repir.tools.lib.MathTools;
+import io.github.repir.tools.lib.PrintTools;
+import io.github.repir.tools.lib.StrTools;
 import io.github.repir.MapReduceTools.RRConfiguration;
+import io.github.repir.tools.extract.ExtractorConf;
 import io.github.repir.tools.Words.englishStemmer;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -44,7 +46,7 @@ import org.apache.hadoop.fs.FileSystem;
  * The configuration of a Repository, and the communication of settings for
  * tasks is done through an extension of Hadoop's Configuration class, of which
  * a single instance resides in the Repository, that can be accessed using
- * {@link #getConfiguration()}, {@link #configuredString(java.lang.String)},
+ * {@link #getConf()}, {@link #configuredString(java.lang.String)},
  * etc. The Configuration settings are usually seeded through configuration
  * files, but can also be added through the command line or from code.
  * <p/>
@@ -56,7 +58,7 @@ import org.apache.hadoop.fs.FileSystem;
 public class Repository {
 
     public static Log log = new Log(Repository.class);
-    protected HDFSDir basedir;        // dir on HDFS containing the repository files
+    protected HDFSPath basedir;        // dir on HDFS containing the repository files
     protected String prefix;          // prefix for every file, usually configname
     protected FileSystem fs = null;   // leave null for local FS, otherwise use HDFS
     protected static final String MASTERFILE_EXTENSION = ".master";
@@ -80,11 +82,11 @@ public class Repository {
      * @param prefix prefix for all repository filenames (usually the repository
      * name)
      */
-    public Repository(HDFSDir basedirname, String prefix) {
+    public Repository(HDFSPath basedirname, String prefix) {
         setDirPrefix(basedirname, prefix);
     }
 
-    private void setDirPrefix(HDFSDir basedirname, String prefix) {
+    private void setDirPrefix(HDFSPath basedirname, String prefix) {
         basedir = basedirname;
         this.prefix = prefix;
         if (!basedir.exists()) {
@@ -93,7 +95,7 @@ public class Repository {
     }
 
     private void setDirPrefix(RRConfiguration conf) {
-        setDirPrefix(new HDFSDir(conf, conf.get("repository.dir", "")), conf.get("repository.prefix", ""));
+        setDirPrefix(new HDFSPath(conf, conf.get("repository.dir", "")), conf.get("repository.prefix", ""));
     }
 
     /**
@@ -138,7 +140,7 @@ public class Repository {
         String dir = configuration.get("repository.dir").replaceAll(prefix, newIndex);
         configuration.set("repository.dir", dir);
         configuration.set("repository.prefix", newIndex);
-        basedir = new HDFSDir(configuration, configuration.get("repository.dir", ""));
+        basedir = new HDFSPath(configuration, configuration.get("repository.dir", ""));
         prefix = newIndex;
     }
 
@@ -195,12 +197,12 @@ public class Repository {
         return fs;
     }
 
-    public HDFSDir getBaseDir() {
+    public HDFSPath getBaseDir() {
         return basedir;
     }
 
-    public HDFSDir getIndexDir() {
-        return (HDFSDir) getBaseDir().getSubdir("repository");
+    public HDFSPath getIndexDir() {
+        return (HDFSPath) getBaseDir().getSubdir("repository");
     }
     static Pattern pattern = Pattern.compile("(\\d{4})"); // segments limited to 10000
 
@@ -384,27 +386,6 @@ public class Repository {
         return f;
     }
 
-//   public Feature getFeature(Class featureclass, String ... parameter) {
-//      String feature = Feature.canonicalName(featureclass, parameter);      
-//      Feature f = storedfeaturesmap.get(feature);
-//      return (f != null)?f:getFeature(feature, featureclass, parameter);
-//   }
-//   private Feature getFeature(String label, String canonicalname) {
-//      String parts[] = canonicalname.split(":");
-//      for (int i = 0; i < parts.length; i++)
-//          parts[i] = parts[i].trim();
-//      Class clazz = tryToClass(parts[0]
-//              , getClass().getPackage().getName()
-//              , Strategy.class.getPackage().getName());
-//      if (clazz != null) {
-//          switch (parts.length) {
-//              case 1: return getFeature(label, clazz);
-//              case 2: return getFeature(label, clazz, parts[1]);
-//              case 3: return getFeature(label, clazz, parts[1], parts[2]);
-//          }
-//      }
-//      return null;
-//   }
     protected void storeFeature(String label, StoredFeature feature) {
         //log.info("storeFeature %s %s", label, feature.getCanonicalName());
         storedfeaturesmap.put(label, feature);
@@ -424,15 +405,15 @@ public class Repository {
             switch (field.length) {
                 case 0:
                     cons = tryGetMethod(clazz, "get", Repository.class);
-                    f = (Feature) io.github.repir.tools.Lib.ClassTools.invoke(cons, null, this);
+                    f = (Feature) io.github.repir.tools.lib.ClassTools.invoke(cons, null, this);
                     break;
                 case 1:
                     cons = tryGetMethod(clazz, "get", Repository.class, String.class);
-                    f = (Feature) io.github.repir.tools.Lib.ClassTools.invoke(cons, null, this, field[0]);
+                    f = (Feature) io.github.repir.tools.lib.ClassTools.invoke(cons, null, this, field[0]);
                     break;
                 case 2:
                     cons = tryGetMethod(clazz, "get", Repository.class, String.class, String.class);
-                    f = (Feature) io.github.repir.tools.Lib.ClassTools.invoke(cons, null, this, field[0], field[1]);
+                    f = (Feature) io.github.repir.tools.lib.ClassTools.invoke(cons, null, this, field[0], field[1]);
                     break;
             }
         }
@@ -500,7 +481,7 @@ public class Repository {
      * @return the Hadoop Configuration container that is used to maintain and
      * communicate all settings for the repository
      */
-    public RRConfiguration getConfiguration() {
+    public RRConfiguration getConf() {
         return this.configuration;
     }
 
@@ -525,7 +506,7 @@ public class Repository {
     }
 
     public String configuredString(String key) {
-        return configuration.getSubString(key);
+        return configuration.get(key);
     }
 
     public String configurationName() {
@@ -595,7 +576,7 @@ public class Repository {
                     configuredString("repository.dir") + "/" + configuredString("testset.topics"));
         }
         if (!df.exists()) {
-            log.fatal("topicfile %s does not exists", df.getFullPath());
+            log.fatal("topicfile %s does not exists", df.getCanonicalPath());
         }
         return df;
     }
@@ -604,7 +585,7 @@ public class Repository {
      * @return A list of {@link Datafile}s that is configured in "testset.qrels"
      * as the files containing the query relevance labels for evaluation.
      */
-    public ArrayList<Datafile> getQrelFiles() {
+    public ArrayList<Datafile> getQrelFiles() throws IOException {
         String qr = configuredString("testset.qrels");
         if (qr == null) {
             log.fatal("testset.qrels not set");
@@ -613,17 +594,17 @@ public class Repository {
         ArrayList<Datafile> list = new ArrayList<Datafile>();
         for (String p : qrs) {
             Datafile f = new Datafile(configuredString("rr.localdir") + "/" + p);
-            Dir d = f.getDir();
+            Path d = f.getDir();
             if (!d.exists()) {
                 f = new Datafile(getFS(), configuredString("repository.dir") + "/" + p);
                 d = f.getDir();
             }
-            list.addAll(d.matchDatafiles(f.getFilename()));
+            list.addAll(d.getFilesStartingWith(f.getFilename()));
         }
         return list;
     }
 
-    public int[] tokenize(EntityChannel attr) {
+    public int[] tokenize(ExtractChannel attr) {
         if (vocabulary == null || !(vocabulary instanceof VocabularyToIDRAM)) {
             for (Feature f : this.getConfiguredFeatures()) {
                 if (f instanceof VocabularyToIDRAM) {
@@ -713,6 +694,15 @@ public class Repository {
             }
         }
         return stopwords;
+    }
+    
+    private ExtractorConf collectionExtractor;
+    
+    public ExtractorConf getCollectionExtractor() {
+        if (collectionExtractor == null) {
+            collectionExtractor = new ExtractorConf(this.getConf());
+        }
+        return collectionExtractor;
     }
 
     public Term getTerm(String term) {

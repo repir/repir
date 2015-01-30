@@ -6,11 +6,11 @@ import io.github.repir.Repository.ProximityStats;
 import io.github.repir.Repository.ProximityStats.Record;
 import io.github.repir.Strategy.Operator.ProximityOperator;
 import io.github.repir.Retriever.Document;
-import io.github.repir.tools.Content.EOCException;
-import io.github.repir.tools.Structure.StructureReader;
-import io.github.repir.tools.Structure.StructureWriter;
-import io.github.repir.tools.Lib.Log;
-import io.github.repir.tools.Lib.MathTools;
+import io.github.repir.tools.io.EOCException;
+import io.github.repir.tools.io.struct.StructureReader;
+import io.github.repir.tools.io.struct.StructureWriter;
+import io.github.repir.tools.lib.Log;
+import io.github.repir.tools.lib.MathTools;
 
 /**
  * Collects the collection and document frequency of {@link ProximityOperator}s. 
@@ -41,7 +41,7 @@ public class CollectorProximity extends CollectorCachable<Record> {
 
    @Override
    public int hashCode() {
-      return MathTools.finishHash(MathTools.combineHash(31, query.hashCode()));
+      return MathTools.hashCode(query.hashCode());
    }
 
    @Override

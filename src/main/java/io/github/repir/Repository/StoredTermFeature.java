@@ -1,11 +1,11 @@
 package io.github.repir.Repository;
 
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Structure.StructuredFileKeyInterface;
-import io.github.repir.tools.Structure.StructuredFileKeyValue;
-import io.github.repir.tools.Structure.StructuredFileKeyValueRecord;
-import io.github.repir.tools.Lib.Log;
-import io.github.repir.tools.Lib.PrintTools;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.struct.StructuredFileKeyInterface;
+import io.github.repir.tools.io.struct.StructuredFileKeyValue;
+import io.github.repir.tools.io.struct.StructuredFileKeyValueRecord;
+import io.github.repir.tools.lib.Log;
+import io.github.repir.tools.lib.PrintTools;
 import java.util.Collection;
 
 /**

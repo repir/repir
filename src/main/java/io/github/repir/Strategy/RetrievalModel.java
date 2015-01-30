@@ -8,7 +8,7 @@ import io.github.repir.Retriever.Document;
 import io.github.repir.Retriever.Retriever;
 import io.github.repir.Retriever.PostingIterator;
 import io.github.repir.Retriever.Query;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
 import io.github.repir.Repository.StoredFeature;
 import io.github.repir.Repository.StoredReportableFeature;
 import io.github.repir.Retriever.ReportedFeature;
@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import io.github.repir.Strategy.Collector.Collector;
 import io.github.repir.Strategy.Collector.CollectorDocument;
-import io.github.repir.tools.Lib.ClassTools;
+import io.github.repir.tools.lib.ClassTools;
 
 /**
  * A RetrievalModel is a Strategy that eventually returns the query with a list

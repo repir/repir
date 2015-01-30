@@ -1,11 +1,11 @@
 package io.github.repir.EntityReader;
 
-import io.github.repir.tools.Extractor.Entity;
-import io.github.repir.EntityReader.MapReduce.EntityWritable;
-import io.github.repir.tools.ByteSearch.ByteSearch;
-import io.github.repir.tools.Content.EOCException;
-import io.github.repir.tools.Content.HDFSIn;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.extract.Content;
+import io.github.repir.tools.search.ByteSearch;
+import io.github.repir.tools.io.EOCException;
+import io.github.repir.tools.io.HDFSIn;
+import io.github.repir.tools.lib.Log;
+import java.io.ByteArrayOutputStream;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
@@ -46,7 +46,8 @@ public class EntityReaderTrec extends EntityReader {
             key.set(fsin.getOffset());
             if (readEntity()) {
                //if (einstein.exists(entitywritable.entity.content, 0, entitywritable.entity.content.length)) {
-               entitywritable.entity.addSectionPos("all", 0, 0, entitywritable.entity.content.length, entitywritable.entity.content.length);
+               entitywritable.addSectionPos("all", 
+                                entitywritable.content, 0, 0, entitywritable.content.length, entitywritable.content.length);
                return true;
                //}
             }
@@ -56,26 +57,26 @@ public class EntityReaderTrec extends EntityReader {
    }
 
    private boolean readEntity() {
-      entitywritable = new EntityWritable();
-      entitywritable.entity = new Entity();
+      ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+      entitywritable = new Content();
       int needleposition = 0;
       while (true) {
          try {
             int b = fsin.readByte();
             if (b != endTag[needleposition]) { // check if we match needle
                if (needleposition > 0) {
-                  entitywritable.writeBytes(endTag, 0, needleposition);
+                  buffer.write(endTag, 0, needleposition);
                   needleposition = 0;
                }
             }
             if (b == endTag[needleposition]) {
                needleposition++;
                if (needleposition >= endTag.length) {
-                  entitywritable.storeContent();
+                  entitywritable.content = buffer.toByteArray();
                   return true;
                }
             } else {
-               entitywritable.writeByte(b);
+               buffer.write(b);
 
 //               if (needleposition == 0 && !fsin.hasMore()) {  // see if we've passed the stop point:
 //                  return false;

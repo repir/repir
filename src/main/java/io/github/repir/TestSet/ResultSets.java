@@ -2,7 +2,8 @@ package io.github.repir.TestSet;
 
 import io.github.repir.TestSet.Metric.QueryMetric;
 import io.github.repir.Retriever.Query;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.apache.commons.math3.stat.inference.TestUtils;
@@ -18,13 +19,13 @@ public class ResultSets extends ArrayList<ResultSet> {
    public QueryMetric metric;
    public TestSet testset;
 
-   public ResultSets(QueryMetric metric, TestSet testset, String[] systems) {
+   public ResultSets(QueryMetric metric, TestSet testset, String[] systems) throws IOException {
       this.testset = testset;
       this.metric = metric;
       setSystems( systems );
    }
    
-   public void setSystems( String systems[] ) { 
+   public void setSystems( String systems[] ) throws IOException { 
       for (int sys = 0; sys < systems.length; sys++) {
          log.info("system %s", systems[sys]);
          add( new ResultSet(metric, testset, systems[sys]) );
@@ -37,7 +38,7 @@ public class ResultSets extends ArrayList<ResultSet> {
     * @return Robustness Index of the alternative system vs baseline, which is 
     * defined as (#improved queries - #hurt queries)/all queries
     */
-   public double riOver( int base, int imp ) {
+   public double riOver( int base, int imp ) throws IOException {
          int pos = 0;
          int neg = 0;
          ResultSet b = get(base);

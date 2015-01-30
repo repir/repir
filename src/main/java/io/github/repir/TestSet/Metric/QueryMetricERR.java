@@ -4,7 +4,8 @@ import java.util.HashMap;
 import io.github.repir.Retriever.Document;
 import io.github.repir.Retriever.Query;
 import io.github.repir.TestSet.TestSet;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
+import java.io.IOException;
 
 /**
  * Computes the Expected Reciprocal Rank.
@@ -19,7 +20,7 @@ public class QueryMetricERR extends QueryMetric {
    }
 
    @Override
-   public double calculate(TestSet testset, Query query) {
+   public double calculate(TestSet testset, Query query) throws IOException {
       HashMap<String, Integer> relevancejudgments = testset.getQrels().get(testset.getQRelId(query)).relevance;
       int maxrel = 0;
       for (int i : relevancejudgments.values())

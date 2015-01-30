@@ -1,10 +1,10 @@
 package io.github.repir.Repository;
 
-import io.github.repir.tools.Buffer.BufferSerializable;
-import io.github.repir.tools.Content.EOCException;
-import io.github.repir.tools.Structure.StructureReader;
-import io.github.repir.tools.Structure.StructureWriter;
-import io.github.repir.tools.Lib.MathTools;
+import io.github.repir.tools.io.buffer.BufferSerializable;
+import io.github.repir.tools.io.EOCException;
+import io.github.repir.tools.io.struct.StructureReader;
+import io.github.repir.tools.io.struct.StructureWriter;
+import io.github.repir.tools.lib.MathTools;
 
 /**
  * Represents a Term feature, that should constructed using the repository
@@ -42,7 +42,7 @@ public class Term implements BufferSerializable {
   @Override
   public int hashCode() {
      if (hashcode == -1)
-        hashcode = MathTools.hash(termid);
+        hashcode = MathTools.hashCode(termid);
      return hashcode;
   }
   

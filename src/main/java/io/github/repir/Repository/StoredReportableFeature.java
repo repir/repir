@@ -1,10 +1,10 @@
 package io.github.repir.Repository;
 
 import io.github.repir.Retriever.Document;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.EOCException;
-import io.github.repir.tools.Structure.StructuredFileIntID;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.EOCException;
+import io.github.repir.tools.io.struct.StructuredFileIntID;
+import io.github.repir.tools.lib.Log;
 
 /**
  * Generic class for Features that are stored in the repository. Implementations 
@@ -19,7 +19,7 @@ import io.github.repir.tools.Lib.Log;
 public abstract class StoredReportableFeature<F extends StructuredFileIntID, C> extends StoredFeature implements ReportableFeature<C> {
 
    public static Log log = new Log(StoredReportableFeature.class);
-   public F file;
+   public F file; 
    public int partition = -1;
    
    public StoredReportableFeature(Repository repository, String field) {

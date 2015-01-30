@@ -1,7 +1,7 @@
 package io.github.repir.Repository;
 
-import io.github.repir.tools.Structure.StructuredFile;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.io.struct.StructuredFile;
+import io.github.repir.tools.lib.Log;
 
 /**
  * This abstract class is to indicate that reading into memory is supported,

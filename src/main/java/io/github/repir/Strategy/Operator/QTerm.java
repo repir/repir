@@ -9,8 +9,8 @@ import io.github.repir.Repository.TermDocumentFeature;
 import io.github.repir.Repository.TermInverted;
 import io.github.repir.Retriever.Document;
 import io.github.repir.Strategy.GraphRoot;
-import io.github.repir.tools.Lib.Log;
-import io.github.repir.tools.Lib.PrintTools;
+import io.github.repir.tools.lib.Log;
+import io.github.repir.tools.lib.PrintTools;
 import java.util.ArrayList;
 
 /**

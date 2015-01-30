@@ -1,10 +1,10 @@
 package io.github.repir.Repository;
 
 import io.github.repir.Repository.PartitionLocation.File;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.EOCException;
-import io.github.repir.tools.Structure.StructuredFile;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.EOCException;
+import io.github.repir.tools.io.struct.StructuredFile;
+import io.github.repir.tools.lib.Log;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,8 +45,8 @@ public class PartitionLocation extends StoredUnreportableFeature<File> {
    }
 
    public void loadMem() throws EOCException {
-      if (location == null && getFile().datafile.exists()) {
-         if (!getFile().datafile.isWriteOpen()) {
+      if (location == null && getFile().getDatafile().exists()) {
+         if (!getFile().getDatafile().isWriteOpen()) {
             location = new String[repository.partitions][];
             getFile().openRead();
             for (int i = 0; i < repository.partitions; i++) {
@@ -87,11 +87,12 @@ public class PartitionLocation extends StoredUnreportableFeature<File> {
 
    public String[] estimateLocations(int partition) {
       HashMap<String, Integer> hosts = new HashMap<String, Integer>();
-      String partitionstring = io.github.repir.tools.Lib.PrintTools.sprintf("%04d", partition);
+      String partitionstring = io.github.repir.tools.lib.PrintTools.sprintf("%04d", partition);
       FileSystem fs = repository.getFS();
       try {
          if (fs != null) {
-            for (Path p : repository.getIndexDir().getFiles()) {
+            for (String filename : repository.getIndexDir().getFilepathnames()) {
+               Path p = new Path(filename);
                if (p.getName().contains(partitionstring)) {
                   FileStatus file = fs.getFileStatus(p);
                   BlockLocation[] blkLocations = fs.getFileBlockLocations(file, 0, 0);

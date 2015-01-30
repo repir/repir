@@ -1,15 +1,15 @@
 package io.github.repir.Repository.Pig;
 
-import io.github.repir.tools.Extractor.Entity;
+import io.github.repir.tools.extract.Content;
 import io.github.repir.EntityReader.MapReduce.TermEntityKey;
 import io.github.repir.EntityReader.MapReduce.TermEntityValue;
 import io.github.repir.Repository.*;
 import io.github.repir.Retriever.Document;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Structure.StructuredFileIntID;
-import io.github.repir.tools.Structure.StructuredTextPig;
-import io.github.repir.tools.Structure.StructuredTextPigTuple;
-import io.github.repir.tools.Lib.PrintTools;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.struct.StructuredFileIntID;
+import io.github.repir.tools.io.struct.StructuredTextPig;
+import io.github.repir.tools.io.struct.StructuredTextPigTuple;
+import io.github.repir.tools.lib.PrintTools;
 import java.util.HashMap;
 
 /**

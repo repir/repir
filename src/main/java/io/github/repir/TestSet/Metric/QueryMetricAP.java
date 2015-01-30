@@ -3,7 +3,8 @@ package io.github.repir.TestSet.Metric;
 import io.github.repir.Retriever.Query;
 import io.github.repir.TestSet.Qrel.QRel;
 import io.github.repir.TestSet.TestSet;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -21,7 +22,7 @@ public class QueryMetricAP extends QueryMetric {
    }
 
    @Override
-   public double calculate(TestSet testset, Query query) {
+   public double calculate(TestSet testset, Query query) throws IOException {
       curve = new double[11];
       if (testset.getQRelId(query) > 0) {
          HashMap<Integer, QRel> qrels = testset.getQrels();
@@ -41,6 +42,6 @@ public class QueryMetricAP extends QueryMetric {
             }
          }
       }
-      return io.github.repir.tools.Lib.MathTools.avg(curve);
+      return io.github.repir.tools.lib.DoubleTools.mean(curve);
    }
 }

@@ -4,7 +4,8 @@ import io.github.repir.Retriever.Document;
 import io.github.repir.Retriever.Query;
 import io.github.repir.TestSet.Qrel.QRel;
 import io.github.repir.TestSet.TestSet;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +39,7 @@ public class QueryMetricStatAP extends QueryMetric {
     }
 
     @Override
-    public double calculate(TestSet testset, Query query) {
+    public double calculate(TestSet testset, Query query) throws IOException {
 
         int qrelid = testset.getQRelId(query);
         if (qrelid < 1) {
@@ -78,7 +79,7 @@ public class QueryMetricStatAP extends QueryMetric {
      *
      * @return estimated variance of StatAP
      */
-    public double calculateVar(TestSet testset, Query query) {
+    public double calculateVar(TestSet testset, Query query) throws IOException {
 
         int qrelid = testset.getQRelId(query);
         if (qrelid < 1) {

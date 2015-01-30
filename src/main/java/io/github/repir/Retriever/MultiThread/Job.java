@@ -1,7 +1,7 @@
 package io.github.repir.Retriever.MultiThread;
 
 import io.github.repir.Retriever.Retriever;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
 import java.io.IOException;
 
 /**

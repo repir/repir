@@ -1,5 +1,5 @@
 package io.github.repir.EntityReader;
-import io.github.repir.tools.Lib.Log; 
+import io.github.repir.tools.lib.Log; 
 
 /**
  * Internally used memory array by {@link EntityReaderCW} and {@link EntityReaderCW12}, 

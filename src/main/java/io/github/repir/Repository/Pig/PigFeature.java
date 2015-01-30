@@ -1,22 +1,22 @@
 package io.github.repir.Repository.Pig;
 
-import io.github.repir.tools.Extractor.Entity;
+import io.github.repir.tools.extract.Content;
 import io.github.repir.EntityReader.MapReduce.TermEntityKey;
 import io.github.repir.EntityReader.MapReduce.TermEntityValue;
 import io.github.repir.Repository.*;
 import io.github.repir.Retriever.Document;
-import io.github.repir.tools.ByteSearch.ByteSearch;
-import io.github.repir.tools.ByteSearch.ByteSearchPosition;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Structure.StructuredFileIntID;
-import io.github.repir.tools.Structure.StructuredTextFile.DataNode;
-import io.github.repir.tools.Structure.StructuredTextFile.FolderNode;
-import io.github.repir.tools.Structure.StructuredTextFile.Node;
-import io.github.repir.tools.Structure.StructuredTextPig;
-import io.github.repir.tools.Structure.StructuredTextPigTuple;
-import io.github.repir.tools.Lib.ClassTools;
-import io.github.repir.tools.Lib.PrintTools;
-import io.github.repir.tools.Lib.StrTools;
+import io.github.repir.tools.search.ByteSearch;
+import io.github.repir.tools.search.ByteSearchPosition;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.struct.StructuredFileIntID;
+import io.github.repir.tools.io.struct.StructuredTextFile.DataNode;
+import io.github.repir.tools.io.struct.StructuredTextFile.FolderNode;
+import io.github.repir.tools.io.struct.StructuredTextFile.Node;
+import io.github.repir.tools.io.struct.StructuredTextPig;
+import io.github.repir.tools.io.struct.StructuredTextPigTuple;
+import io.github.repir.tools.lib.ClassTools;
+import io.github.repir.tools.lib.PrintTools;
+import io.github.repir.tools.lib.StrTools;
 import java.util.HashMap;
 
 /**
@@ -68,7 +68,7 @@ public abstract class PigFeature<F extends StructuredTextPig, C extends Structur
       String filename = getFile().getDatafile().getFilename();
       ByteSearchPosition pos = dot.findLastPos(filename);
       sb.append("LOAD '");
-      sb.append( getFile().getDatafile().getFullPath() ).append("' AS ");
+      sb.append( getFile().getDatafile().getCanonicalPath() ).append("' AS ");
       sb.append(loadFolder( file.getRoot()));
       sb.append(";\n");
       return sb.toString();
@@ -134,14 +134,14 @@ public abstract class PigFeature<F extends StructuredTextPig, C extends Structur
       if (getFile().lock())
          getFile().openAppend();
       else 
-         log.fatal("Could not lock file %s", getFile().getDatafile().getFullPath());
+         log.fatal("Could not lock file %s", getFile().getDatafile().getCanonicalPath());
    }
    
    public void openWrite() {
       if (getFile().lock())
          getFile().openWrite();
       else 
-         log.fatal("Could not lock file %s", getFile().getDatafile().getFullPath());
+         log.fatal("Could not lock file %s", getFile().getDatafile().getCanonicalPath());
    }
    
    public void closeWrite() {

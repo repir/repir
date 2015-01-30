@@ -1,14 +1,12 @@
 package io.github.repir.EntityReader;
 
-import io.github.repir.tools.Extractor.Entity;
-import io.github.repir.EntityReader.MapReduce.EntityWritable;
-import io.github.repir.tools.ByteSearch.ByteSearch;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Content.EOCException;
-import io.github.repir.tools.ByteSearch.ByteSearchString;
-import io.github.repir.tools.ByteSearch.ByteSection;
-import io.github.repir.tools.Lib.ByteTools;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.extract.Content;
+import io.github.repir.tools.search.ByteSearch;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.EOCException;
+import io.github.repir.tools.search.ByteSection;
+import io.github.repir.tools.lib.Log;
+import java.io.ByteArrayOutputStream;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 
@@ -65,19 +63,21 @@ public class EntityReaderCW2 extends EntityReader {
    public boolean nextKeyValue() {
       while (fsin.hasMore()) {
          readEntity();
-         String id = warcID.getFirstString(entitywritable.entity.content, 0, entitywritable.entity.content.length);
+         String id = warcID.getFirstString(entitywritable.content, 0, entitywritable.content.length);
          if (id.length() == 25 && (ids == null || ids.get(id))
                  && (onlypartition < 0 || onlypartition == io.github.repir.Repository.Repository.getPartition(id, partitions))) {
             //log.info("id %s", id);
-            entitywritable.entity.get("collectionid").add(id);
-            int p = contentlength.findEnd(entitywritable.entity.content, 0, entitywritable.entity.content.length);
+            entitywritable.get("collectionid").add(id);
+            int p = contentlength.findEnd(entitywritable.content, 0, entitywritable.content.length);
             if (p >= 0) {
-               p = contentlength.findEnd(entitywritable.entity.content, p, entitywritable.entity.content.length);
+               p = contentlength.findEnd(entitywritable.content, p, entitywritable.content.length);
                if (p >= 0) {
-                  p = eol.findEnd(entitywritable.entity.content, p, entitywritable.entity.content.length);
+                  p = eol.findEnd(entitywritable.content, p, entitywritable.content.length);
                   if (p > 0) {
-                     entitywritable.entity.addSectionPos("warcheader", 0, 0, p, p);
-                     entitywritable.entity.addSectionPos("all", p, p, entitywritable.entity.content.length, entitywritable.entity.content.length);
+                     entitywritable.addSectionPos("warcheader", 
+                                entitywritable.content, 0, 0, p, p);
+                     entitywritable.addSectionPos("all", 
+                                entitywritable.content, p, p, entitywritable.content.length, entitywritable.content.length);
                   }
                }
             }
@@ -89,15 +89,15 @@ public class EntityReaderCW2 extends EntityReader {
    }
 
    private void readEntity() {
-      int p = 0;
-      entitywritable = new EntityWritable();
-      entitywritable.entity = new Entity();
+      ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+      entitywritable = new Content();
+      key.set(fsin.getOffset());
       int match = 0;
       while (true) {
          try {
             int b = fsin.readByte();
             if (match > 0 && b != warcTag[match]) { // output falsely cached chars
-               entitywritable.writeBytes(warcTag, 0, match);
+               buffer.write(warcTag, 0, match);
                match = 0;
             }
             if (b == warcTag[match]) { // check if we're matching needle
@@ -106,14 +106,14 @@ public class EntityReaderCW2 extends EntityReader {
                   break;
                }
             } else {
-               entitywritable.writeByte(b);
+               buffer.write(b);
             }
          } catch (EOCException ex) {
-            entitywritable.writeBytes(warcTag, 0, match);
+            buffer.write(warcTag, 0, match);
             break;
          }
       }
-      entitywritable.storeContent();
+      entitywritable.content = buffer.toByteArray();
    }
 
    public String getDir(Path p) {

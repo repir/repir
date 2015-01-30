@@ -2,7 +2,7 @@ package io.github.repir.Strategy.Tools;
 import java.util.Collection; 
 import java.util.Comparator;
 import java.util.TreeSet;
-import io.github.repir.tools.Lib.Log; 
+import io.github.repir.tools.lib.Log; 
 
 /**
  * Order {@link ProximityOccurrence}s by position.

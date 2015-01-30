@@ -3,7 +3,7 @@ package io.github.repir.Retriever.MapReduce;
 import io.github.repir.tools.hadoop.Job;
 import io.github.repir.Retriever.Retriever;
 import io.github.repir.Retriever.Query;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -12,7 +12,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import io.github.repir.Strategy.RetrievalModel;
 import io.github.repir.Strategy.Strategy;
-import io.github.repir.tools.Lib.ArrayTools;
+import io.github.repir.tools.lib.ArrayTools;
 
 /**
  * Extension of Hadoop Job, used by JobManager to start multi-threaded 
@@ -29,12 +29,11 @@ public class RetrieverJob extends Job {
    protected QueryInputFormat inputformat;
 
    public RetrieverJob(Retriever retriever) throws IOException {
-      super(retriever.repository.getConfiguration(), 
-            "Retriever " + retriever.repository.configuredString("rr.conf"));
+      super(retriever.repository.getConf(), retriever.repository.configuredString("rr.conf"));
       this.retriever = retriever;
       inputformat = new QueryInputFormat(retriever.repository);
       path = conf.get("retriever.tempdir", "") + UUID.randomUUID().toString();
-      conf.setBoolean("mapreduce.reduce.speculative", false);
+      conf.setReduceSpeculativeExecution(false);
       setJob();
    }
    

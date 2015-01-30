@@ -4,7 +4,7 @@ import java.util.Iterator;
 import io.github.repir.Retriever.Document;
 import io.github.repir.Strategy.Operator.Operator;
 import io.github.repir.Strategy.Operator.PositionalOperator;
-import io.github.repir.tools.Lib.Log; 
+import io.github.repir.tools.lib.Log; 
 
 /**
  * Matches occurrences of 2 or more Operators in any order. Every occurrence matched

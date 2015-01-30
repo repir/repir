@@ -1,7 +1,7 @@
 package io.github.repir.Repository;
 
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Structure.StructuredFile;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.io.struct.StructuredFile;
 
 /**
  * Atm, all StoredFeature types have to be content related and need to implement

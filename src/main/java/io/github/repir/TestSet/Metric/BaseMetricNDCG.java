@@ -1,8 +1,8 @@
 package io.github.repir.TestSet.Metric;
 
 import io.github.repir.Retriever.Query;
-import io.github.repir.tools.Collection.SortableList;
-import io.github.repir.tools.Lib.MathTools;
+import io.github.repir.tools.collection.SortableList;
+import io.github.repir.tools.lib.MathTools;
 import java.util.HashMap;
 import java.util.TreeSet;
 

@@ -5,7 +5,7 @@ import io.github.repir.Retriever.Document;
 import io.github.repir.Strategy.Operator.Operator;
 import io.github.repir.Strategy.Operator.PositionalOperator;
 import io.github.repir.Strategy.Operator.QTerm;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
 
 /**
  * Implements the ProximityDependenceSet by setting the dependency for all

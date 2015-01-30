@@ -14,7 +14,7 @@ import io.github.repir.TestSet.Metric.QueryMetric;
 import io.github.repir.TestSet.Metric.QueryMetricAP;
 import io.github.repir.TestSet.ResultSet;
 import io.github.repir.TestSet.TestSet;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
 import io.github.repir.MapReduceTools.RRConfiguration;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ public class RetrieverReduce extends Reducer<CollectorKey, CollectorValue, NullW
    @Override
    protected void setup(Context context) throws IOException, InterruptedException {
       repository = new Repository(context.getConfiguration());
-      conf = repository.getConfiguration();
+      conf = repository.getConf();
       conf.set("rr.dir", "");
       modelparameters = ModelParameters.get(repository, repository.configurationName());
       storedparameters = repository.getStoredFreeParameters();
@@ -107,7 +107,7 @@ public class RetrieverReduce extends Reducer<CollectorKey, CollectorValue, NullW
       modelparameters.closeWrite();
    }
    
-   protected void score( Collection<Query> queries ) {
+   protected void score( Collection<Query> queries ) throws IOException {
       if (testset == null) {
          testset = new TestSet(repository);
          resultstat = new ResultSet( metric, testset, this.queries.values());

@@ -1,8 +1,8 @@
 package io.github.repir.EntityReader;
 
-import io.github.repir.EntityReader.MapReduce.EntityWritable;
-import io.github.repir.tools.Content.Datafile;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.io.Datafile;
+import io.github.repir.tools.extract.Content;
+import io.github.repir.tools.lib.Log;
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -33,7 +33,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
  *
  * @author jeroen
  */
-public abstract class EntityReader extends RecordReader<LongWritable, EntityWritable> {
+public abstract class EntityReader extends RecordReader<LongWritable, Content> {
 
    public static Log log = new Log(EntityReader.class);
    protected TaskAttemptContext context;
@@ -41,7 +41,7 @@ public abstract class EntityReader extends RecordReader<LongWritable, EntityWrit
    protected long end;
    protected Datafile fsin;
    protected LongWritable key = new LongWritable();
-   protected EntityWritable entitywritable;
+   protected Content entitywritable;
    protected FileSystem filesystem;
    protected Configuration conf;
    protected int onlypartition;
@@ -91,7 +91,7 @@ public abstract class EntityReader extends RecordReader<LongWritable, EntityWrit
    }
 
    @Override
-   public EntityWritable getCurrentValue() throws IOException, InterruptedException {
+   public Content getCurrentValue() throws IOException, InterruptedException {
       return entitywritable;
    }
 

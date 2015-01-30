@@ -5,7 +5,7 @@ import io.github.repir.Retriever.MapReduce.CollectorKey;
 import io.github.repir.Retriever.MapReduce.CollectorValue;
 import io.github.repir.Retriever.MapReduce.RetrieverMRReduce;
 import io.github.repir.Retriever.Retriever;
-import io.github.repir.tools.Lib.Log;
+import io.github.repir.tools.lib.Log;
 import java.io.IOException;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
