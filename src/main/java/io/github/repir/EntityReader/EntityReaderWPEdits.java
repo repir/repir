@@ -7,10 +7,10 @@
 //import io.github.repir.tools.search.ByteSection;
 //import io.github.repir.tools.Content.EOCException;
 //import io.github.repir.tools.Content.HDFSIn;
-//import io.github.repir.tools.Lib.Log;
+//import io.github.repir.tools.lib.Log;
 //import org.apache.hadoop.fs.Path;
 //import org.apache.hadoop.mapreduce.lib.input.FileSplit;
-//import io.github.repir.tools.Lib.ByteTools;
+//import io.github.repir.tools.lib.ByteTools;
 //
 ///**
 // * An implementation of EntityReader that scans the input for Wikipedia XML

@@ -110,7 +110,14 @@ public class EntityReaderInputFormat extends FileInputFormat<LongWritable, Conte
 
     @Override
     public List<InputSplit> getSplits(JobContext job) throws IOException {
-        return super.getSplits(job);
+        boolean test = job.getConfiguration().getBoolean("repository.testinputformat", false);
+        List<InputSplit> splits = super.getSplits(job);
+        if (test) {
+            ArrayList<InputSplit> single = new ArrayList();
+            single.add(splits.get(0));
+            return single;
+        }
+        return splits;
     }
 
     public void loadEntityReaderSettings(Configuration conf) {

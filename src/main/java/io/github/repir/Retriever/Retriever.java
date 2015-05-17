@@ -12,7 +12,6 @@ import io.github.repir.Strategy.Collector.CollectorCachable;
 import io.github.repir.Strategy.RetrievalModel;
 import io.github.repir.Strategy.Strategy;
 import io.github.repir.tools.collection.ArrayMap;
-import io.github.repir.tools.collection.ArrayMap.Entry;
 import io.github.repir.tools.lib.Log;
 import io.github.repir.tools.Words.englishStemmer;
 import java.util.ArrayList;
