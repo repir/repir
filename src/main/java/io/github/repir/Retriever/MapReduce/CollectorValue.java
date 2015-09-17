@@ -1,9 +1,9 @@
 package io.github.repir.Retriever.MapReduce;
 
-import io.github.repir.tools.io.buffer.BufferDelayedWriter;
-import io.github.repir.tools.io.buffer.BufferReaderWriter;
+import io.github.htools.io.buffer.BufferDelayedWriter;
+import io.github.htools.io.buffer.BufferReaderWriter;
 import io.github.repir.Strategy.Collector.MasterCollector;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;

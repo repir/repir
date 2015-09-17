@@ -1,10 +1,10 @@
 package io.github.repir.Repository;
 
 import io.github.repir.Repository.PartitionLocation.File;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.EOCException;
-import io.github.repir.tools.io.struct.StructuredFile;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.EOCException;
+import io.github.htools.io.struct.StructuredFile;
+import io.github.htools.lib.Log;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -87,7 +87,7 @@ public class PartitionLocation extends StoredUnreportableFeature<File> {
 
    public String[] estimateLocations(int partition) {
       HashMap<String, Integer> hosts = new HashMap<String, Integer>();
-      String partitionstring = io.github.repir.tools.lib.PrintTools.sprintf("%04d", partition);
+      String partitionstring = io.github.htools.lib.PrintTools.sprintf("%04d", partition);
       FileSystem fs = repository.getFS();
       try {
          if (fs != null) {

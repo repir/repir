@@ -1,9 +1,9 @@
 package io.github.repir.Retriever.MapReduce;
 
-import io.github.repir.tools.io.Datafile;
+import io.github.htools.io.Datafile;
 import io.github.repir.Retriever.Retriever;
 import io.github.repir.Retriever.Query;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

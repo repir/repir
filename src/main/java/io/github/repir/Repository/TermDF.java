@@ -2,11 +2,11 @@ package io.github.repir.Repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.struct.StructuredFileByteJumpTable;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.struct.StructuredFileByteJumpTable;
 import io.github.repir.Repository.TermDF.File;
-import io.github.repir.tools.lib.Const;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Const;
+import io.github.htools.lib.Log;
 
 /**
  * Stores the document frequency of terms in the Vocabulary, which can be accessed

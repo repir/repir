@@ -1,13 +1,13 @@
 package io.github.repir.Retriever.MapReduce;
 
-import io.github.repir.tools.io.buffer.BufferDelayedWriter;
-import io.github.repir.tools.io.buffer.BufferReaderWriter;
-import io.github.repir.tools.io.struct.StructureReader;
-import io.github.repir.tools.io.struct.StructureWriter;
+import io.github.htools.io.buffer.BufferDelayedWriter;
+import io.github.htools.io.buffer.BufferReaderWriter;
+import io.github.htools.io.struct.StructureReader;
+import io.github.htools.io.struct.StructureWriter;
 import io.github.repir.Repository.Repository;
 import io.github.repir.Retriever.Query;
-import io.github.repir.tools.io.EOCException;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.io.EOCException;
+import io.github.htools.lib.Log;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;

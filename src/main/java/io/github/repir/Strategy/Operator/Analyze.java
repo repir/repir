@@ -2,7 +2,7 @@ package io.github.repir.Strategy.Operator;
 
 import io.github.repir.Retriever.Retriever;
 import io.github.repir.Retriever.Query;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 import java.util.Collection;
 import java.util.HashSet;
 import io.github.repir.Strategy.Collector.Collector;

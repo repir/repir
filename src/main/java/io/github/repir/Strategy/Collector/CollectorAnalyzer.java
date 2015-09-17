@@ -1,8 +1,8 @@
 package io.github.repir.Strategy.Collector;
 import io.github.repir.Retriever.Document;
 import io.github.repir.Strategy.Strategy;
-import io.github.repir.tools.io.struct.StructuredFileKeyValueRecord;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.io.struct.StructuredFileKeyValueRecord;
+import io.github.htools.lib.Log;
 
 /**
  * An abstract for {@link Collector}s that are not used by {@link RetrievalModel}s

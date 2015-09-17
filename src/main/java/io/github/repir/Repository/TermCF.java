@@ -3,12 +3,12 @@ package io.github.repir.Repository;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.struct.StructuredFileByteJumpTable;
-import io.github.repir.tools.io.struct.StructuredDataStream;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.struct.StructuredFileByteJumpTable;
+import io.github.htools.io.struct.StructuredDataStream;
 import io.github.repir.Repository.TermCF.File;
-import io.github.repir.tools.lib.Const;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Const;
+import io.github.htools.lib.Log;
 
 /**
  * Stores the collection frequency of terms, which can be accessed

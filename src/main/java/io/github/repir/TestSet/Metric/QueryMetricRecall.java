@@ -3,7 +3,7 @@ package io.github.repir.TestSet.Metric;
 import io.github.repir.TestSet.Metric.BaseMetricRecall;
 import io.github.repir.Retriever.Query;
 import io.github.repir.TestSet.TestSet;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 import java.io.IOException;
 
 /**

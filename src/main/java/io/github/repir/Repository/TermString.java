@@ -2,12 +2,12 @@ package io.github.repir.Repository;
 
 import io.github.repir.Repository.TermString.File;
 import io.github.repir.Retriever.Document;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.Datafile.STATUS;
-import io.github.repir.tools.io.EOCException;
-import io.github.repir.tools.io.struct.StructuredFileByteJumpTable;
-import io.github.repir.tools.io.struct.StructuredDataStream;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.Datafile.STATUS;
+import io.github.htools.io.EOCException;
+import io.github.htools.io.struct.StructuredFileByteJumpTable;
+import io.github.htools.io.struct.StructuredDataStream;
+import io.github.htools.lib.Log;
 
 /**
  * Stores the stemmed string of terms in the Vocabulary, which can be accessed

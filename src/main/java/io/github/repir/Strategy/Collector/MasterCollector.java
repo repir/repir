@@ -2,7 +2,7 @@ package io.github.repir.Strategy.Collector;
 
 import java.util.ArrayList;
 import io.github.repir.Retriever.Document;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 import java.util.HashMap;
 import java.util.Map;
 import io.github.repir.Repository.Repository;

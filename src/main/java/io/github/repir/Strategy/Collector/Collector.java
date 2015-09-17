@@ -7,11 +7,11 @@ import io.github.repir.Retriever.MapReduce.CollectorValue;
 import io.github.repir.Retriever.Retriever;
 import io.github.repir.Strategy.Operator.Operator;
 import io.github.repir.Strategy.Strategy;
-import io.github.repir.tools.io.EOCException;
-import io.github.repir.tools.lib.ClassTools;
-import io.github.repir.tools.lib.Log;
-import io.github.repir.tools.io.struct.StructureReader;
-import io.github.repir.tools.io.struct.StructureWriter;
+import io.github.htools.io.EOCException;
+import io.github.htools.lib.ClassTools;
+import io.github.htools.lib.Log;
+import io.github.htools.io.struct.StructureReader;
+import io.github.htools.io.struct.StructureWriter;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -107,7 +107,7 @@ public abstract class Collector {
 
    public String getCanonicalName() {
       String clazz = getClass().getCanonicalName();
-      clazz = io.github.repir.tools.lib.StrTools.removeOptionalStart(clazz, Collector.class.getPackage().getName() + ".");
+      clazz = io.github.htools.lib.StrTools.removeOptionalStart(clazz, Collector.class.getPackage().getName() + ".");
       return clazz;
    }
 

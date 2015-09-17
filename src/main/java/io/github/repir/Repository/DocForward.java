@@ -1,15 +1,15 @@
 package io.github.repir.Repository;
 
 import io.github.repir.Retriever.Document;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.struct.StructuredFileSequential;
-import io.github.repir.EntityReader.MapReduce.TermEntityKey;
-import io.github.repir.EntityReader.MapReduce.TermEntityValue;
-import io.github.repir.tools.extract.Content;
-import io.github.repir.tools.extract.ExtractChannel;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.struct.StructuredFileSequential;
+import io.github.htools.hadoop.io.archivereader.RecordKey;
+import io.github.htools.hadoop.io.archivereader.RecordValue;
+import io.github.htools.extract.Content;
+import io.github.htools.extract.ExtractChannel;
+import io.github.htools.lib.Log;
 import io.github.repir.Repository.DocForward.File;
-import io.github.repir.tools.io.EOCException;
+import io.github.htools.io.EOCException;
 import java.io.IOException;
 import org.apache.hadoop.mapreduce.Mapper;
 
@@ -40,7 +40,7 @@ public class DocForward extends EntityStoredFeature<File, int[]> implements Redu
    }
    
    @Override
-   public void setMapOutputValue(TermEntityValue value, Content doc) {
+   public void setMapOutputValue(RecordValue value, Content doc) {
       ExtractChannel attr = doc.get(entityAttribute());
       if (attr.tokenized == null) {
          attr.tokenized = repository.tokenize(attr);
@@ -49,9 +49,9 @@ public class DocForward extends EntityStoredFeature<File, int[]> implements Redu
    }
 
    @Override
-   public void writeReduce(TermEntityKey key, Iterable<TermEntityValue> values) {
+   public void writeReduce(RecordKey key, Iterable<RecordValue> values) {
       try {
-         TermEntityValue value = values.iterator().next();
+         RecordValue value = values.iterator().next();
          int t[] = value.reader.readCIntArray();
          write(t);
       } catch (EOCException ex) {

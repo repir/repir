@@ -1,15 +1,15 @@
 package io.github.repir.Repository;
 
 import io.github.repir.Retriever.Document;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.struct.StructuredFileShortJumpTable;
-import io.github.repir.tools.io.struct.StructuredDataStream;
-import io.github.repir.EntityReader.MapReduce.TermEntityKey;
-import io.github.repir.EntityReader.MapReduce.TermEntityValue;
-import io.github.repir.tools.lib.Log;
-import io.github.repir.tools.extract.Content;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.struct.StructuredFileShortJumpTable;
+import io.github.htools.io.struct.StructuredDataStream;
+import io.github.htools.hadoop.io.archivereader.RecordKey;
+import io.github.htools.hadoop.io.archivereader.RecordValue;
+import io.github.htools.lib.Log;
+import io.github.htools.extract.Content;
 import io.github.repir.Repository.DocLiteral.File;
-import io.github.repir.tools.io.EOCException;
+import io.github.htools.io.EOCException;
 
 /**
  * Can store one literal String per Document, e.g. collection ID, title, url.
@@ -37,14 +37,14 @@ public class DocLiteral
    }
    
    @Override
-   public void setMapOutputValue(TermEntityValue value, Content entity) {
+   public void setMapOutputValue(RecordValue value, Content entity) {
       value.writer.write(extract(entity));
    }
 
    @Override
-   public void writeReduce(TermEntityKey key, Iterable<TermEntityValue> values) {
+   public void writeReduce(RecordKey key, Iterable<RecordValue> values) {
       try {
-         TermEntityValue value = values.iterator().next();
+         RecordValue value = values.iterator().next();
          String literal = value.reader.readString();
          file.literal.write(literal);
       } catch (EOCException ex) {

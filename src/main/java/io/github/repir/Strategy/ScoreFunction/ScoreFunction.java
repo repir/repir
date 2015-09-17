@@ -1,9 +1,9 @@
 package io.github.repir.Strategy.ScoreFunction;
 
-import io.github.repir.tools.io.buffer.BufferDelayedWriter;
-import io.github.repir.tools.io.buffer.BufferReaderWriter;
+import io.github.htools.io.buffer.BufferDelayedWriter;
+import io.github.htools.io.buffer.BufferReaderWriter;
 import io.github.repir.Retriever.Document;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 import io.github.repir.Repository.ReportedUnstoredFeature;
 import io.github.repir.Repository.Repository;
 import io.github.repir.Strategy.ScoreFunction.ScoreFunction.Scorable;
@@ -79,9 +79,9 @@ public abstract class ScoreFunction<S extends Scorable> extends ReportedUnstored
 
    public static ScoreFunction create(GraphRoot root) {
         try {
-            Class clazz = io.github.repir.tools.lib.ClassTools.toClass(root.retrievalmodel.getScorefunctionClass(), ScoreFunction.class.getPackage().getName());
-            Constructor cons = io.github.repir.tools.lib.ClassTools.getAssignableConstructor(clazz, ScoreFunction.class, Repository.class);
-            return (ScoreFunction) io.github.repir.tools.lib.ClassTools.construct(cons, root.repository);
+            Class clazz = io.github.htools.lib.ClassTools.toClass(root.retrievalmodel.getScorefunctionClass(), ScoreFunction.class.getPackage().getName());
+            Constructor cons = io.github.htools.lib.ClassTools.getAssignableConstructor(clazz, ScoreFunction.class, Repository.class);
+            return (ScoreFunction) io.github.htools.lib.ClassTools.construct(cons, root.repository);
         } catch (ClassNotFoundException ex) {
             log.fatalexception(ex, "create() Could not construct %s", root.retrievalmodel.getScorefunctionClass());
         }

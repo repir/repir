@@ -3,7 +3,7 @@ package io.github.repir.Retriever.MapOnly;
 import io.github.repir.Retriever.MapReduce.QueryInputFormat;
 import io.github.repir.Retriever.Query;
 import io.github.repir.Retriever.Retriever;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 import java.io.IOException;
 import java.util.Set;
 import java.util.logging.Level;

@@ -1,21 +1,21 @@
 package io.github.repir.Repository;
 
-import io.github.repir.tools.extract.ExtractChannel;
+import io.github.htools.extract.ExtractChannel;
 import io.github.repir.Repository.Stopwords.StopWords;
 import io.github.repir.Repository.Stopwords.StopwordsCache;
 import io.github.repir.Strategy.Strategy;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.Path;
-import io.github.repir.tools.io.HDFSPath;
-import io.github.repir.tools.lib.ArrayTools;
-import static io.github.repir.tools.lib.ClassTools.*;
-import io.github.repir.tools.lib.Log;
-import io.github.repir.tools.lib.MathTools;
-import io.github.repir.tools.lib.PrintTools;
-import io.github.repir.tools.lib.StrTools;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.HPath;
+import io.github.htools.io.HDFSPath;
+import io.github.htools.lib.ArrayTools;
+import static io.github.htools.lib.ClassTools.*;
+import io.github.htools.lib.Log;
+import io.github.htools.lib.MathTools;
+import io.github.htools.lib.PrintTools;
+import io.github.htools.lib.StrTools;
 import io.github.repir.MapReduceTools.RRConfiguration;
-import io.github.repir.tools.extract.ExtractorConf;
-import io.github.repir.tools.Words.englishStemmer;
+import io.github.htools.extract.ExtractorConf;
+import io.github.htools.words.englishStemmer;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -95,7 +95,7 @@ public class Repository {
     }
 
     private void setDirPrefix(RRConfiguration conf) {
-        setDirPrefix(new HDFSPath(conf, conf.get("repository.dir", "")), conf.get("repository.prefix", ""));
+        setDirPrefix(conf.getHDFSPath("repository.dir"), conf.get("repository.prefix", ""));
     }
 
     /**
@@ -140,7 +140,7 @@ public class Repository {
         String dir = configuration.get("repository.dir").replaceAll(prefix, newIndex);
         configuration.set("repository.dir", dir);
         configuration.set("repository.prefix", newIndex);
-        basedir = new HDFSPath(configuration, configuration.get("repository.dir", ""));
+        basedir = configuration.getHDFSPath("repository.dir");
         prefix = newIndex;
     }
 
@@ -170,7 +170,7 @@ public class Repository {
     protected void useConfiguration(RRConfiguration conf) {
         this.configuration = conf;
         conf.setBoolean("fs.hdfs.impl.disable.cache", false);
-        setFileSystem(conf.FS());
+        setFileSystem(conf.getFileSystem());
     }
 
     protected void readSettings() {
@@ -405,15 +405,15 @@ public class Repository {
             switch (field.length) {
                 case 0:
                     cons = tryGetMethod(clazz, "get", Repository.class);
-                    f = (Feature) io.github.repir.tools.lib.ClassTools.invoke(cons, null, this);
+                    f = (Feature) io.github.htools.lib.ClassTools.invoke(cons, null, this);
                     break;
                 case 1:
                     cons = tryGetMethod(clazz, "get", Repository.class, String.class);
-                    f = (Feature) io.github.repir.tools.lib.ClassTools.invoke(cons, null, this, field[0]);
+                    f = (Feature) io.github.htools.lib.ClassTools.invoke(cons, null, this, field[0]);
                     break;
                 case 2:
                     cons = tryGetMethod(clazz, "get", Repository.class, String.class, String.class);
-                    f = (Feature) io.github.repir.tools.lib.ClassTools.invoke(cons, null, this, field[0], field[1]);
+                    f = (Feature) io.github.htools.lib.ClassTools.invoke(cons, null, this, field[0], field[1]);
                     break;
             }
         }
@@ -594,12 +594,12 @@ public class Repository {
         ArrayList<Datafile> list = new ArrayList<Datafile>();
         for (String p : qrs) {
             Datafile f = new Datafile(configuredString("rr.localdir") + "/" + p);
-            Path d = f.getDir();
+            HPath d = f.getDir();
             if (!d.exists()) {
                 f = new Datafile(getFS(), configuredString("repository.dir") + "/" + p);
                 d = f.getDir();
             }
-            list.addAll(d.getFilesStartingWith(f.getFilename()));
+            list.addAll(d.getFilesStartingWith(f.getName()));
         }
         return list;
     }

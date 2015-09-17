@@ -2,7 +2,7 @@ package io.github.repir.TestSet;
 
 import io.github.repir.TestSet.Metric.QueryMetric;
 import io.github.repir.Retriever.Query;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;

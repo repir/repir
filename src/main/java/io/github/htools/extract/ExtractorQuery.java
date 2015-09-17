@@ -1,8 +1,8 @@
-package io.github.repir.tools.extract;
+package io.github.htools.extract;
 
-import io.github.repir.tools.extract.Content;
-import io.github.repir.tools.extract.ExtractorConf;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.extract.Content;
+import io.github.htools.extract.ExtractorConf;
+import io.github.htools.lib.Log;
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -30,7 +30,7 @@ public class ExtractorQuery extends ExtractorConf {
    }
 
    @Override
-   protected void processSectionMarkers(Content entity, int bufferpos, int bufferend) {
-      entity.addSectionPos("rrquery", entity.content, bufferpos, bufferpos, bufferend, bufferend);
+   protected void processSectionMarkers(Content content) {
+      content.addSectionPos("rrquery", content.getContent(), 0, 0, content.length(), content.length());
    }
 }

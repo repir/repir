@@ -1,10 +1,10 @@
 package io.github.repir.Repository;
 
 import java.util.HashMap;
-import io.github.repir.tools.io.struct.StructuredFileIntID;
-import io.github.repir.tools.extract.Content;
-import io.github.repir.EntityReader.MapReduce.TermEntityKey;
-import io.github.repir.EntityReader.MapReduce.TermEntityValue;
+import io.github.htools.io.struct.StructuredFileIntID;
+import io.github.htools.extract.Content;
+import io.github.htools.hadoop.io.archivereader.RecordKey;
+import io.github.htools.hadoop.io.archivereader.RecordValue;
 import io.github.repir.Retriever.Document;
 import java.io.IOException;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -27,9 +27,9 @@ public abstract class EntityStoredFeature<F extends StructuredFileIntID, C> exte
    }
 
    @Override
-   public TermEntityKey createMapOutputKey(int partition, int feature, String docname, Content entity) {
-      TermEntityKey t = TermEntityKey.createTermDocKey(partition, feature, 0, docname);
-      t.type = TermEntityKey.Type.ENTITYFEATURE;
+   public RecordKey createMapOutputKey(int partition, int feature, String docname, Content entity) {
+      RecordKey t = RecordKey.createTermDocKey(partition, feature, 0, docname);
+      t.type = RecordKey.Type.ENTITYFEATURE;
       return t;
    }
    
@@ -37,10 +37,10 @@ public abstract class EntityStoredFeature<F extends StructuredFileIntID, C> exte
       return entity.get(entityAttribute()).getContentStr();
    }
 
-   abstract public void setMapOutputValue(TermEntityValue writer, Content doc);
+   abstract public void setMapOutputValue(RecordValue writer, Content doc);
 
-   TermEntityKey outkey;
-   TermEntityValue outvalue = new TermEntityValue();
+   RecordKey outkey;
+   RecordValue outvalue = new RecordValue();
     @Override
     public void writeMap(Mapper.Context context, int partition, int feature, String docname, Content entity) throws IOException, InterruptedException {
           outkey = createMapOutputKey(partition, feature, docname, entity);

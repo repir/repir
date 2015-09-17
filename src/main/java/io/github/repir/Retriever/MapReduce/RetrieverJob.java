@@ -1,9 +1,9 @@
 package io.github.repir.Retriever.MapReduce;
 
-import io.github.repir.tools.hadoop.Job;
+import io.github.htools.hadoop.Job;
 import io.github.repir.Retriever.Retriever;
 import io.github.repir.Retriever.Query;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -12,7 +12,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import io.github.repir.Strategy.RetrievalModel;
 import io.github.repir.Strategy.Strategy;
-import io.github.repir.tools.lib.ArrayTools;
+import io.github.htools.lib.ArrayTools;
 
 /**
  * Extension of Hadoop Job, used by JobManager to start multi-threaded 

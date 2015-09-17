@@ -1,15 +1,15 @@
 package io.github.repir.Repository;
 
-import io.github.repir.tools.io.buffer.BufferReaderWriter;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.struct.StructuredFileSort;
-import io.github.repir.tools.io.struct.StructuredFileCollision;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.io.buffer.BufferReaderWriter;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.struct.StructuredFileSort;
+import io.github.htools.io.struct.StructuredFileCollision;
+import io.github.htools.lib.Log;
 import io.github.repir.Repository.VocMem3.File;
-import io.github.repir.tools.io.EOCException;
-import io.github.repir.tools.lib.ByteTools;
-import io.github.repir.tools.io.struct.StructuredFileCollisionRecord;
-import io.github.repir.tools.io.struct.StructuredFileSortRecord;
+import io.github.htools.io.EOCException;
+import io.github.htools.lib.ByteTools;
+import io.github.htools.io.struct.StructuredFileCollisionRecord;
+import io.github.htools.io.struct.StructuredFileSortRecord;
 
 /**
  * Fetches the internal term id for a term string. To improve lookup speed, the
@@ -60,7 +60,7 @@ public class VocMem3 extends VocabularyToIDRAM<File> {
    public int get(String term) {
       Record record = createRecord();
       record.term = term;
-      Integer termid = io.github.repir.tools.lib.Const.NULLINT;
+      Integer termid = io.github.htools.lib.Const.NULLINT;
       Record found = (Record)file.find(record);
       if (found != null) {
          termid = found.id;

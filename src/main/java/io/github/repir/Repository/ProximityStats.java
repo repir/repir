@@ -2,13 +2,13 @@ package io.github.repir.Repository;
 
 import io.github.repir.Repository.ProximityStats.File;
 import io.github.repir.Repository.ProximityStats.Record;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.struct.StructuredFileKeyValue;
-import io.github.repir.tools.io.struct.StructuredFileKeyValueRecord;
-import io.github.repir.tools.lib.ArrayTools;
-import io.github.repir.tools.lib.Log;
-import io.github.repir.tools.lib.MathTools;
-import io.github.repir.tools.lib.PrintTools;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.struct.StructuredFileKeyValue;
+import io.github.htools.io.struct.StructuredFileKeyValueRecord;
+import io.github.htools.lib.ArrayTools;
+import io.github.htools.lib.Log;
+import io.github.htools.lib.MathTools;
+import io.github.htools.lib.PrintTools;
 
 /**
  * This feature caches co-occurrence statistics (collection frequency and document 

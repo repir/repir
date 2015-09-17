@@ -1,10 +1,10 @@
 package io.github.repir.Repository;
 
-import io.github.repir.tools.extract.Content;
-import io.github.repir.EntityReader.MapReduce.TermEntityKey;
-import io.github.repir.EntityReader.MapReduce.TermEntityValue;
-import io.github.repir.tools.extract.ExtractChannel;
-import io.github.repir.tools.io.struct.StructuredFileIntID;
+import io.github.htools.extract.Content;
+import io.github.htools.hadoop.io.archivereader.RecordKey;
+import io.github.htools.hadoop.io.archivereader.RecordValue;
+import io.github.htools.extract.ExtractChannel;
+import io.github.htools.io.struct.StructuredFileIntID;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,19 +33,19 @@ public abstract class AutoTermDocumentFeature<F extends StructuredFileIntID, C> 
       reducetermid = 0;
    }
    
-   TermEntityKey outkey;
-   TermEntityValue outvalue = new TermEntityValue();
+   RecordKey outkey;
+   RecordValue outvalue = new RecordValue();
 
    public void writeMap(Context context, int partition, int feature, String docname, Content entity) throws IOException, InterruptedException {
        HashMap<Integer, ArrayList<Integer>> tokens = getTokens(entity);
        for (Entry<Integer, ArrayList<Integer>> entry : tokens.entrySet()) {
-          outkey = TermEntityKey.createTermDocKey(partition, feature, entry.getKey(), docname);
+          outkey = RecordKey.createTermDocKey(partition, feature, entry.getKey(), docname);
           setMapOutputValue(outvalue, docname, entry.getValue());
           context.write(outkey, outvalue);
        }
    }
    
-   public abstract void reduceInput(TermEntityKey key, Iterable<TermEntityValue> values);
+   public abstract void reduceInput(RecordKey key, Iterable<RecordValue> values);
    
    public HashMap<Integer, ArrayList<Integer>> getTokens(Content doc) {
       HashMap<Integer, ArrayList<Integer>> list = new HashMap<Integer, ArrayList<Integer>>();
@@ -87,6 +87,6 @@ public abstract class AutoTermDocumentFeature<F extends StructuredFileIntID, C> 
       getFile().closeWrite();
    }
 
-   abstract public void setMapOutputValue(TermEntityValue writer, String docname, ArrayList<Integer> pos);
+   abstract public void setMapOutputValue(RecordValue writer, String docname, ArrayList<Integer> pos);
 
 }

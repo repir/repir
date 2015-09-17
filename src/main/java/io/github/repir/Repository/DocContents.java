@@ -1,19 +1,19 @@
 package io.github.repir.Repository;
 
-import io.github.repir.tools.extract.Content;
-import io.github.repir.EntityReader.MapReduce.TermEntityKey;
-import io.github.repir.EntityReader.MapReduce.TermEntityValue;
-import io.github.repir.tools.extract.ExtractChannel;
+import io.github.htools.extract.Content;
+import io.github.htools.hadoop.io.archivereader.RecordKey;
+import io.github.htools.hadoop.io.archivereader.RecordValue;
+import io.github.htools.extract.ExtractChannel;
 import io.github.repir.Repository.DocContents.File;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.Datafile.STATUS;
-import io.github.repir.tools.io.EOCException;
-import io.github.repir.tools.io.struct.StructuredFileSortHash;
-import io.github.repir.tools.io.struct.StructuredFileSortHashRecord;
-import io.github.repir.tools.io.struct.StructuredFileSortRecord;
-import io.github.repir.tools.lib.Log;
-import io.github.repir.tools.lib.PrintTools;
-import io.github.repir.tools.lib.StrTools;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.Datafile.STATUS;
+import io.github.htools.io.EOCException;
+import io.github.htools.io.struct.StructuredFileSortHash;
+import io.github.htools.io.struct.StructuredFileSortHashRecord;
+import io.github.htools.io.struct.StructuredFileSortRecord;
+import io.github.htools.lib.Log;
+import io.github.htools.lib.PrintTools;
+import io.github.htools.lib.StrTools;
 
 /**
  * Fetches the internal term id for a term string. To improve lookup speed, the
@@ -46,16 +46,16 @@ public class DocContents extends StringLookupFeature<File, String[]> {
    }
    
    @Override
-   public void setMapOutputValue(TermEntityValue value, Content doc) {
+   public void setMapOutputValue(RecordValue value, Content doc) {
       ExtractChannel attr = doc.get(entityAttribute());
       //log.info("mapOutput %s %s", entityAttribute(), attr);
-      value.writer.writeStr(attr);
+      value.writer.writeStringList(attr);
    }
 
    @Override
-   public void writeReduce(TermEntityKey key, Iterable<TermEntityValue> values) {
+   public void writeReduce(RecordKey key, Iterable<RecordValue> values) {
       try {
-         TermEntityValue value = values.iterator().next();
+         RecordValue value = values.iterator().next();
          String t[] = value.reader.readStringArray();
          //log.info("reduceInput %s %s", key.collectionid, StrTools.concat(t));
          write(key.collectionid, t);

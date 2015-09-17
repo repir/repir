@@ -1,8 +1,8 @@
 package io.github.repir.Strategy.Operator;
 
 import io.github.repir.Retriever.Document;
-import io.github.repir.tools.lib.ClassTools;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.ClassTools;
+import io.github.htools.lib.Log;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -12,7 +12,7 @@ import io.github.repir.Repository.TermDocumentFeature;
 import io.github.repir.Strategy.GraphComponent;
 import io.github.repir.Strategy.GraphRoot;
 import io.github.repir.Strategy.Strategy;
-import io.github.repir.tools.lib.StrTools;
+import io.github.htools.lib.StrTools;
 import java.util.Collections;
 
 /**
@@ -485,7 +485,7 @@ public abstract class Operator extends GraphComponent implements Comparator<Oper
     */
    public String printRecursive(int tab) {
       StringBuilder sb = new StringBuilder();
-      sb.append(io.github.repir.tools.lib.PrintTools.sprintf("%" + tab + "s%s", "", toString()));
+      sb.append(io.github.htools.lib.PrintTools.sprintf("%" + tab + "s%s", "", toString()));
       for (Operator f : containednodes) {
          sb.append(f.printRecursive(tab + 2));
       }

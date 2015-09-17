@@ -1,10 +1,10 @@
 package io.github.repir.Repository;
 
-import io.github.repir.tools.extract.ExtractChannel;
-import io.github.repir.tools.io.struct.StructuredFile;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.extract.ExtractChannel;
+import io.github.htools.io.struct.StructuredFile;
+import io.github.htools.lib.Log;
 import java.util.ArrayList;
-import io.github.repir.tools.lib.ArrayTools;
+import io.github.htools.lib.ArrayTools;
 
 /**
  * Abstract class for looking up the TermID in a vocabulary based on the stemmed

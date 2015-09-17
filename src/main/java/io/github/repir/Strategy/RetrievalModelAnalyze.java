@@ -1,6 +1,6 @@
 package io.github.repir.Strategy;
 import io.github.repir.Retriever.Retriever;
-import io.github.repir.tools.lib.Log; 
+import io.github.htools.lib.Log; 
 
 /**
  * Is a cross-over between a {@link RetrievalModel} and an {@link Analyze}, which

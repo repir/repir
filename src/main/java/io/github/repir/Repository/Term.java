@@ -1,10 +1,10 @@
 package io.github.repir.Repository;
 
-import io.github.repir.tools.io.buffer.BufferSerializable;
-import io.github.repir.tools.io.EOCException;
-import io.github.repir.tools.io.struct.StructureReader;
-import io.github.repir.tools.io.struct.StructureWriter;
-import io.github.repir.tools.lib.MathTools;
+import io.github.htools.io.buffer.BufferSerializable;
+import io.github.htools.io.EOCException;
+import io.github.htools.io.struct.StructureReader;
+import io.github.htools.io.struct.StructureWriter;
+import io.github.htools.lib.MathTools;
 
 /**
  * Represents a Term feature, that should constructed using the repository

@@ -1,14 +1,14 @@
 package io.github.repir.Repository;
 
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.struct.StructuredFileSequential;
-import io.github.repir.tools.extract.Content;
-import io.github.repir.EntityReader.MapReduce.TermEntityKey;
-import io.github.repir.EntityReader.MapReduce.TermEntityValue;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.struct.StructuredFileSequential;
+import io.github.htools.extract.Content;
+import io.github.htools.hadoop.io.archivereader.RecordKey;
+import io.github.htools.hadoop.io.archivereader.RecordValue;
 import io.github.repir.Repository.TermInverted.File;
 import io.github.repir.Retriever.Document;
-import io.github.repir.tools.io.EOCException;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.io.EOCException;
+import io.github.htools.lib.Log;
 import java.util.ArrayList;
 
 /**
@@ -59,20 +59,20 @@ public class TermInverted extends AutoTermDocumentFeature<File, int[]> {
    }
    
    @Override
-   public void setMapOutputValue(TermEntityValue value, String docname, ArrayList<Integer> pos) {
+   public void setMapOutputValue(RecordValue value, String docname, ArrayList<Integer> pos) {
       value.writer.write0(docname);
       value.writer.writeIncr(pos);
    }
 
    @Override
-   public void reduceInput(TermEntityKey key, Iterable<TermEntityValue> values) {
+   public void reduceInput(RecordKey key, Iterable<RecordValue> values) {
       for (; reducetermid < key.termid; reducetermid++) {
          file.setOffsetTupleStart(file.getOffetTupleEnd());
          file.recordEnd();
       }
       try {
          long offset = file.getOffset();
-         for (TermEntityValue v : values) {
+         for (RecordValue v : values) {
             String doc = v.reader.readString0();
             int docid = docs.get(doc);
             file.docid.write(docid);

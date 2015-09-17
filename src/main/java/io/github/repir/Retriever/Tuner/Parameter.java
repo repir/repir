@@ -3,8 +3,8 @@ package io.github.repir.Retriever.Tuner;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.TreeSet;
-import io.github.repir.tools.lib.Log;
-import io.github.repir.tools.lib.MathTools;
+import io.github.htools.lib.Log;
+import io.github.htools.lib.MathTools;
 
 /**
  * Class used for a free parameters that needs to be tuned.

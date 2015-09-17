@@ -1,11 +1,11 @@
 package io.github.repir.Repository;
 
 import io.github.repir.Strategy.Strategy;
-import io.github.repir.tools.io.buffer.BufferDelayedWriter;
-import io.github.repir.tools.io.buffer.BufferReaderWriter;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.lib.Log;
-import io.github.repir.tools.lib.PrintTools;
+import io.github.htools.io.buffer.BufferDelayedWriter;
+import io.github.htools.io.buffer.BufferReaderWriter;
+import io.github.htools.io.Datafile;
+import io.github.htools.lib.Log;
+import io.github.htools.lib.PrintTools;
 import java.util.HashMap;
 
 /**
@@ -70,8 +70,8 @@ public abstract class Feature {
        if (!Feature.class.isAssignableFrom(c))
          log.fatal("No valid feature: %s", c.getCanonicalName());
       String clazz = c.getCanonicalName();
-      clazz = io.github.repir.tools.lib.StrTools.removeOptionalStart(clazz, Repository.class.getPackage().getName() + ".");
-      clazz = io.github.repir.tools.lib.StrTools.removeOptionalStart(clazz, Strategy.class.getPackage().getName() + ".");
+      clazz = io.github.htools.lib.StrTools.removeOptionalStart(clazz, Repository.class.getPackage().getName() + ".");
+      clazz = io.github.htools.lib.StrTools.removeOptionalStart(clazz, Strategy.class.getPackage().getName() + ".");
       return clazz;
    }
 

@@ -1,10 +1,10 @@
 package io.github.repir.Repository;
 
 import io.github.repir.Retriever.Document;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.EOCException;
-import io.github.repir.tools.io.struct.StructuredFileIntID;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.EOCException;
+import io.github.htools.io.struct.StructuredFileIntID;
+import io.github.htools.lib.Log;
 
 /**
  * Generic class for Features that are stored in the repository. Implementations 

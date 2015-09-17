@@ -1,9 +1,9 @@
 package io.github.repir.TestSet.Topic;
 
-import io.github.repir.tools.io.buffer.BufferReaderWriter;
-import io.github.repir.tools.io.struct.StructuredTextCSV;
-import io.github.repir.tools.io.struct.StructuredTextXML;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.io.buffer.BufferReaderWriter;
+import io.github.htools.io.struct.StructuredTextCSV;
+import io.github.htools.io.struct.StructuredTextXML;
+import io.github.htools.lib.Log;
 
 /**
  * Topic reader for TREC Web Track 2010-2013 ad-hoc topics.

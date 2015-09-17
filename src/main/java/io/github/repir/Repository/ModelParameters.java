@@ -4,11 +4,11 @@ import java.util.Map;
 import java.util.TreeMap;
 import io.github.repir.Repository.ModelParameters.File;
 import io.github.repir.Repository.ModelParameters.Record;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.struct.StructuredFileKeyValue;
-import io.github.repir.tools.io.struct.StructuredFileKeyValueRecord;
-import io.github.repir.tools.lib.Log;
-import io.github.repir.tools.lib.MathTools;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.struct.StructuredFileKeyValue;
+import io.github.htools.io.struct.StructuredFileKeyValueRecord;
+import io.github.htools.lib.Log;
+import io.github.htools.lib.MathTools;
 import java.util.HashMap;
 
 /**

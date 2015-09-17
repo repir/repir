@@ -1,13 +1,13 @@
 package io.github.repir.Retriever;
 
-import io.github.repir.tools.io.buffer.BufferDelayedWriter;
-import io.github.repir.tools.io.struct.StructureReader;
-import io.github.repir.tools.io.struct.StructureWriter;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.io.buffer.BufferDelayedWriter;
+import io.github.htools.io.struct.StructureReader;
+import io.github.htools.io.struct.StructureWriter;
+import io.github.htools.lib.Log;
 import io.github.repir.Repository.ReportableFeature;
 import io.github.repir.Strategy.RetrievalModel;
-import io.github.repir.tools.io.buffer.BufferSerializable;
-import io.github.repir.tools.io.EOCException;
+import io.github.htools.io.buffer.BufferSerializable;
+import io.github.htools.io.EOCException;
 
 /**
  * Data class to contain values of retrieved documents. A Repository is assumed
@@ -171,6 +171,6 @@ public class Document implements BufferSerializable {
       if (report == null) {
          report = new StringBuilder();
       }
-      report.append(io.github.repir.tools.lib.PrintTools.sprintf(s, o));
+      report.append(io.github.htools.lib.PrintTools.sprintf(s, o));
    }
 }

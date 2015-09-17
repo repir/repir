@@ -1,10 +1,10 @@
 package io.github.repir.MapReduceTools;
 
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.FSFileInBuffer;
-import io.github.repir.tools.lib.ArgsParser;
-import io.github.repir.tools.lib.ArrayTools;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.FSFileInBuffer;
+import io.github.htools.lib.ArgsParser;
+import io.github.htools.lib.ArrayTools;
+import io.github.htools.lib.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -24,7 +24,7 @@ import org.apache.hadoop.util.GenericOptionsParser;
  the Conf set for a repository to a file.
  * @author Jeroen Vuurens
  */
-public class RRConfiguration extends io.github.repir.tools.hadoop.Conf {
+public class RRConfiguration extends io.github.htools.hadoop.Conf {
 
    public static Log log = new Log(RRConfiguration.class);
 
@@ -56,7 +56,7 @@ public class RRConfiguration extends io.github.repir.tools.hadoop.Conf {
    @Override
    public void processConfigFile(Datafile df) {
       super.processConfigFile(df);
-      set("rr.conf", df.getFilename());
+      set("rr.conf", df.getName());
       String libs = get("rr.lib");
       if (libs != null && libs.length() > 0) {
          addLibraries(get("rr.libdir"), get("rr.lib").split(","));

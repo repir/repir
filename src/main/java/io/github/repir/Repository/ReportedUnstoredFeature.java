@@ -1,6 +1,6 @@
 package io.github.repir.Repository;
 
-import io.github.repir.EntityReader.MapReduce.TermEntityKey;
+import io.github.htools.hadoop.io.archivereader.RecordKey;
 import io.github.repir.Strategy.GraphRoot;
 import io.github.repir.Strategy.Strategy;
 import io.github.repir.Retriever.Document;

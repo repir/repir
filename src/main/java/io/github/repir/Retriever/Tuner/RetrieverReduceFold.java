@@ -8,7 +8,7 @@ import io.github.repir.Retriever.Query;
 import io.github.repir.TestSet.Metric.QueryMetricAP;
 import io.github.repir.TestSet.ResultSet;
 import io.github.repir.TestSet.TestSet;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 
 /**
  * Stores the tuned parameters into 10 separate folds, enabling parameter tuning

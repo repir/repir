@@ -1,6 +1,6 @@
 package io.github.repir.Retriever.MultiThread;
 import io.github.repir.Retriever.MapReduce.QueueIterator;
-import io.github.repir.tools.lib.Log; 
+import io.github.htools.lib.Log; 
 
 /**
  * 

@@ -1,16 +1,16 @@
 package io.github.repir.Repository;
 
 import io.github.repir.Retriever.Document;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.struct.StructuredFile;
-import io.github.repir.tools.io.struct.StructuredFileIntID;
-import io.github.repir.EntityReader.MapReduce.TermEntityKey;
-import io.github.repir.EntityReader.MapReduce.TermEntityValue;
-import io.github.repir.tools.extract.Content;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.struct.StructuredFile;
+import io.github.htools.io.struct.StructuredFileIntID;
+import io.github.htools.hadoop.io.archivereader.RecordKey;
+import io.github.htools.hadoop.io.archivereader.RecordValue;
+import io.github.htools.extract.Content;
+import io.github.htools.lib.Log;
 import io.github.repir.Repository.DocTF.File;
-import io.github.repir.tools.io.buffer.BufferReaderWriter;
-import io.github.repir.tools.io.EOCException;
+import io.github.htools.io.buffer.BufferReaderWriter;
+import io.github.htools.io.EOCException;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,12 +42,12 @@ public class DocTF
     }
 
     @Override
-    public void setMapOutputValue(TermEntityValue value, Content doc) {
+    public void setMapOutputValue(RecordValue value, Content doc) {
         value.writer.write(doc.get(entityAttribute()).size());
     }
 
     @Override
-    public void writeReduce(TermEntityKey key, Iterable<TermEntityValue> values) {
+    public void writeReduce(RecordKey key, Iterable<RecordValue> values) {
         try {
             file.dtf.write(values.iterator().next().reader.readInt());
         } catch (EOCException ex) {

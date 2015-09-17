@@ -1,10 +1,10 @@
 package io.github.repir.Retriever;
 
-import io.github.repir.tools.io.struct.StructureReader;
-import io.github.repir.tools.io.struct.StructureWriter;
+import io.github.htools.io.struct.StructureReader;
+import io.github.htools.io.struct.StructureWriter;
 import io.github.repir.Repository.Feature;
 import io.github.repir.Repository.Repository;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 import io.github.repir.Strategy.Strategy;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -12,9 +12,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import io.github.repir.Strategy.RetrievalModel;
-import io.github.repir.tools.io.buffer.BufferSerializable;
-import io.github.repir.tools.io.EOCException;
-import io.github.repir.tools.lib.ClassTools;
+import io.github.htools.io.buffer.BufferSerializable;
+import io.github.htools.io.EOCException;
+import io.github.htools.lib.ClassTools;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -237,7 +237,7 @@ public class Query implements BufferSerializable,Comparable<Query> {
       writer.write(documentclass);
       writer.write(documentcomparatorclass);
       writer.write(removeStopwords);
-      writer.writeStr(reportedFeatures);
+      writer.writeStringList(reportedFeatures);
       writer.write(variants.size());
       for (Variant v : variants) {
          v.write(writer);
@@ -271,7 +271,7 @@ public class Query implements BufferSerializable,Comparable<Query> {
       documentclass = reader.readString();
       documentcomparatorclass = reader.readString();
       removeStopwords = reader.readBoolean();
-      reportedFeatures = reader.readStrArrayList();
+      reportedFeatures = reader.readStringList();
       int variants = reader.readInt();
       for (int i = 0; i < variants; i++) {
          Variant v = new Variant();

@@ -1,11 +1,11 @@
 package io.github.repir.Repository.Stopwords;
 
-import io.github.repir.tools.Words.StopWordsSmart;
-import io.github.repir.tools.Words.StopWordsLetter;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.words.StopWordsSmart;
+import io.github.htools.words.StopWordsLetter;
+import io.github.htools.lib.Log;
 import java.util.HashSet;
 import io.github.repir.Repository.Repository;
-import io.github.repir.tools.extract.DefaultTokenizer;
+import io.github.htools.extract.DefaultTokenizer;
 import java.util.ArrayList;
 
 /**
@@ -13,7 +13,7 @@ import java.util.ArrayList;
  *
  * @author jeroen
  */
-public class StopWords extends io.github.repir.tools.Words.StopWords {
+public class StopWords extends io.github.htools.words.StopWords {
 
     public static Log log = new Log(StopWords.class);
     private static HashSet<Integer> intfilterset;

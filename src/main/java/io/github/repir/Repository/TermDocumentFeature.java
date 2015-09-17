@@ -2,10 +2,10 @@ package io.github.repir.Repository;
 
 import io.github.repir.Retriever.Document;
 import io.github.repir.Repository.Stopwords.StopWords;
-import io.github.repir.tools.io.EOCException;
-import io.github.repir.tools.io.struct.StructuredFileIntID;
-import io.github.repir.tools.lib.ArrayTools;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.io.EOCException;
+import io.github.htools.io.struct.StructuredFileIntID;
+import io.github.htools.lib.ArrayTools;
+import io.github.htools.lib.Log;
 
 /**
  * A stored feature that uses a term-document structure similar to a textbook inverted index. This 

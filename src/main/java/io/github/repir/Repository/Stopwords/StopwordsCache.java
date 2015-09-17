@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import io.github.repir.Repository.Stopwords.StopwordsCache.File;
 import io.github.repir.Repository.StoredFeature;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.EOCException;
-import io.github.repir.tools.io.struct.StructuredFile;
-import io.github.repir.tools.lib.Log; 
+import io.github.htools.io.Datafile;
+import io.github.htools.io.EOCException;
+import io.github.htools.io.struct.StructuredFile;
+import io.github.htools.lib.Log; 
 
 /**
  * This feature caches the configured list of stop words as a list of TermID

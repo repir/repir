@@ -1,5 +1,5 @@
 package io.github.repir.Strategy.Tools;
-import io.github.repir.tools.lib.Log; 
+import io.github.htools.lib.Log; 
 
 /**
  * Represents an occurrence of a ProximityOperator in a Document.

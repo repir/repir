@@ -10,7 +10,7 @@ import io.github.repir.Strategy.Collector.CollectorCachable;
 import io.github.repir.Repository.Repository;
 import io.github.repir.Strategy.Strategy;
 import io.github.repir.Retriever.Query;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 
 /**
  * The reducer is generic, using the passed query with the name of the retrieval

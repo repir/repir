@@ -1,8 +1,8 @@
 package io.github.repir.TestSet.Qrel;
 
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.struct.StructuredTextCSV;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.struct.StructuredTextCSV;
+import io.github.htools.lib.Log;
 import java.util.HashMap;
 
 public class QrelReaderTREC extends StructuredTextCSV implements QrelReader {

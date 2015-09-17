@@ -1,22 +1,22 @@
 package io.github.repir.Repository.Pig;
 
-import io.github.repir.tools.extract.Content;
-import io.github.repir.EntityReader.MapReduce.TermEntityKey;
-import io.github.repir.EntityReader.MapReduce.TermEntityValue;
+import io.github.htools.extract.Content;
+import io.github.htools.hadoop.io.archivereader.RecordKey;
+import io.github.htools.hadoop.io.archivereader.RecordValue;
 import io.github.repir.Repository.*;
 import io.github.repir.Retriever.Document;
-import io.github.repir.tools.search.ByteSearch;
-import io.github.repir.tools.search.ByteSearchPosition;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.struct.StructuredFileIntID;
-import io.github.repir.tools.io.struct.StructuredTextFile.DataNode;
-import io.github.repir.tools.io.struct.StructuredTextFile.FolderNode;
-import io.github.repir.tools.io.struct.StructuredTextFile.Node;
-import io.github.repir.tools.io.struct.StructuredTextPig;
-import io.github.repir.tools.io.struct.StructuredTextPigTuple;
-import io.github.repir.tools.lib.ClassTools;
-import io.github.repir.tools.lib.PrintTools;
-import io.github.repir.tools.lib.StrTools;
+import io.github.htools.search.ByteSearch;
+import io.github.htools.search.ByteSearchPosition;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.struct.StructuredFileIntID;
+import io.github.htools.io.struct.StructuredTextFile.DataNode;
+import io.github.htools.io.struct.StructuredTextFile.FolderNode;
+import io.github.htools.io.struct.StructuredTextFile.Node;
+import io.github.htools.io.struct.StructuredTextPig;
+import io.github.htools.io.struct.StructuredTextPigTuple;
+import io.github.htools.lib.ClassTools;
+import io.github.htools.lib.PrintTools;
+import io.github.htools.lib.StrTools;
 import java.util.HashMap;
 
 /**
@@ -65,7 +65,7 @@ public abstract class PigFeature<F extends StructuredTextPig, C extends Structur
    
    public String loadScript() {
       StringBuilder sb = new StringBuilder();
-      String filename = getFile().getDatafile().getFilename();
+      String filename = getFile().getDatafile().getName();
       ByteSearchPosition pos = dot.findLastPos(filename);
       sb.append("LOAD '");
       sb.append( getFile().getDatafile().getCanonicalPath() ).append("' AS ");
@@ -76,10 +76,10 @@ public abstract class PigFeature<F extends StructuredTextPig, C extends Structur
    
    public String loadLocalScript() {
       StringBuilder sb = new StringBuilder();
-      String filename = getFile().getDatafile().getFilename();
+      String filename = getFile().getDatafile().getName();
       ByteSearchPosition pos = dot.findLastPos(filename);
       sb.append("LOAD '");
-      sb.append("data/").append( getFile().getDatafile().getFilename() ).append("' AS ");
+      sb.append("data/").append( getFile().getDatafile().getName() ).append("' AS ");
       sb.append(loadFolder( file.getRoot()));
       sb.append(";\n");
       return sb.toString();

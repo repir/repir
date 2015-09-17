@@ -1,9 +1,9 @@
 package io.github.repir.Retriever;
 
-import io.github.repir.tools.extract.Content;
-import io.github.repir.tools.extract.ExtractChannel;
-import io.github.repir.tools.extract.ExtractorConf;
-import io.github.repir.tools.extract.ExtractorQuery;
+import io.github.htools.extract.Content;
+import io.github.htools.extract.ExtractChannel;
+import io.github.htools.extract.ExtractorConf;
+import io.github.htools.extract.ExtractorQuery;
 import io.github.repir.Repository.Repository;
 import io.github.repir.Repository.ResidentFeature;
 import io.github.repir.Repository.StoredReportableFeature;
@@ -11,9 +11,9 @@ import io.github.repir.Strategy.Collector.Collector;
 import io.github.repir.Strategy.Collector.CollectorCachable;
 import io.github.repir.Strategy.RetrievalModel;
 import io.github.repir.Strategy.Strategy;
-import io.github.repir.tools.collection.ArrayMap;
-import io.github.repir.tools.lib.Log;
-import io.github.repir.tools.Words.englishStemmer;
+import io.github.htools.collection.ArrayMap;
+import io.github.htools.lib.Log;
+import io.github.htools.words.englishStemmer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;

@@ -2,7 +2,7 @@ package io.github.repir.Strategy;
 
 import io.github.repir.Strategy.Operator.QTerm;
 import io.github.repir.Strategy.Operator.Operator;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 import io.github.repir.Repository.Repository;
 import java.util.ArrayList;
 

@@ -1,9 +1,9 @@
 package io.github.repir.TestSet.Topic;
 
 import io.github.repir.Repository.Repository;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.struct.StructuredTextXML;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.struct.StructuredTextXML;
+import io.github.htools.lib.Log;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

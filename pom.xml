@@ -3,18 +3,21 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.github.repir</groupId>
-        <artifactId>RepIRProx</artifactId>
-        <version>0.26-SNAPSHOT</version>
-        <relativePath>../RepIRProx/pom.xml</relativePath>
+        <artifactId>repirparent</artifactId>
+        <version>0.26</version>
+        <relativePath>../repirparent/pom.xml</relativePath>
     </parent>
-    <artifactId>RepIR</artifactId>
+    <artifactId>repir</artifactId>
+    <version>0.26</version>
     <packaging>jar</packaging>
-    <name>RepIR</name>
+    <name>repir</name>
   
+    <description>Repository for IR</description>
+
     <scm>
-        <connection>scm:git:git@github.com:RepIR/RepIR.git</connection>
-        <developerConnection>scm:git@github.com:RepIR/RepIR.git</developerConnection>
-        <url>git@github.com:RepIR/RepIR.git</url>
+        <connection>scm:git:git@github.com:repir/repir.git</connection>
+        <developerConnection>scm:git@github.com:repir/repir.git</developerConnection>
+        <url>git@github.com:repir/repir.git</url>
     </scm>
 
     <build>
@@ -32,7 +35,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
+                <version>1.8</version>
                 <configuration>
                     <target>  
                         <scp todir="${repirdir}" 
@@ -62,10 +65,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
             <version>3.1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>RepIRTools</artifactId>
         </dependency>
         <dependency>
             <groupId>org.antlr</groupId>

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import io.github.repir.Retriever.Document;
 import io.github.repir.Strategy.Operator.Operator;
 import io.github.repir.Strategy.Operator.PositionalOperator;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 
 /**
  * Iterates over all co-occurrences in the document that contain all Operators in any order.

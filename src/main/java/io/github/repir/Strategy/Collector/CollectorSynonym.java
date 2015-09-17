@@ -6,11 +6,11 @@ import io.github.repir.Repository.SynStats;
 import io.github.repir.Repository.SynStats.Record;
 import io.github.repir.Strategy.Operator.SynonymOperator;
 import io.github.repir.Retriever.Document;
-import io.github.repir.tools.io.EOCException;
-import io.github.repir.tools.io.struct.StructureReader;
-import io.github.repir.tools.io.struct.StructureWriter;
-import io.github.repir.tools.lib.Log;
-import io.github.repir.tools.lib.MathTools;
+import io.github.htools.io.EOCException;
+import io.github.htools.io.struct.StructureReader;
+import io.github.htools.io.struct.StructureWriter;
+import io.github.htools.lib.Log;
+import io.github.htools.lib.MathTools;
 
 /**
  * Collects the collection and document frequency of {@link SynonymOperator}s. 

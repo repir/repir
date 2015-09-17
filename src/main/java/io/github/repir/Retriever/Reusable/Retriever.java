@@ -10,7 +10,7 @@ import io.github.repir.Retriever.Query.Variant;
 import io.github.repir.Retriever.ReportedFeature;
 import io.github.repir.Strategy.RetrievalModel;
 import io.github.repir.Strategy.Strategy;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 import java.io.IOException;
 
 /**

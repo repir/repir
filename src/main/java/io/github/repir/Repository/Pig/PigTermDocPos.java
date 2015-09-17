@@ -6,13 +6,13 @@ import io.github.repir.Repository.Pig.PigTermDocPos.File;
 import io.github.repir.Repository.Pig.PigTermDocPos.Tuple;
 import io.github.repir.Repository.Repository;
 import io.github.repir.Repository.StoredFeature;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.struct.StructuredTextFile;
-import io.github.repir.tools.io.struct.StructuredTextFile.NodeValue;
-import io.github.repir.tools.io.struct.StructuredTextPig;
-import io.github.repir.tools.io.struct.StructuredTextPigTuple;
-import io.github.repir.tools.lib.ArrayTools;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.struct.StructuredTextFile;
+import io.github.htools.io.struct.StructuredTextFile.NodeValue;
+import io.github.htools.io.struct.StructuredTextPig;
+import io.github.htools.io.struct.StructuredTextPigTuple;
+import io.github.htools.lib.ArrayTools;
+import io.github.htools.lib.Log;
 import java.util.ArrayList;
 
 /**

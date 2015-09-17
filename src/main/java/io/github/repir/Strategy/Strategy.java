@@ -6,9 +6,9 @@ import io.github.repir.Retriever.Retriever;
 import io.github.repir.Strategy.Collector.Collector;
 import io.github.repir.Strategy.Collector.MasterCollector;
 import io.github.repir.Strategy.Operator.Operator;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.lib.ClassTools;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.io.Datafile;
+import io.github.htools.lib.ClassTools;
+import io.github.htools.lib.Log;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
@@ -72,7 +72,7 @@ public abstract class Strategy {
       //log.info("create( %s )", queryrequest.strategyclass);
       Strategy strategy = null;
       try {
-         Class clazz = io.github.repir.tools.lib.ClassTools.toClass(queryrequest.getStrategyClass(), Strategy.class.getPackage().getName());
+         Class clazz = io.github.htools.lib.ClassTools.toClass(queryrequest.getStrategyClass(), Strategy.class.getPackage().getName());
          Constructor cons = ClassTools.getAssignableConstructor(clazz, assignableClass, Retriever.class);
          strategy = (Strategy) cons.newInstance(retriever);
          strategy.setQuery(queryrequest);

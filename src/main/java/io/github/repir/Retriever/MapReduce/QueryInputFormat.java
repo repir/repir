@@ -2,7 +2,7 @@ package io.github.repir.Retriever.MapReduce;
 
 import io.github.repir.Repository.Repository;
 import io.github.repir.Retriever.Query;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 import io.github.repir.MapReduceTools.MRInputFormat;
 import io.github.repir.MapReduceTools.MRInputSplit;
 

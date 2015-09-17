@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import io.github.repir.Repository.TermID.File;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.Datafile.STATUS;
-import io.github.repir.tools.io.struct.StructuredFileSortHash;
-import io.github.repir.tools.io.struct.StructuredFileSortHashRecord;
-import io.github.repir.tools.io.struct.StructuredFileSortRecord;
-import io.github.repir.tools.lib.ArrayTools;
-import io.github.repir.tools.lib.Log;
-import io.github.repir.tools.lib.PrintTools;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.Datafile.STATUS;
+import io.github.htools.io.struct.StructuredFileSortHash;
+import io.github.htools.io.struct.StructuredFileSortHashRecord;
+import io.github.htools.io.struct.StructuredFileSortRecord;
+import io.github.htools.lib.ArrayTools;
+import io.github.htools.lib.Log;
+import io.github.htools.lib.PrintTools;
 
 /**
  * Fetches the internal term id for a term string. To improve lookup speed, the
@@ -89,7 +89,7 @@ public class TermID extends VocabularyToID<File> {
       if (getFile().getDatafile().status != STATUS.READ) {
          openRead();
       }
-      int termid = io.github.repir.tools.lib.Const.NULLINT;
+      int termid = io.github.htools.lib.Const.NULLINT;
       Record termrecord = new Record(file);
       termrecord.term = term;
       Record termfound = (Record) termrecord.find();

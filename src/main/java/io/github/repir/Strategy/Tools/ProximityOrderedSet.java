@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import io.github.repir.Retriever.Document;
 import io.github.repir.Strategy.Operator.Operator;
 import io.github.repir.Strategy.Operator.PositionalOperator;
-import io.github.repir.tools.lib.Log; 
+import io.github.htools.lib.Log; 
 
 /**
  * Returns only occurrences of all Operators in the order of the List that was

@@ -1,6 +1,6 @@
 package io.github.repir.Retriever;
 import io.github.repir.Repository.ReportableFeature; 
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 
 /**
  *

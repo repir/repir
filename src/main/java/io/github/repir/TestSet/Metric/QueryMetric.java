@@ -2,8 +2,8 @@ package io.github.repir.TestSet.Metric;
 
 import io.github.repir.Retriever.Query;
 import io.github.repir.TestSet.TestSet;
-import io.github.repir.tools.lib.ClassTools;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.ClassTools;
+import io.github.htools.lib.Log;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 

@@ -1,7 +1,7 @@
 package io.github.repir.MapReduceTools;
 
 import io.github.repir.Repository.Repository;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 import org.apache.hadoop.io.NullWritable;
 
 /**

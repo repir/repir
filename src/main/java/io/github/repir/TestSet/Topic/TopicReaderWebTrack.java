@@ -1,10 +1,10 @@
 package io.github.repir.TestSet.Topic;
 
 import io.github.repir.Repository.Repository;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.struct.StructuredTextCSV;
-import io.github.repir.tools.io.struct.StructuredTextFile;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.struct.StructuredTextCSV;
+import io.github.htools.io.struct.StructuredTextFile;
+import io.github.htools.lib.Log;
 import java.util.HashMap;
 
 /**

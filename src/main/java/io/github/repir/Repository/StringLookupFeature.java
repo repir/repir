@@ -1,11 +1,11 @@
 package io.github.repir.Repository;
 
-import io.github.repir.tools.extract.Content;
-import io.github.repir.EntityReader.MapReduce.TermEntityKey;
-import io.github.repir.EntityReader.MapReduce.TermEntityValue;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.lib.Log;
-import io.github.repir.tools.io.struct.StructuredFile;
+import io.github.htools.extract.Content;
+import io.github.htools.hadoop.io.archivereader.RecordKey;
+import io.github.htools.hadoop.io.archivereader.RecordValue;
+import io.github.htools.io.Datafile;
+import io.github.htools.lib.Log;
+import io.github.htools.io.struct.StructuredFile;
 import java.io.IOException;
 import org.apache.hadoop.mapreduce.Mapper;
 
@@ -41,15 +41,15 @@ public abstract class StringLookupFeature<F extends StructuredFile, C> extends S
     }
 
     @Override
-    public TermEntityKey createMapOutputKey(int feature, String docname, Content entity) {
+    public RecordKey createMapOutputKey(int feature, String docname, Content entity) {
         String keyname = extract(entity);
-        TermEntityKey t = TermEntityKey.createTermDocKey(0, feature, 0, keyname);
-        t.type = TermEntityKey.Type.LOOKUPFEATURE;
+        RecordKey t = RecordKey.createTermDocKey(0, feature, 0, keyname);
+        t.type = RecordKey.Type.LOOKUPFEATURE;
         return t;
     }
 
-    TermEntityKey outkey;
-    TermEntityValue outvalue = new TermEntityValue();
+    RecordKey outkey;
+    RecordValue outvalue = new RecordValue();
 
     @Override
     public void writeMap(Mapper.Context context, int feature, String docname, Content entity) throws IOException, InterruptedException {
@@ -58,7 +58,7 @@ public abstract class StringLookupFeature<F extends StructuredFile, C> extends S
         context.write(outkey, outvalue);
     }
 
-    abstract public void setMapOutputValue(TermEntityValue writer, Content doc);
+    abstract public void setMapOutputValue(RecordValue writer, Content doc);
 
     public abstract C get(String term);
 

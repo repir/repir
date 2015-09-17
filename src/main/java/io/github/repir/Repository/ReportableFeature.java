@@ -1,7 +1,7 @@
 package io.github.repir.Repository;
 
-import io.github.repir.EntityReader.MapReduce.TermEntityKey;
-import io.github.repir.EntityReader.MapReduce.TermEntityValue;
+import io.github.htools.hadoop.io.archivereader.RecordKey;
+import io.github.htools.hadoop.io.archivereader.RecordValue;
 import io.github.repir.Retriever.Document;
 
 /**

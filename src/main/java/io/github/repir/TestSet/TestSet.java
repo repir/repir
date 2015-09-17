@@ -1,8 +1,8 @@
 package io.github.repir.TestSet;
 
-import io.github.repir.tools.extract.Content;
-import io.github.repir.tools.extract.ExtractorConf;
-import io.github.repir.tools.extract.ExtractorTestSet;
+import io.github.htools.extract.Content;
+import io.github.htools.extract.ExtractorConf;
+import io.github.htools.extract.ExtractorTestSet;
 import io.github.repir.Repository.DocLiteral;
 import io.github.repir.Repository.Repository;
 import io.github.repir.Retriever.Document;
@@ -14,10 +14,10 @@ import io.github.repir.TestSet.Qrel.QrelReaderTREC;
 import io.github.repir.TestSet.Topic.TestSetTopic;
 import io.github.repir.TestSet.Topic.TopicReader;
 import io.github.repir.TestSet.Topic.TopicReaderTREC;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.io.FSFile;
-import io.github.repir.tools.lib.ClassTools;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.io.Datafile;
+import io.github.htools.io.FSFile;
+import io.github.htools.lib.ClassTools;
+import io.github.htools.lib.Log;
 import io.github.repir.MapReduceTools.RRConfiguration;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -181,10 +181,10 @@ public class TestSet {
    public static HashMap<Integer, TestSetTopic> readTopics(Repository repository) {
         String topicreaderclass = repository.configuredString("testset.topicreader", TopicReaderTREC.class.getSimpleName());
         try {
-            Class clazz = io.github.repir.tools.lib.ClassTools.toClass(topicreaderclass, TopicReader.class.getPackage().getName());
-            Constructor c = io.github.repir.tools.lib.ClassTools.getAssignableConstructor(clazz, TopicReader.class, Repository.class);
+            Class clazz = io.github.htools.lib.ClassTools.toClass(topicreaderclass, TopicReader.class.getPackage().getName());
+            Constructor c = io.github.htools.lib.ClassTools.getAssignableConstructor(clazz, TopicReader.class, Repository.class);
 
-            TopicReader tr = (TopicReader) io.github.repir.tools.lib.ClassTools.construct(c, repository);
+            TopicReader tr = (TopicReader) io.github.htools.lib.ClassTools.construct(c, repository);
             HashMap<Integer, TestSetTopic> topics = tr.getTopics();
             for (String t : repository.configuredStrings("testset.droppedtopics")) {
               if (t.trim().length() > 0)
@@ -246,6 +246,6 @@ public class TestSet {
       Content entity = new Content();
       entity.setContent(query.getBytes());
       extractor.process(entity);
-      return io.github.repir.tools.lib.ByteTools.toString(entity.content, 0, entity.content.length);
+      return io.github.htools.lib.ByteTools.toString(entity.content, 0, entity.content.length);
    }
 }

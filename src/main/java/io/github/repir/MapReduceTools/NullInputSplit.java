@@ -1,9 +1,9 @@
 package io.github.repir.MapReduceTools;
 
 import io.github.repir.Repository.Repository;
-import io.github.repir.tools.io.buffer.BufferDelayedWriter;
-import io.github.repir.tools.io.buffer.BufferReaderWriter;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.io.buffer.BufferDelayedWriter;
+import io.github.htools.io.buffer.BufferReaderWriter;
+import io.github.htools.lib.Log;
 import org.apache.hadoop.io.NullWritable;
 
 /**

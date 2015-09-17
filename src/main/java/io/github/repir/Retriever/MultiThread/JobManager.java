@@ -2,7 +2,7 @@ package io.github.repir.Retriever.MultiThread;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 
 /**
  * Manages multi-threaded retrieval jobs.

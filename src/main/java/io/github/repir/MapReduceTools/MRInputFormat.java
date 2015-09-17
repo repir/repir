@@ -1,7 +1,7 @@
 package io.github.repir.MapReduceTools;
 
 import io.github.repir.Repository.Repository;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;

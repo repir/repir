@@ -1,7 +1,7 @@
 package io.github.repir.Retriever.Tuner;
 
 import io.github.repir.Retriever.MapReduce.CollectorKey;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 
 /**
  * Force using a single reducer for tuning, to avoid concurrent writes.

@@ -3,8 +3,8 @@ package io.github.repir.TestSet;
 import io.github.repir.Retriever.Document;
 import io.github.repir.Retriever.Query;
 import io.github.repir.TestSet.Metric.QueryMetric;
-import io.github.repir.tools.io.Datafile;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.io.Datafile;
+import io.github.htools.lib.Log;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -81,7 +81,7 @@ public class ResultSet {
 
     public double getMean() {
         if (mean == -1 && validqueries.size() > 0) {
-            mean = io.github.repir.tools.lib.DoubleTools.sum(queryresult) / validqueries.size();
+            mean = io.github.htools.lib.DoubleTools.sum(queryresult) / validqueries.size();
         }
         return mean;
     }

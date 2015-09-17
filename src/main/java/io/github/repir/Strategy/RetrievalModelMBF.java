@@ -18,7 +18,7 @@ import io.github.repir.Strategy.Operator.Operator;
 import io.github.repir.Strategy.Operator.QTerm;
 import io.github.repir.Strategy.RetrievalModel;
 import io.github.repir.Strategy.ScoreFunction.ScoreFunctionKLD;
-import io.github.repir.tools.lib.Log;
+import io.github.htools.lib.Log;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
